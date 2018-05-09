@@ -1,0 +1,65 @@
+body {
+  background: #f0e7dc;
+  margin: 50px;
+}
+
+.content {
+  line-height: 1.5em;
+  width: 750px;
+  margin: 0 auto;
+  padding: 50px;
+  background: white;
+}
+
+p, ul {
+  font-size: 14px;
+}
+
+iframe {
+  display: block;
+  margin: 0 auto;
+}
+
+.me {
+  width: 30%;
+  float: left;
+  margin-right: 25px;
+}
+
+.contact {
+  margin-top: 15px;
+}
+
+.contact > p {
+  margin: 0;
+}
+
+.navigation {
+  width: 100%;
+	float: left;
+	padding: 30px 0;
+}
+
+.navigation ul {
+  padding: 0;
+  list-style: none;
+}
+
+.navigation li {
+  float: left;
+}
+
+.navigation li a {
+  display: block;
+	padding: 8px 15px;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.middle-vid {
+  margin: 50px auto;
+}
+
+.last-updated {
+  text-align: center;
+}
