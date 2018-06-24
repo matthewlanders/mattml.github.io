@@ -1,14 +1,16 @@
-body {
-  background: #f0e7dc;
-  margin: 50px;
-}
-
 .content {
   line-height: 1.5em;
-  width: 750px;
+  width: 850px;
   margin: 0 auto;
-  padding: 50px;
   background: white;
+}
+
+.bio-header {
+  padding-top: 0;
+}
+
+h3 {
+  padding-top: 25px;
 }
 
 p, ul {
@@ -41,7 +43,6 @@ iframe {
 }
 
 .navigation ul {
-  padding: 0;
   list-style: none;
 }
 
