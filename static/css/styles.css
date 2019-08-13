@@ -1,14 +1,15 @@
 body {
-  background: #f0e7dc;
+  background: #edf0f2;
   margin: 50px;
 }
 
 .content {
   line-height: 1.5em;
-  width: 750px;
+  width: 800px;
   margin: 0 auto;
   padding: 50px;
   background: white;
+  box-shadow: 0 0 8px rgba(0,0,0,0.3);
 }
 
 p, ul {
@@ -21,7 +22,7 @@ iframe {
 }
 
 .me {
-  width: 30%;
+  width: 28%;
   float: left;
   margin-right: 25px;
 }
