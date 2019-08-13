@@ -41,13 +41,9 @@ iframe {
 	padding: 30px 0;
 }
 
-.navigation ul {
-  padding: 0;
-  list-style: none;
-}
-
 .navigation li {
   float: left;
+  display: inline-block;
 }
 
 .navigation li a {
