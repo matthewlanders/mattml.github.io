@@ -2,6 +2,10 @@
   text-align: left;
 }
 
+a {
+  color: #3d5a80 !important;
+}
+
 body {
   max-width: 89ch !important;
 }
