@@ -7,7 +7,7 @@ a {
 }
 
 body {
-  max-width: 89ch !important;
+  max-width: 95ch !important;
 }
 
 p, ul {
@@ -37,11 +37,22 @@ iframe {
   float: left;
   width: 100%;
   padding-bottom: 30px;
+  text-align: center;
+  margin-top: 40px;
 }
 
 .navigation li {
   float: left;
   display: inline-block;
+}
+
+.navigation ul {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    /* For IE, the outcast */
+    zoom:1;
+    *display: inline;
 }
 
 .navigation li a {
@@ -53,4 +64,8 @@ iframe {
 
 .middle-vid {
   margin: 50px auto;
+}
+
+h6 {
+  margin-top: 0.8rem !important;
 }
