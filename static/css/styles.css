@@ -1,17 +1,18 @@
+body {
+  font-size: 16px;
+  margin: 0 auto;
+  line-height: 150%;
+  max-width: 750px;
+  padding: 0 10px;
+}
+
 #name {
   text-align: left;
 }
 
-a {
-  color: #3d5a80 !important;
-}
-
-body {
-  max-width: 95ch !important;
-}
-
-p, ul {
-  font-size: 14px;
+.header {
+  margin: 0 auto;
+  padding-top: 50px;
 }
 
 iframe {
@@ -20,17 +21,21 @@ iframe {
 }
 
 .me {
-  width: 28%;
+  width: 25%;
   float: left;
   margin-right: 25px;
 }
 
-.contact {
-  margin-top: 15px;
+li.publications:not(:last-child) {
+   margin-bottom: 20px;
 }
 
-.contact > p {
-  margin: 0;
+h3 {
+  margin-top: 50px;
+}
+
+li:not(:last-child) {
+   margin-bottom: 10px;
 }
 
 .navigation {
@@ -57,15 +62,28 @@ iframe {
 
 .navigation li a {
   display: block;
-	padding: 8px 15px;
-	text-decoration: none;
-	font-weight: bold;
+  padding: 8px 15px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+#clients {
+  margin-bottom: 10px;
 }
 
 .middle-vid {
   margin: 50px auto;
 }
 
-h6 {
-  margin-top: 0.8rem !important;
+.last-updated {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+@media screen and (max-width: 750px) {
+    iframe {
+        max-width: 100% !important;
+        width: auto !important;
+        height: auto !important;
+    }
 }
