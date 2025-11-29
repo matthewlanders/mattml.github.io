@@ -1,0 +1,318 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Bayes&rsquo; Theorem for Probability Distributions</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html" class="current">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Bayes&rsquo; Theorem for Probability Distributions</h1>
+</div>
+<p><i>Revised July 10, 2025</i>
+</p>
+<p>Bayesian statistics provides a principled approach for incorporating prior knowledge into statistical inference. In this framework, uncertainty about an unknown parameter is encoded using a probability distribution, known as the prior. As data are observed, this prior is updated to a posterior distribution, which reflects both the prior belief and the evidence provided by the data. With increasing sample size, the posterior typically becomes less sensitive to the prior, allowing the data to dominate the inference.
+</p>
+<p>Consider estimating the proportion of women in a university population. Let \(X_1, \dots, X_n\) be independent binary observations drawn with replacement, where \(X_i = 1\) indicates a woman and \(X_i = 0\) otherwise. A standard point estimate of the proportion \(\theta \in [0,1]\) is the empirical mean:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \hat{\theta} = \frac{1}{n} \sum_{i=1}^n X_i \;,
+\end{equation*}
+\]
+</p><p>which coincides with the maximum likelihood estimate under a Bernoulli model. While this estimate is efficient in large samples, it can behave poorly when \(n\) is small — for example, producing \(\hat{\theta} = 0\) or \(1\), which are extreme and implausible. Bayesian estimators incorporate prior information and naturally regularize such estimates toward more reasonable values, such as \(\theta \approx 0.5\).
+</p>
+<p>In the Bayesian framework, \(\theta\) is treated as a random variable. Uncertainty about its value is encoded by a probability distribution over \([0,1]\), reflecting subjective belief rather than inherent randomness. This contrasts with the frequentist approach, which regards \(\theta\) as a fixed but unknown constant and does not assign it a probability distribution.
+</p>
+<p>Bayesian inference specifies a prior and a likelihood, which together determine the posterior distribution over \(\theta\). More specifically, the prior captures the initial belief about \(\theta\), and the likelihood models the data generation process conditional on \(\theta\). The posterior represents the distribution of \(\theta\) conditional on the observed data. It is obtained by combining the prior \(\pi(\theta)\) with the likelihood function \(p(\mathbf{X} \mid \theta)\) using Bayes&rsquo; theorem. This yields an updated distribution that reflects both prior belief and the evidence provided by the data. Repeated applications of this framework support sequential inference: the posterior after observing one dataset serves as the prior before observing the next.
+</p>
+<h3>Specifying the Prior Distribution</h3>
+<p>Returning to the university gender distribution example, consider the problem of specifying a prior distribution for the unknown parameter \(\theta \in [0,1]\), representing the proportion of women in the population. Prior uncertainty about \(\theta\) may be expressed through subjective probability statements — for example, assigning 90% probability to the interval \([0.4, 0.6]\) and 95% to \([0.3, 0.8]\). There are many ways to represent such beliefs, but not all choices are mathematically convenient. For instance, one could construct a custom multimodal distribution with several shape parameters, but this would complicate both analytical derivations and numerical computations.
+</p>
+<p>Not all belief distributions are valid priors, as the model's parameter space constrains admissible choices. In particular, the prior's support must match the domain of the parameter. For Bernoulli-distributed observations, as in our example, this domain is \([0,1]\), making the Beta distribution a natural choice. The Beta family is defined over \([0,1]\) and parameterized by two positive shape parameters, \(\alpha\) and \(\beta\). It can express a wide variety of belief profiles — from uniform ignorance to sharply peaked certainty — while remaining analytically tractable. This flexibility enables the prior to capture both the location of belief (e.g., \(\theta \approx 0.5\)) and the strength of that belief. For example, a sharply peaked Beta distribution centered at \(0.5\) indicates a high degree of certainty in a roughly equal gender split, whereas a flatter distribution reflects greater uncertainty.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/bayes-distributions/beta-priors.png" alt="beta priors" width="450px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<table id="caption">
+<tr class="r1"><td class="c1">Examples of Beta priors over \(\theta \in [0,1]\). The shape parameters \((\alpha, \beta)\) control both the location and concentration of belief, yielding uniform, symmetric, or skewed distributions.
+</td></tr></table>
+<p>Although \(\theta\) itself is a fixed but unknown quantity, Bayesian analysis represents uncertainty about its value by modeling it as a random variable. The prior distribution \(\theta \sim \text{Beta}(\alpha, \beta)\) encodes this uncertainty. The use of probability to quantify <a href="glossary.html" target=&ldquo;blank&rdquo;>epistemic uncertainty</a> (rather than <a href="glossary.html" target=&ldquo;blank&rdquo;>aleatoric randomness</a>) is a defining feature of the Bayesian framework. Although the true value of \(\theta\) is not random in any physical sense, treating it as such for inference purposes provides a coherent and flexible modeling approach.
+</p>
+<h3>Generating the Data Based on the Parameters</h3>
+<p>Continuing with the university example, suppose the unknown parameter \(\theta\) represents the proportion of women in the population (about which we have a prior belief). Data are generated by sampling \(n\) individuals at random. Let \(X_i = 1\) if the \(i\)-th individual is a woman and \(X_i = 0\) otherwise. Assuming independent sampling (e.g., with replacement), the result is a sequence of conditionally independent Bernoulli trials, each with success probability \(\theta\).
+</p>
+<p>Formally, the observations \(X_1, \dots, X_n\) are modeled as conditionally independent given \(\theta\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:data-generation}
+	X_i \mid \theta \sim \text{Ber}(\theta) \;.
+\end{equation}
+\]
+</p><p>This sampling process is equivalent to flipping \(n\) independent biased coins. For example, if \(\theta = 0.75\), each \(X_i\) can be generated by drawing an independent value \(x_i \sim \text{Uniform}(0,1)\) and setting \(X_i = 1\) if \(x_i &lt; \theta\), and \(X_i = 0\) otherwise.
+</p>
+<h3>Updating the Prior Belief</h3>
+<p>After observing data, the prior distribution over \(\theta\) is updated by conditioning on the observed sample using Bayes&rsquo; Theorem:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    P(A \mid B) = \frac{P(A \cap B)}{P(B)} = \frac{P(B \mid A)\, P(A)}{P(B)} \;,
+\end{equation*}
+\]
+</p><p>where \(P(A \mid B)\) corresponds to the posterior, \(P(B \mid A)\) to the likelihood, and \(P(A)\) to the prior. The continuous analogue is defined as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:posterior}
+    \pi(\theta \mid \mathbf{X}) = \frac{p_n(\mathbf{X} \mid \theta) \pi(\theta)}{\int_\Theta p_n(\mathbf{X} \mid \theta) \pi(\theta) \, d\theta} \;.
+\end{equation}
+\]
+</p><p>where \(\pi(\cdot)\) is the prior density over the parameter space \(\Theta\), \(\mathbf{X} = (X_1, \dots, X_n)\) is the observed data, \(p_n(\cdot \mid \theta)\) is the joint probability mass function of \(\mathbf{X}\) given \(\theta\), and \(\pi(\theta \mid \mathbf{X})\) is the posterior density.
+</p>
+<p>The denominator ensures normalization and is referred to as the <i>marginal likelihood</i>. In practice, it is often treated as a constant when focusing on the shape of the posterior. Evaluating Equation \(\eqref{eq:posterior}\) therefore reduces to computing the likelihood and the prior.
+</p>
+<p>The prior \(\pi(\theta)\) is typically specified directly. The likelihood \(p_n(\mathbf{X} \mid \theta)\), by contrast, must be derived from the assumed data-generating process. It quantifies how probable the observed data are for each possible value of the parameter and serves as the conduit through which data influence the posterior.
+</p>
+<p>Assume that conditioned on \(\theta \in [0,1]\), the data are independently distributed (Equation \(\eqref{eq:data-generation}\)). The Bernoulli distribution assigns probability \(\theta\) to \(X_i = 1\) and \(1 - \theta\) to \(X_i = 0\). For a given observation \(x_i \in \{0,1\}\), the mass function is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    P(X_i = x_i \mid \theta) = \theta^{x_i}(1 - \theta)^{1 - x_i} \;.
+\end{equation*}
+\]
+</p><p>Conditional independence implies the likelihood factorizes:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    p_n(\mathbf{X} \mid \theta) &amp;= \prod_{i=1}^n \theta^{X_i}(1 - \theta)^{1 - X_i} \nonumber \\
+    &amp;= \theta^{\sum_{i=1}^n X_i}(1 - \theta)^{n - \sum_{i=1}^n X_i} &amp;&amp; \text{collecting exponents} \nonumber \\
+    &amp;= \theta^S(1 - \theta)^{n - S} \;, \label{eq:likelihood}
+\end{align}
+\]
+</p><p>where \(S = \sum_{i=1}^n X_i\) is the number of observed successes.
+</p>
+<p>Assume the prior is Beta distributed: \(\theta \sim \text{Beta}(\alpha, \beta)\), with density proportional to:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:beta-kernel}
+    \pi(\theta) \propto \theta^{\alpha - 1}(1 - \theta)^{\beta - 1} \;.
+\end{equation}
+\]
+</p><p>Multiplying the likelihood and prior yields the unnormalized posterior:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:unnormalized-posterior}
+    \pi(\theta \mid \mathbf{X}) \propto \theta^S(1 - \theta)^{n - S} \cdot \theta^{\alpha - 1}(1 - \theta)^{\beta - 1}
+    = \theta^{\alpha - 1 + S}(1 - \theta)^{\beta - 1 + n - S} \;.
+\end{equation}
+\]
+</p><div class="infoblock">
+<div class="blockcontent">
+<p><b>Conjugate Prior</b>
+</p>
+<p>Multiplying the likelihood (Equation \(\eqref{eq:likelihood}\)) by the prior (Equation \(\eqref{eq:beta-kernel}\)) yields the unnormalized posterior in Equation \(\eqref{eq:unnormalized-posterior}\). This expression matches the <a href="glossary.html" target=&ldquo;blank&rdquo;>kernel</a> of a Beta distribution with updated parameters, allowing the posterior to be defined as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:posterior-beta}
+    \theta \mid \mathbf{X} \sim \text{Beta}(\alpha + S, \; \beta + n - S) \;.
+\end{equation}
+\]
+</p><p>This example illustrates conjugacy. In general, a prior is <i>conjugate</i> to a likelihood if the resulting posterior distribution belongs to the same parametric family as the prior.
+</p>
+<p>Conjugacy offers analytical convenience, as the posterior distribution belongs to the same parametric family as the prior. This allows the denominator in Equation \(\eqref{eq:posterior}\) to be obtained without evaluating the integral — it can simply be <a href="https://en.wikipedia.org/wiki/Beta_distribution" target=&ldquo;blank&rdquo;>looked up</a>. For example, for any Beta distribution with parameters \((a, b)\), the normalizing constant is the reciprocal of the Beta function \(B(a,b)\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \frac{1}{B(a,b)} = \frac{\Gamma(a + b)}{\Gamma(a)\, \Gamma(b)} \;,
+\end{equation*}
+\]
+</p><p>where \(\Gamma\) is the <a href="https://en.wikipedia.org/wiki/Gamma_function" target=&ldquo;blank&rdquo;>Gamma function</a>. For a posterior \(\text{Beta}(\alpha_{post}, \beta_{post})\), the normalizing constant is computed by substituting \(a = \alpha_{post}\) and \(b = \beta_{post}\).
+</p>
+<p>Non-conjugate priors, by contrast, typically yield posterior distributions without closed-form expressions, requiring numerical approximation of the normalizing constant.
+</p>
+</div></div>
+<h3>Inference from the Posterior</h3>
+<p>Given observed data \(\mathbf{X} = (X_1, \dots, X_n)\) and a Beta prior \(\text{Beta}(\alpha, \beta)\), the posterior distribution over the unknown proportion \(\theta\) is \(\text{Beta}(\alpha_{post}, \beta_{post})\), where, by Equation \(\eqref{eq:posterior-beta}\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \alpha_{post} = \alpha + \sum_{i=1}^n X_i \;, \quad \beta_{post} = \beta + n - \sum_{i=1}^n X_i \;.
+\end{equation*}
+\]
+</p><p>This posterior encodes all available information about \(\theta\), combining prior beliefs and empirical observations under the specified model. Inference proceeds by computing relevant functionals of this distribution.
+</p>
+<h4>Point Estimates</h4>
+<p>Several scalar summaries of the posterior distribution \(\text{Beta}(\alpha_{post}, \beta_{post})\) serve as point estimates of \(\theta\), each minimizing a different loss function.
+</p>
+<p>The <i>posterior mean</i>, which minimizes expected squared error loss, is given by
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \hat{\theta}_{\text{mean}} = \mathbb{E}[\theta \mid \mathbf{X}] = \frac{\alpha_{post}}{\alpha_{post} + \beta_{post}} = \frac{\alpha + \sum X_i}{\alpha + \beta + n} \;.
+\end{equation*}
+\]
+</p><p>This follows from the <a href="https://en.wikipedia.org/wiki/Beta_distribution" target=&ldquo;blank&rdquo;>known expectation</a> of the Beta\((\alpha, \beta)\) distribution. Such an estimate combines prior pseudo-counts \((\alpha, \beta)\) with empirical counts \((\sum X_i, n - \sum X_i)\), and converges to the empirical mean \(\hat{\theta} = \frac{1}{n} \sum X_i\) as \(n\) increases.
+</p>
+<p>The <i>posterior median</i> minimizes expected absolute error and satisfies \(P(\theta \le m \mid \mathbf{X}) = 0.5\). While the Beta distribution has no closed-form expression for its median, it can be computed numerically via the inverse cumulative distribution function.
+</p>
+<p>The <i>posterior mode</i>, or maximum a posteriori (MAP) estimate, maximizes the posterior density. For \(\alpha_{post} &gt; 1\) and \(\beta_{post} &gt; 1\), it is <a href="https://en.wikipedia.org/wiki/Beta_distribution" target=&ldquo;blank&rdquo;>given by</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \hat{\theta}_{\text{MAP}} = \frac{\alpha_{post} - 1}{\alpha_{post} + \beta_{post} - 2} = \frac{(\alpha - 1) + \sum X_i}{(\alpha - 1) + (\beta - 1) + n} \;.
+\end{equation*}
+\]
+</p><p>If \(\alpha_{post} \le 1\) or \(\beta_{post} \le 1\), the mode lies at the boundary or the distribution may be U-shaped. The MAP estimate generalizes the maximum likelihood estimate by incorporating prior regularization.
+</p>
+<h4>Credible Intervals</h4>
+<p>Bayesian inference permits interval estimates of \(\theta\) by identifying a region in which the posterior probability mass is concentrated. A \((1 - \gamma) \times 100\%\) credible interval is any interval \([L, U] \subset [0,1]\) such that:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    P(L \le \theta \le U \mid \mathbf{X}) = \int_L^U \pi(\theta \mid \mathbf{X})\, d\theta = 1 - \gamma \;.
+\end{equation*}
+\]
+</p><p>In the Bayesian framework, this quantity represents the probability that \(\theta\) lies within \([L, U]\), conditional on the observed data. In contrast to frequentist confidence intervals, which concern long-run coverage under repeated sampling, credible intervals characterize uncertainty about a fixed but unknown parameter.
+</p>
+<p>Two constructions are standard and commonly used. The <i>equal-tailed interval</i> is defined by the \(\gamma/2\) and \(1 - \gamma/2\) <a href="glossary.html" target=&ldquo;blank&rdquo;>quantiles</a> of the posterior distribution. For a Beta posterior \(\text{Beta}(\alpha_{post}, \beta_{post})\), the bounds are given by:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L = F^{-1}_{\text{Beta}}(\gamma/2; \alpha_{post}, \beta_{post}) \;, \quad
+    U = F^{-1}_{\text{Beta}}(1 - \gamma/2; \alpha_{post}, \beta_{post}) \;,
+\end{equation*}
+\]
+</p><p>where \(F^{-1}_{\text{Beta}}\) denotes the inverse cumulative distribution function of the Beta distribution.
+</p>
+<p>An alternative is the <i>highest posterior density</i> (HPD) interval, which contains the smallest-length interval \([L, U]\) such that:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \int_L^U \pi(\theta \mid \mathbf{X})\, d\theta = 1 - \gamma \;,
+\end{equation*}
+\]
+</p><p>and every point inside the interval has posterior density at least as great as any point outside.
+</p>
+<p>In many common cases, such as when the posterior is unimodal and the interval lies strictly within the support, the endpoints satisfy \(\pi(L \mid \mathbf{X}) = \pi(U \mid \mathbf{X})\). However, this condition does not hold in general. For example, when the posterior is U-shaped (e.g., \(\alpha_{\text{post}} &lt; 1\) and \(\beta_{\text{post}} &lt; 1\)), or when it concentrates at the boundary (e.g., \(\text{Beta}(0.5, 2)\)), the HPD interval may include \(0\) or \(1\) as an endpoint, where the density may be infinite or behave asymmetrically. In such cases, the defining property of the HPD interval is not that the density is equal at the endpoints, but that the interval is the shortest one containing the desired posterior mass.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://link.springer.com/chapter/10.1007/978-0-387-71265-9_3" target=&ldquo;blank&rdquo;>Basics of Bayesian Statistics</a>,
+Introduction to Applied Bayesian Statistics and Estimation for Social Scientists (2007)</dt>
+<dd><p>Scott M. Lynch
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://web.stanford.edu/class/stats200/Lecture20.pdf" target=&ldquo;blank&rdquo;>Bayesian analysis</a>,
+Stanford STATS 200: Introduction to Statistical Inference (2016)</dt>
+<dd><p>Zhou Fan
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.youtube.com/watch?v=bFZ-0FH5hfs&amp;ab_channel=MITOpenCourseWare" target=&ldquo;blank&rdquo;>Bayesian Statistics [video]</a>,
+MIT 18.650 Statistics for Applications (2016)</dt>
+<dd><p>Philippe Rigollet
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.youtube.com/watch?v=k2inA31Gups&amp;t=5s&amp;ab_channel=MITOpenCourseWare" target=&ldquo;blank&rdquo;>Bayesian Statistics (cont.) [video]</a>,
+MIT 18.650 Statistics for Applications (2016)</dt>
+<dd><p>Philippe Rigollet
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.mas.ncl.ac.uk/~nlf8/teaching/mas2317/notes/chapter2.pdf" target=&ldquo;blank&rdquo;>Chapter 2: Bayes&rsquo; Theorem for Distributions Lecture Notes</a>,
+Newcastle University MAS2317/3317: Introduction to Bayesian Statistics (2013)</dt>
+<dd><p>Lee Fawcett
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

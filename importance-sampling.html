@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Importance Sampling</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html" class="current">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Importance Sampling</h1>
+</div>
+<p><i>Revised December 2, 2024</i>
+</p>
+<p><i>The <a href="off-policy-control-with-function-approximation.html" target=&ldquo;blank&rdquo;>Off-Policy Control with Function Approximation note</a> is optional but recommended background reading.</i>
+</p>
+<p>For a random variable \(X\) with probability mass function \(\pi\), the expected value is given by:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:general_IS}
+    \mathbb{E}_{X \sim \pi}[f(X)] = \sum_x f(x) \pi(x) \;,
+\end{equation}
+\]
+</p><p>where \(f\) is a measurable function that assigns a real-valued output to each element of the sample space.
+</p>
+<p>In RL, a sample \(x\) is often a state-action trajectory \((a_t, s_{t+1}, a_{t+1}, \dots, s_T)\), \(f(x)\) is the <a href="mdp.html" target=&ldquo;blank&rdquo;>total return</a> \(G_t\) associated with that trajectory, and \(\pi\) is a policy. The resulting expectation \(\mathbb{E}_{X \sim \pi}[f(X)]\) then represents the expected return under the distribution \(\pi\) over trajectories.
+</p>
+<p>This formulation aligns naturally with <a href="glossary.html" target=&ldquo;blank&rdquo;>on-policy</a> learning, where the policy used to generate data matches the target policy \(\pi\). In <a href="glossary.html" target=&ldquo;blank&rdquo;>off-policy learning</a>, however, the data are generated by a behavior policy \(\pi_\beta\) that differs from the target policy \(\pi\), which we aim to evaluate and/or improve. Formally, this means that \(X \not\sim \pi\), but rather \(X \sim \pi_\beta\). To account for the discrepancies between the behavior and target policies, we use <i>importance sampling</i>, a collection of methods for approximating a mathematical expectation under one distribution (in this case, \(\pi\)) by reweighting samples drawn from another distribution (in this case, \(\pi_\beta\)).
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>Importance sampling in RL vs. traditional Monte Carlo approximation</b>
+</p>
+<p>In this note, we refer to the RL meaning of &ldquo;importance sampling&rdquo;, which differs from its usage in traditional Monte Carlo (MC) approximation literature. In RL, we estimate the value function for a target policy \(\pi\) using data generated by a behavior policy \(\pi_\beta\), often resulting in an importance sampling estimator with higher variance than on-policy MC methods. In contrast, traditional MC importance sampling focuses on designing a proposal distribution \(q\) to <i>reduce</i> the variance of estimates.
+</p>
+<p>More specifically, in traditional MC methods, the goal is to estimate an expectation with respect to a target distribution \(p(x)\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+  \mathbb{E}_{p}[f(x)] = \int f(x) p(x) \, dx \;.
+\end{equation*}
+\]
+</p><p>Importance sampling is used to improve the efficiency of the estimator by sampling from a carefully chosen proposal distribution \(q(x)\) instead of \(p(x)\). The estimator becomes:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+  \mathbb{E}_{p}[f(x)] = \int f(x) \frac{p(x)}{q(x)} q(x) \, dx = \mathbb{E}_{q}\left[ f(x) \frac{p(x)}{q(x)} \right] \;.
+\end{equation*}
+\]
+</p><p>The proposal distribution \(q(x)\) is designed to reduce the variance of the estimator by ensuring that \(q(x)\) is large where \(|f(x) p(x)|\) is large and by matching \(q(x)\) closely to the integrand's shape, particularly in regions that contribute most to the integral. By appropriately choosing \(q(x)\), importance sampling in traditional MC can lead to estimators with lower variance than those obtained by sampling directly from \(p(x)\).
+</p>
+</div></div>
+<p>Using importance sampling, we can estimate the value of Equation \(\eqref{eq:general_IS}\) for our target policy \(\pi\) as:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \mathbb{E}_{X \sim \pi}[f(X)] &amp;= \sum \pi(x) f(x) \nonumber \\
+    &amp;= \sum \frac{\pi_\beta(x)}{\pi_\beta(x)} \pi(x) f(x) \nonumber \\
+    &amp;= \sum \pi_\beta(x) \frac{\pi(x)}{\pi_\beta(x)} f(x) \nonumber \\
+    &amp;= \mathbb{E}_{X \sim \pi_\beta} \left[\frac{\pi(x)}{\pi_\beta(x)} f(x) \right] \label{eq:transformed-expectation} \;.
+\end{align}
+\]
+</p><p>For the continuous case, with \(\pi\) representing a probability density, this becomes:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \mathbb{E}_{X \sim \pi}[f(X)] &amp;= \int \pi(x) f(x) \, dx \\
+    &amp;= \int \pi_\beta(x) \frac{\pi(x)}{\pi_\beta(x)} f(x) \, dx \\
+    &amp;= \mathbb{E}_{X \sim \pi_\beta} \left[\frac{\pi(x)}{\pi_\beta(x)} f(x) \right] \\
+    &amp;\approx \frac{1}{n} \sum_{j=1}^{n} \frac{\pi(x_j)}{\pi_\beta(x_j)} f(x_j) \;,
+\end{align*}
+\]
+</p><p>where \(\{x_j\}_{j=1}^n\) are samples drawn from the behavior policy \(\pi_\beta\).
+</p>
+<p>The term \(\frac{\pi(x)}{\pi_\beta(x)}\) is known as the <i>importance sampling ratio</i>. Intuitively, this ratio represents the relative likelihood of observing a sample \(x\) under the target policy \(\pi\) compared to the behavior policy \(\pi_\beta\). It acts as a correction factor to account for the mismatch between the two distributions.
+</p>
+<p>To estimate values for the target policy \(\pi\) using episodes generated under the behavior policy \(\pi_\beta\), it is necessary that every action taken by \(\pi\) is also executed, at least occasionally, under \(\pi_\beta\). Formally, if \(\pi(a \mid s) &gt; 0\), then it must also hold that \(\pi_\beta(a \mid s) &gt; 0\). This condition, known as the <i>assumption of coverage</i>, ensures that the importance sampling ratio remains well-defined. Without this condition, the denominator in the ratio becomes zero, making it impossible to reweight samples for accurate value estimation under the target policy.
+</p>
+<p>The assumption of coverage implies that \(\pi_\beta\) must be stochastic in all states in which it differs from \(\pi\). The target policy \(\pi\), by contrast, can be deterministic. Deterministic target policies are commonly used in real-world control applications, where \(\pi\) is often the greedy policy with respect to the current estimate of the value function. Over time, this greedy policy may converge to a deterministic optimal policy, while the behavior policy \(\pi_\beta\) remains stochastic and exploratory — for example, as an \(\epsilon\)-greedy policy. In this note, however, we focus on the <a href="glossary.html" target=&ldquo;blank&rdquo;>prediction</a> problem, where the target policy \(\pi\) is fixed and given.
+</p>
+<p>In <a href="model-free-prediction.html" target=&ldquo;blank&rdquo;>Monte Carlo prediction</a>, the value function is estimated using an episode's full trajectory. For a starting state \(s_t\) and a policy \(\pi\), the probability of observing a subsequent state–action trajectory \(a_t, s_{t+1}, a_{t+1}, \dots, s_T\) is:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \mathbb{P}[a_t, s_{t+1}, a_{t+1}, \dots, s_T \mid s_t, A_{t:T-1} \sim \pi]
+    &amp;= \pi(a_t \mid s_t) P(s_t, a_t, s_{t+1}) \pi(a_{t+1} \mid s_{t+1}) \dots P(s_{T-1}, a_{T-1}, s_T) \\
+    &amp;= \prod_{k=t}^{T-1} \pi(a_k \mid s_k) P(s_k, a_k, s_{k+1}) \;,
+\end{align*}
+\]
+</p><p>where \(P\) is the <a href="mdp.html" target=&ldquo;blank&rdquo;>transition probability function</a>.
+</p>
+<p>The importance sampling ratio is then expressed as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:IS_ratio}
+    \rho_{t:T-1} = \frac{\prod_{k=t}^{T-1} \pi(a_k \mid s_k) \color{red}{P(s_k, a_k, s_{k+1})}}
+    {\prod_{k=t}^{T-1} \pi_\beta(a_k \mid s_k) \color{red}{P(s_k, a_k, s_{k+1})}}
+    = \prod_{k=t}^{T-1} \frac{\pi(a_k \mid s_k)}{\pi_\beta(a_k \mid s_k)} \;.
+\end{equation}
+\]
+</p><p>While the trajectory probabilities depend on the MDP's transition dynamics \(P\) (which are generally unknown) these terms (highlighted in red in Equation \(\eqref{eq:IS_ratio}\)) appear in both the numerator and denominator and thus cancel out. Consequently, the importance sampling ratio depends only on the two policies \(\pi\) and \(\pi_\beta\) and the observed sequence of actions and states, not on the specifics of the MDP.
+</p>
+<p>From Equation \(\eqref{eq:IS_ratio}\), we can define the importance-sampled return for the target policy \(\pi\) by reweighting the return \(G_t\) obtained under the behavior policy \(\pi_\beta\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    G_t^{\pi / \pi_\beta} &amp;= \rho_{t:T-1} G_t \\
+    &amp;= \prod_{k=t}^{T-1} \frac{\pi(a_k \mid s_k)}{\pi_\beta(a_k \mid s_k)} G_t
+    &amp;&amp; \text{cf. Equation } \eqref{eq:transformed-expectation} \;.
+\end{align*}
+\]
+</p><p>This corrected return serves as an estimator for the expected return. The update rule is then given by:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    V(s_t) \gets V(s_t) + \alpha \left( G_t^{\pi / \pi_\beta} - V(s_t) \right) \;.
+\end{equation*}
+\]
+</p><p>In Equation \(\eqref{eq:IS_ratio}\), the importance sampling ratio is applied across the entire trajectory. Over long trajectories, the product of importance sampling ratios tends to either shrink or grow exponentially, leading to large imbalances in the weights. This imbalance causes most sampled trajectories to contribute very little to the estimate (due to small weights), while a few trajectories dominate (due to large weights). Consequently, the <i>effective sample size</i> (ESS), which intuitively represents the number of &ldquo;useful&rdquo; samples contributing meaningfully to the estimate, decreases. A smaller ESS leads to unreliable estimates, as the contribution from most samples becomes negligible, and the estimate relies heavily on a few trajectories with large weights. This phenomenon, along with the increased variance inherent in importance sampling, significantly limits the practicality of Monte Carlo methods for off-policy learning.
+</p>
+<p><a href="glossary.html" target=&ldquo;blank&rdquo;>Temporal Difference (TD) learning</a>, by contrast, uses bootstrapping. This means importance sampling is applied over every <a href="model-free-prediction.html" target=&ldquo;blank&rdquo;>\(n\) steps</a>, rather than across the entire trajectory:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    V(s_t) \gets V(s_t) + \alpha \left( \rho_{t:t+n-1} \left( G_{t:t+n} - V(s_t) \right) \right) &amp;&amp; 0 \leq t &lt; T \;,
+\end{align*}
+\]
+</p><p>where \(G_{t:t+n}\) is the \(n\)-step return and \(\rho_{t:t+n-1}\) is the importance sampling ratio for \(n\) steps given by:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+  \rho_{t:h} = \prod_{k=t}^{\min(h,T-1)} \frac{\pi(a_k \mid s_k)}{\pi_\beta(a_k \mid s_k)} \;.
+\end{align*}
+\]
+</p><p>For instance, with the one-step return, the update becomes:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    V(s_t) \gets V(s_t) + \alpha \left( \frac{\pi(a_t \mid s_t)}{\pi_\beta(a_t \mid s_t)}
+    \left( r_{t+1} + \gamma V(s_{t+1}) - V(s_t) \right) \right) \;.
+\end{align*}
+\]
+</p><p>Because importance sampling is applied over shorter horizons, the compounding effects of importance sampling ratios are limited, resulting in smaller variance in TD learning compared to MC methods. This reduced sensitivity to discrepancies between the target policy and the behavior policy makes TD methods generally more stable for off-policy learning.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="http://incompleteideas.net/book/the-book-2nd.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction</a>
+(2018)</dt>
+<dd><p>Richard S. Sutton and Andrew G. Barto
+</p></dd>
+</dl>
+<dl>
+<dt><a href="http://www2.stat.duke.edu/~st118/Publication/impsamp.pdf" target=&ldquo;blank&rdquo;>Importance Sampling: A Review</a> (2010)</dt>
+<dd><p>
+Surya T Tokdar and Robert E Kass
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.davidsilver.uk/teaching/" target=&ldquo;blank&rdquo;>Model Free Control</a>, Lectures on Reinforcement Learning (2015)</dt>
+<dd><p>David Silver
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

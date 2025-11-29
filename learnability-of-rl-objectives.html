@@ -1,0 +1,451 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>The Learnability of RL Objectives</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html" class="current">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>The Learnability of RL Objectives</h1>
+</div>
+<p><i>Revised December 12, 2024</i>
+</p>
+<p><i>The <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>Prediction with Function Approximation</a> and <a href="off-policy-control-with-function-approximation.html" target=&ldquo;blank&rdquo;>Off-Policy Control with Function Approximation</a> notes are optional but recommended background reading.</i>
+</p>
+<p>When a policy's true value function, \(V_\pi\) (or \(Q_\pi\)), is too complex to learn exactly, it can be approximated using a parameterized function \(\hat{V}(\theta)\) (or \(\hat{Q}(\theta)\)). The optimal approximation is found by iteratively adjusting parameters \(\theta\) to minimize a chosen error criterion, measured using a <a href="glossary.html" target=&ldquo;blank&rdquo;>norm</a>. While many error criteria exist, RL methods typically use a select few. This note examines the &ldquo;learnability&rdquo; of such error criteria. In general machine learning literature, learnability refers to the ability to minimize an error function to an arbitrarily small value from a finite number of samples. Here, we adopt a broader notion of learnability to examine whether an error criterion can be minimized to arbitrary precision, even when given an <i>infinite</i> number of samples.
+</p>
+<p>We begin by defining the error criteria under consideration. Most of these definitions come from the <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>prediction with function approximation</a> and <a href="off-policy-control-with-function-approximation.html" target=&ldquo;blank&rdquo;>off-policy control with function approximation</a> notes, where additional context is provided but learnability is not addressed.
+</p>
+<h3>Monte Carlo Objectives</h3>
+<p>Because <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>convergence to a local optimum is guaranteed only when using an unbiased estimator</a>, <a href="model-free-prediction.html" target=&ldquo;blank&rdquo;>Monte Carlo</a> (MC) and bootstrapping methods use different objective functions. We begin with the MC error criteria.
+</p>
+<h4>Value Error</h4>
+<p>Our goal is to find an approximation \(\hat{V}(\theta)\) that closely matches the true value function \(V_\pi\). Thus, minimizing the mean squared error (MSE) between \(V_\pi\) and \(\hat{V}(\theta)\) is a natural objective. This error is quantified using a weighted Euclidean norm:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:value_error}
+   \overline{\text{VE}}(\theta) = \sum_{s \in \mathcal{S}} \mu(s) \left[V_\pi(s) - \hat{V}(s; \theta) \right]^2 \;,
+\end{equation}
+\]
+</p><p>where \(\mu(s)\) is a state distribution satisfying \(\sum_s \mu(s) = 1\) and \(\theta\) is a parameter vector with \(|\theta| &lt; |\mathcal{S}|\). The distribution \(\mu(s)\) weights each state's error contribution, reflecting the need to prioritize minimizing errors in certain states, as it is generally impossible to reduce error to zero across all states.
+</p>
+<p>This loss can also be expressed using the following norm:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:squared-norm-of-vector}
+    \| f \|_\mu^2 = \sum_{s \in \mathcal{S}} \mu(s) f(s)^2 \;.
+\end{equation}
+\]
+</p><p>It represents the &ldquo;length&rdquo; or magnitude of an arbitrary function \(f\), weighted by \(\mu\). Using this formulation, the mean squared value error can be written as  \(\overline{\text{VE}} = \| \hat{V}(\theta) - V_\pi \|_\mu^2\).
+</p>
+<h4>Return Error</h4>
+<p>Given the value function <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>estimates returns</a>, it is also reasonable to minimize mean square <i>return error</i>. This error is defined as the expectation, under the distribution \(\mu\), of the squared difference between the estimated value function \(\hat{V}(\theta)\) at time step \(t\) and the actual return \(G_t\). For the on-policy case, this objective can be expressed as:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \overline{\text{RE}}(\theta)
+    &amp;= \mathbb{E}_{s \sim \mu} \left[ \mathbb{E} \left[ \left( G_t - \hat{V}(s; \theta) \right)^2 \mid s_t = s \right] \right] \nonumber \\
+    &amp;= \sum_{s \in \mathcal{S}} \mu(s) \mathbb{E} \left[ \left( G_t - \hat{V}(s; \theta) \right)^2 \mid s_t = s \right] \nonumber \\
+
+    &amp;= \sum_{s \in \mathcal{S}} \mu(s) \mathbb{E} \left[ \left( \left( G_t - V_\pi(s) \right)
+    + \left( V_\pi(s) - \hat{V}(s; \theta) \right) \right)^2 \mid s_t = s \right] \nonumber \\
+
+    &amp;= \sum_{s \in \mathcal{S}} \mu(s) \mathbb{E} \left[ \left( G_t - V_\pi(s) \right)^2
+    + \left( V_\pi(s) - \hat{V}(s; \theta) \right)^2 + 2 \left( G_t - V_\pi(s) \right) \left( V_\pi(s)
+    - \hat{V}(s; \theta) \right) \Bigg| s_t = s \right] \nonumber \\
+
+    &amp;= \sum_{s \in \mathcal{S}} \mu(s) \left[ \mathbb{E} \left[ \left( G_t - V_\pi(s) \right)^2 \mid s_t = s \right]
+    + \left( V_\pi(s) - \hat{V}(s; \theta) \right)^2 + 2 \left( V_\pi(s) - \hat{V}(s; \theta) \right)
+    \mathbb{E} \left[ G_t - V_\pi(s) \mid s_t = s \right] \right] \nonumber \\
+
+    &amp;= \sum_{s \in \mathcal{S}} \mu(s) \left[ \mathbb{E} \left[ \left( G_t - V_\pi(s) \right)^2 \mid s_t = s \right]
+    + \left( V_\pi(s) - \hat{V}(s; \theta) \right)^2 + 2 \left( V_\pi(s) - \hat{V}(s; \theta) \right) \times 0 \right] \nonumber \\
+
+    &amp;= \sum_{s \in \mathcal{S}} \mu(s) \left[ \left( V_\pi(s) - \hat{V}(s; \theta) \right)^2 \right]
+    + \sum_{s \in \mathcal{S}} \mu(s) \mathbb{E} \left[ \left( G_t - V_\pi(s) \right)^2 \mid s_t = s \right] \nonumber \\
+
+    &amp;= \overline{\text{VE}}(\theta) + \mathbb{E} \left[ \left( G_t - V_\pi(s_t) \right)^2 \right] \;. \label{eq:re-8} \\
+\end{align}
+\]
+</p><p>Starting from the definition of the return error, we begin with the expectation under the behavior distribution \(\mu\) of the squared difference between the return \(G_t\) and the approximate value \(\hat{V}(s;\theta)\). First, we explicitly write out the expectation over states as a sum over all states weighted by \(\mu(s)\). Next, we add and subtract the true value function \(V_\pi(s)\) inside the square, which allows us to separate the deviation \(G_t - \hat{V}(s;\theta)\) into two parts: the &ldquo;intrinsic noise&rdquo; \(G_t - V_\pi(s)\) and the approximation error \(V_\pi(s) - \hat{V}(s;\theta)\). Squaring this sum and expanding it, we get three terms: the variance term \((G_t - V_\pi(s))^2\), the approximation error \((V_\pi(s) - \hat{V}(s;\theta))^2\), and a cross term involving the expectation of \((G_t - V_\pi(s))\). Because \(G_t\) is an unbiased estimator of \(V_\pi(s)\), that cross term vanishes, reducing the expression. This simplifies the return error into a sum of two parts: the value error, which is the weighted expectation of \((V_\pi(s) - \hat{V}(s;\theta))^2\), and the irreducible error from the return variance \(\mathbb{E}[(G_t - V_\pi(s_t))^2]\).
+</p>
+<h4>The Learnability of MC Objectives</h4>
+<p>To evaluate whether value error and return error are &ldquo;learnable&rdquo;, we must first define what it means for an error to be &ldquo;learnable.&rdquo; This concept can be most simply illustrated using an example based on the mean squared value error (Equation \(\eqref{eq:value_error}\)).
+</p>
+<p>Consider a one-state <a href="glossary.html" target=&ldquo;blank&rdquo;>Markov reward process</a> (MRP) in which the agent always transitions back to the same state, \(s_1\). The reward for this transition is stochastic: with probability \(0.5\), the reward is \(0\), and with probability \(0.5\), the reward is \(2\). The state, \(s_1\), is represented by a single-component feature vector \(\phi = 1\) and has an approximate value \(\theta\). Consequently, the only varying component of the data trajectory is the reward sequence — a random stream of \(0\)s and \(2\)s.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/off-policy-with-approx/ve-mrp-one.png" alt="One state MRP" width="200px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>Now consider a two-state MRP in which the agent transitions from state \(s_1\) to \(s_2\) with probability \(0.5\) and back to \(s_1\) with probability \(0.5\). Unlike the first MRP, the rewards for these transitions are deterministic, with both yielding a reward of \(0\). From state \(s_2\), the agent transitions to \(s_1\) with probability \(0.5\) and remains in \(s_2\) with probability \(0.5\). The reward for these transitions are also deterministic, both yield a reward of \(2\). As in the first MRP, both states are represented by a single-component feature vector \(\phi = 1\) and have an approximate value \(\theta\). Similarly, the only varying component of the data trajectory is the reward sequence, which is an endless random stream of \(0\)s and \(2\)s.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/off-policy-with-approx/ve-mrp-two.png" alt="Two state MRP" width="400px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>Even though the reward sequences in these two systems may differ in order, the probabilities of observing \(0\)s and \(2\)s are identical. Consequently, the data trajectory provides no signal to distinguish which MRP is generating the data. In particular, we cannot determine whether the MRP has one state or two, or whether its dynamics are stochastic or deterministic. While it would be possible to differentiate the MRPs if we observed the states directly, the use of function approximation means we only observe feature vectors \(\phi\), which are also identical.
+</p>
+<p>These MRPs also illustrate that \(\overline{\text{VE}}\) cannot be learned.
+</p>
+<p>Assume \(\gamma = 0\). In the first MRP, the true value of \(s_1\) is the mean reward, which is \(1\). If \(\theta = 1\) and \(\phi = 1\), the average value error is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \overline{\text{VE}}_1(\theta) = \left[(\phi \cdot \theta) - 1 \right]^2 = \left[(1 \cdot 1) - 1 \right]^2 = 0
+\end{equation*}
+\]
+</p><p>In the second MRP, the true value of \(s_1\) is \(0\), and the true value of \(s_2\) is \(2\). If \(\theta = 1\) and \(\phi = 1\), the average value error is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \overline{\text{VE}}_2(\theta) = \frac{1}{2} \left[(\phi \cdot \theta) - 2 \right]^2 + \frac{1}{2} \left[(\phi \cdot \theta) - 0 \right]^2
+    = \frac{1}{2} \left[(1 \cdot 1) - 2 \right]^2 + \frac{1}{2} \left[(1 \cdot 1) - 0 \right]^2 = 1
+\end{equation*}
+\]
+</p><p>Because \(\overline{\text{VE}}\) differs for the two MRPs despite the data having the same distribution, its true value cannot be learned. Because \(\overline{\text{VE}}\) differs for the two MRPs despite the data having the same distribution, its true value cannot be learned. The return error \(\overline{\text{RE}}\), by contrast, is directly learnable from data. Since the two objectives differ only by a variance term independent of \(\theta\), they share the same optimal parameter vector \(\theta^*\). Thus, as illustrated in the figure below, minimizing the learnable \(\overline{\text{RE}}\) allows us to find the solution that minimizes the unlearnable \(\overline{\text{VE}}\).
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/learnability/mc-objectives.png" alt="MC objectives" width="300px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<table id="caption">
+<tr class="r1"><td class="c1">Image from <a href="http://incompleteideas.net/book/the-book-2nd.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction (2018)</a> by Richard S. Sutton and Andrew G. Barto. Because two different MDPs can produce the same data distribution but yield different mean squared value errors, \(\overline{\text{VE}}\) itself is not learnable. However, the parameter vector that minimizes \(\overline{\text{VE}}\) <b>can</b> be learned by minimizing \(\overline{\text{RE}}\).
+</td></tr></table>
+<h3>Bootstrapping Objectives</h3>
+<p>While value error and return error are appropriate criteria for approximate MC methods, these objectives are unsuitable for <a href="glossary.html" target=&ldquo;blank&rdquo;>temporal difference</a> (TD) methods due to their reliance on <a href="glossary.html" target=&ldquo;blank&rdquo;>bootstrapping</a>. Specifically, in MC methods, the update target is \(Y_t = G_t\). TD methods, by contrast, update \(\hat{V}(\theta)\) at each time step, before the final outcome \(G_t\) is known. Objectives based on the full return, such as the Return Error, are therefore not directly applicable to TD methods.
+</p>
+<p>Value error is a problematic criterion for bootstrapping methods because the bootstrapped target is a biased estimate of \(V_\pi\). Specifically, in MC methods, the target \(Y_t = G_t\) provides an unbiased estimate of \(V_\pi\) since \(\mathbb{E}[G_t \mid s_t = s] = V_\pi(s) \; \forall t\). In bootstrapping methods, however, the update target is defined as \(Y_t = r_{t+1} + \gamma \hat{V}(s_{t+1}; \theta_t)\), which depends on the current parameter \(\theta_t\) and is therefore a &ldquo;moving target.&rdquo; When \(\theta\) is updated to reduce the error between \(Y_t\) and \(\hat{V}\), the target value \(Y_t\) itself changes. This dependence introduces bias into the estimate, making value error inappropriate for bootstrapping-based methods because <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>convergence to a local optimum is guaranteed only when using an unbiased estimator</a>. Thus, TD methods instead minimize Bellman-based objectives including Bellman error, projected Bellman error, and TD error.
+</p>
+<h4>Bellman Error</h4>
+<p>Bellman error can be derived from the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>state-value Bellman expectation equation</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    V_\pi(s) = \sum_{a \in \mathcal{A}} \pi(a \mid s) \left( R(s, a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) V_\pi(s&rsquo;) \right) \;.
+\end{equation*}
+\]
+</p><p>As demonstrated in the <a href="policy-and-value-iteration-proofs.html" target=&ldquo;blank&rdquo;>DP for MDPs proofs note</a>, the true value function is the <b>unique <a href="glossary.html" target=&ldquo;blank&rdquo;>fixed point</a></b> of the <i><a href="glossary.html" target=&ldquo;blank&rdquo;>Bellman operator</a></i>, \(\mathcal{T}_\pi\). A fixed point of a transformation \(f\) is defined as a point \(p\) such that \(f(p) = p\). Intuitively, the true value function \(V_\pi\) is the only function that remains unchanged when the Bellman operator is applied. That is, applying \(\mathcal{T}_\pi\) to \(V_\pi\) yields \(V_\pi\) itself.
+</p>
+<p>To quantify deviations from this fixed point, we define the <i>Bellman error</i> as the difference between the current estimate and its update under the Bellman operator. Mathematically, the Bellman error is given by:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \overline{\delta}_{\theta}(s) &amp;= [\mathcal{T}_\pi \hat{V}(\theta)](s) - \hat{V}(s; \theta) \label{eq:bellman-error-1} \\
+
+    &amp;= \sum_{a \in \mathcal{A}} \pi(a \mid s) \left[ R(s, a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) \hat{V}(s&rsquo;; \theta) \right] - \hat{V}(s; \theta) \label{eq:bellman-error-2} \\
+
+    &amp;= \mathbb{E}_\pi \left[ r_{t+1} + \gamma \hat{V}(s_{t+1}; \theta)
+    - \hat{V}(s_t; \theta) \mid s_t = s \right] \;. \label{eq:bellman-error-3}
+\end{align}
+\]
+</p><p>This formulation emphasizes that the Bellman error measures the inconsistency between an approximated value function \(\hat{V}(\theta)\) and its update under the Bellman operator, \(\mathcal{T}_\pi\). The error thus reflects how far \(\hat{V}(\theta)\) is from satisfying the Bellman equation.
+</p>
+<p>As expressed in Equation \(\eqref{eq:bellman-error-2}\), the Bellman error includes an expectation over all possible next states \(s'\), weighted by the transition probabilities \(P(s, a, s&rsquo;)\). However, because \(P(s, a, s&rsquo;)\) is typically unknown in practice, the Bellman error cannot be computed exactly. Instead, it is estimated by sampling transitions from the environment, as demonstrated in Equation \(\eqref{eq:bellman-error-3}\). By accumulating multiple transitions from a given state \(s\) while following policy \(\pi\), we can calculate the average error over these samples. This yields an unbiased estimate of the Bellman error, allowing us to approximate it in the absence of full knowledge of the transition dynamics.
+</p>
+<p>From Equations \(\eqref{eq:squared-norm-of-vector}\) and \(\eqref{eq:bellman-error-1}\), we can define the mean squared Bellman error as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \overline{\text{BE}} = \| \overline{\delta}_{\theta} \|_\mu^2 \;.
+\end{equation*}
+\]
+</p><div class="infoblock">
+<div class="blockcontent">
+<p><b>TD Error vs. Bellman Error</b>
+</p>
+<p>The Bellman error is a theoretical construct closely related to the more practical <a href="glossary.html" target=&ldquo;blank&rdquo;>temporal difference (TD) error</a>. The <i>TD error</i> is a stochastic quantity computed from a <i>single sampled transition</i> \((s_t, a_t, r_{t+1}, s_{t+1})\), defined as
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \delta_t = r_{t+1} + \gamma \hat{V}(s_{t+1}; \theta) - \hat{V}(s_t; \theta) \;.
+\end{equation*}
+\]
+</p><p>Since the next state \(s_{t+1}\) and reward \(r_{t+1}\) are random variables, the TD error \(\delta_t\) is also random.
+</p>
+<p>The <i>Bellman error</i> (Equation \(\eqref{eq:bellman-error-3}\)), is the <i>expectation</i> of the TD error at a given state \(s\). Formally:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \overline{\delta}_{\theta}(s) = \mathbb{E}_\pi \left[ \delta_t \mid s_t = s \right] \;.
+\end{equation*}
+\]
+</p><p>This expectation is taken over the policy's action distribution and the environment's transition dynamics. Thus, the Bellman error at state \(s\) corresponds to the average TD error over all possible next states and rewards reachable from \(s\).
+</p>
+<p>The relationship between TD error and Bellman error can be summarized as follows: The TD error is a stochastic, sample-based estimate of the Bellman error. It is computationally efficient, requiring only a single transition, but exhibits high variance. The Bellman error is the true expected error at a state. It is deterministic with zero variance. While it could, in principle, be approximated by generating many transitions from the same state \(s\) and averaging the resulting TD errors:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \overline{\delta}_{\theta}(s) \approx \frac{1}{N} \sum_{i=1}^{N} \left[ r_{t+1}^{(i)}
+    + \gamma \hat{V}(s_{t+1}^{(i)}; \theta) - \hat{V}(s; \theta) \right] \;,
+\end{equation*}
+\]
+</p><p>this approach is impractical in most RL settings as it would require repeatedly resetting the environment to state \(s\) to obtain a sufficient number of samples for each update.
+</p>
+</div></div>
+<h4>Projected Bellman Error</h4>
+<p>By design, an approximate value function \(\hat{V}(\theta)\) cannot fully represent the complexity of the true value function \(V_\pi\). Specifically, the set of all possible value functions \(\mathcal{V}\) contains a subspace \(\hat{V}(\Theta)\), which comprises all the value functions representable by the chosen function approximator. For instance, if a linear function approximator is used, \(\hat{V}(\Theta)\) includes only linear functions. Because \(\hat{V}(\Theta)\) is typically much smaller than \(\mathcal{V}\), applying the Bellman operator to \(\hat{V}(\theta)\) is likely to produce a value function outside the representable subspace \(\hat{V}(\Theta)\). To address this, after each application of the Bellman operator, \(\hat{V}(\theta)\) can be projected back into the representable subspace using a projection operator \(\Pi\). Therefore, instead of minimizing the Bellman error directly, we can minimize the <i>projected Bellman error</i>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \overline{\text{PBE}}(\theta) = \| \Pi \overline{\delta}_{\theta} \|_\mu^2 \;,
+\end{equation*}
+\]
+</p><p>where \(\Pi\) is a projection operator that maps an arbitrary value function to the closest representable function.
+Formally, the projection is defined as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \Pi V = \hat{V}(\theta) \quad \text{where} \quad \theta = \arg\min_{\theta \in \mathbb{R}^d} \| V - \hat{V}(\theta) \|_\mu^2 \;.
+\end{equation*}
+\]
+</p><p>For a linear function approximator, there always exists an approximate value function for which the projected Bellman error (\(\overline{\text{PBE}}\)) equals zero. This solution is referred to as the <i><a href="glossary.html" target=&ldquo;blank&rdquo;>TD fixed point</a></i>. In general, this fixed point differs from the solutions obtained by methods that minimize value error (\(\overline{\text{VE}}\)) or Bellman error (\(\overline{\text{BE}}\)). However, as illustrated in the <a href="the-deadly-triad.html" target=&ldquo;blank&rdquo;>deadly triad note</a>, the TD fixed point is not always stable when <a href="glossary.html" target=&ldquo;blank&rdquo;>semi-gradient</a> TD methods are used with off-policy training.
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>The Projection Operator with Linear Function Approximation</b>
+</p>
+<p>To illustrate the concept of projection, consider a <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>linear function approximator</a>, which expresses value estimates as a weighted sum of features:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:values_to_estimate}
+    \hat{V}(s; \theta) = \sum_{i=1}^d \theta_i \phi_i(s) = \theta^\top \phi(s) \;,
+\end{equation}
+\]
+</p><p>where \(\phi : \mathcal{S} \rightarrow \mathbb{R}^d\) maps states to \(d\)-dimensional feature vectors. Each component \(\phi_i(s)\) of vector \(\phi(s)\) is a <i>feature</i> of state \(s\), and each function \(\phi_i : \mathcal{S} \rightarrow \mathbb{R}\) is a <i>basis function</i> (so named because the features form a linear basis for the set of approximate functions).
+</p>
+<p>Because the linear approximator is inherently less expressive than the true function, \(V_\pi\) is projected onto the subspace of representable (i.e., linear) functions using a <i>projection operator</i>. For a linear function approximator, this operator is also linear and can be represented as an \(|\mathcal{S}| \times |\mathcal{S}|\) matrix.
+</p>
+<p>To formalize this projection, define \(\mathbf{v}_\pi \in \mathbb{R}^{|\mathcal{S}|} = [V_\pi(s_1), V_\pi(s_2), V_\pi(s_{|\mathcal{S}|})]^\top\) and \(\mathbf{D}\) as an \(|\mathcal{S}| \times |\mathcal{S}|\) diagonal matrix, with the <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>state distribution</a> \(\mu(s)\) along its diagonal. Let \(\Phi\) be an \(\mathcal |{S}| \times d\) matrix, wherein rows are the feature vectors \(\phi(s)^\top\), one for each state \(s\). The squared norm of a vector under the distribution \(\mu\) can then be expressed as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+   \| \mathbf{v} \|_\mu^2 = \mathbf{v}^\top \mathbf{D} \mathbf{v} \;.
+\end{equation*}
+\]
+</p><p>The objective is to determine the parameter vector \(\theta\) such that the projection \(\mathbf{v}_\theta = \Phi \theta\), which is the set of approximate values produced by Equation \(\eqref{eq:values_to_estimate}\) for all states, minimizes the \(\mu\)-weighted squared error with respect to \(\mathbf{v}_\pi\). More formally:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \min_{\theta} \| \mathbf{v}_\pi - \Phi \theta \|_\mu^2 &amp;= \min_{\theta} (\mathbf{v}_\pi - \Phi \theta)^\top \mathbf{D} (\mathbf{v}_\pi - \Phi \theta) \\
+    &amp;= \min_{\theta} \left( \mathbf{v}_\pi^\top \mathbf{D} \mathbf{v}_\pi - \mathbf{v}_\pi^\top \mathbf{D} \Phi \theta - (\Phi \theta)^\top \mathbf{D} \mathbf{v}_\pi + (\Phi \theta)^\top \mathbf{D} (\Phi \theta) \right) \\
+    &amp;= \min_{\theta} \left( \mathbf{v}_\pi^\top \mathbf{D} \mathbf{v}_\pi - 2 \theta^\top \Phi^\top \mathbf{D} \mathbf{v}_\pi + \theta^\top \Phi^\top \mathbf{D} \Phi \theta \right).
+\end{align*}
+\]
+</p><p>To find the minimizing \(\theta\), we first take the derivative of the objective function with respect to \(\theta\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \nabla_\theta \left( \mathbf{v}_\pi^\top \mathbf{D} \mathbf{v}_\pi - 2 \theta^\top \Phi^\top \mathbf{D} \mathbf{v}_\pi + \theta^\top \Phi^\top \mathbf{D} \Phi \theta \right) = -2 \Phi^\top \mathbf{D} \mathbf{v}_\pi + 2 \Phi^\top \mathbf{D} \Phi \theta \;.
+\end{equation*}
+\]
+</p><p>Then we set the derivative equal to zero and solve for \(\theta\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    -2 \Phi^\top \mathbf{D} \mathbf{v}_\pi + 2 \Phi^\top \mathbf{D} \Phi \theta &amp;= 0 \\
+    \Phi^\top \mathbf{D} \Phi \theta &amp;= \Phi^\top \mathbf{D} \mathbf{v}_\pi \\
+    \theta &amp;= \left( \Phi^\top \mathbf{D} \Phi \right)^{-1} \Phi^\top \mathbf{D} \mathbf{v}_\pi \;.
+\end{align*}
+\]
+</p><p>Thus, our projection is defined as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \Phi \theta = \Phi \left( \Phi^\top \mathbf{D} \Phi \right)^{-1} \Phi^\top \mathbf{D} \mathbf{v}_\pi \;.
+\end{equation*}
+\]
+</p><p>This entire expression can be interpreted as a linear operator that maps \(V_\pi\) onto the representable subspace. Thus, we
+define the projection operator \(\Pi\) as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \Pi = \Phi \left( \Phi^\top \mathbf{D} \Phi \right)^{-1} \Phi^\top \mathbf{D} \;.
+\end{equation*}
+\]
+</p><p>This definition of \(\Pi\) is derived from the concept of <i>least-squares projection</i>. Intuitively, \(\Pi \mathbf{v}_\pi\) provides the best approximation to \(\mathbf{v}_\pi\) within the subspace spanned by the feature vectors in \(\Phi\), measured under the distribution \(\mu\).
+</p>
+</div></div>
+<h4>TD Error</h4>
+<p>The mean squared <i>TD error</i> is the average squared TD error, weighted by the frequency of state visits under a given policy. Mathematically, it is given by:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \overline{\text{TDE}}(\theta) &amp;= \sum_{s \in \mathcal{S}} \mu(s) \mathbb{E}[\delta_t^2 \mid s_t = s, a_t \sim \pi] \label{eq:sgd-td-loss-1} \\
+    &amp;= \sum_{s \in \mathcal{S}} \mu(s) \mathbb{E}[\rho_t \delta_t^2 \mid s_t = s, a_t \sim \pi_\beta] \nonumber \\
+    &amp;= \mathbb{E}_{\pi_\beta} [\rho_t \delta_t^2] \;, \label{eq:sgd-td-loss-2}
+\end{align}
+\]
+</p><p>where \(\mu\) is the distribution under \(\pi_\beta\), \(\delta_t = r_{t+1} + \gamma \hat{V}(s_{t+1}; \theta_t) - \hat{V}(s_t; \theta_t)\) is the one-step TD error with discounting, and \(\rho_t\) is the <a href="importance-sampling.html" target=&ldquo;blank&rdquo;>importance sampling ratio</a>.
+</p>
+<p>Equation \(\eqref{eq:sgd-td-loss-2}\) expresses the objective as an expectation over samples generated by the behavior policy \(\pi_\beta\). This representation allows unbiased gradient estimation from individual transitions, satisfying a fundamental requirement for <a href="glossary.html" target=&ldquo;blank&rdquo;>stochastic gradient descent</a> (SGD). Specifically, the expectation \(\mathbb{E}_{\pi_\beta}[\rho_t \delta_t^2]\) can be estimated using single transitions \((s, a, r, s&rsquo;)\) collected under \(\pi_\beta\). For each transition, the TD error \(\delta_t\) and the importance sampling ratio \(\rho_t\) are computed. Their product, \(\rho_t \delta_t^2\), provides an unbiased estimate of the objective function. This unbiasedness follows directly from the definition of an <a href="glossary.html" target=&ldquo;blank&rdquo;>unbiased estimator</a> and is explicitly reflected in Equation \(\eqref{eq:sgd-td-loss-2}\). This contrasts with Equation \(\eqref{eq:sgd-td-loss-1}\), which requires enumerating the entire state space and sampling actions from the target policy \(\pi\) — operations typically infeasible in practice.
+</p>
+<h4>The Learnability of Bootstrapping Objectives</h4>
+<p>Like the value and return errors, the Bellman error is unlearnable. To illustrate, consider two additional MRPs. The first is a two-state system where the agent transitions deterministically from state \(s_1\) to \(s_2\), receiving a reward of \(0\). From state \(s_2\), the agent transitions to \(s_1\) with probability \(0.5\) and remains in \(s_2\) with probability \(0.5\), receiving rewards of \(1\) and \(-1\), respectively. States \(s_1\) and \(s_2\) have distinct representations \(\phi\).
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/off-policy-with-approx/be-mrp-1.png" alt="Two state MRP" width="320px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>The second is a three-state MRP. In this system, the agent transitions from state \(s_1\) to \(s_2\) with probability \(0.5\) and to \(s_2'\) with probability \(0.5\), receiving a reward of \(0\) in both cases. From state \(s_2\), the agent always transitions back to \(s_1\), earning a reward of \(1\). From state \(s_2'\), the agent transitions to \(s_2\) with probability \(0.5\) and to \(s_2'\) with probability \(0.5\), with both transitions yielding a reward of \(-1\).
+</p>
+<p>The states \(s_2\) and \(s_2'\) cannot be distinguished by their feature representations and are therefore assigned the same approximate value. Specifically, we use a two-component linear function approximator with feature vectors \(\phi(s_1) = [1,\,0]^\top\), \(\phi(s_2) = [0,\,1]^\top\), and \(\phi(s_2&rsquo;) = [0,\,1]^\top\). With a parameter vector \(\theta = [\theta_1,\,\theta_2]^\top\), the approximate values are \(\hat{V}(s_1) = \theta_1\) and \(\hat{V}(s_2) = \hat{V}(s_2&rsquo;) = \theta_2\).
+</p>
+<p>For this example, we use a uniform weighting distribution \(\mu(s) = \tfrac{1}{3}\) over the three states.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/off-policy-with-approx/be-mrp-2.png" alt="Three state MRP" width="350px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>As in the \(\overline{\text{VE}}\) example, the observable data distribution is identical for the two MRPs. The agent observes \(s_1\) followed by a reward of \(0\), then a sequence of apparent \(s_2\)s. For both MRPs, the probability observing \(k\) apparent \(s_2\)s is \(2^{-k}\). Each observed \(s_2\) in the sequence is followed by a reward of \(-1\), except for the final \(s_2\), which is followed by a reward of \(1\). This process then repeats from \(s_1\).
+</p>
+<p>First, we compute the Bellman Error \(\overline{\delta}_{\theta}(s) = \mathbb{E}[r&rsquo; + \gamma \hat{V}(s&rsquo;;\theta)] - \hat{V}(s;\theta)\) for each state. With \(\gamma=0\) and \(\theta=0\) (so \(\hat{V}(s;\theta)=0\) for all \(s\)):
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \overline{\delta}_{\theta}(s_1) &amp;= \mathbb{E}[r&rsquo; \mid s_1] - \hat{V}(s_1;\theta) = 0 - 0 = 0 \\
+    \overline{\delta}_{\theta}(s_2) &amp;= \mathbb{E}[r&rsquo; \mid s_2] - \hat{V}(s_2;\theta) = (0.5 \cdot 1 + 0.5 \cdot -1) - 0 = 0
+\end{align*}
+\]
+</p><p>The Mean Squared Bellman Error is the weighted sum of these squared errors:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \overline{\text{BE}}_1(\theta) = \frac{1}{2} (\overline{\delta}_{\theta}(s_1))^2 + \frac{1}{2} (\overline{\delta}_{\theta}(s_2))^2 = \frac{1}{2}(0)^2 + \frac{1}{2}(0)^2 = 0 \;.
+\end{equation*}
+\]
+</p><p>Similarly, for the second MRP, we first compute the Bellman Error for each state:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \overline{\delta}_{\theta}(s_1) &amp;= \mathbb{E}[r&rsquo; \mid s_1] - \hat{V}(s_1;\theta) = 0 - 0 = 0 \\
+    \overline{\delta}_{\theta}(s_2) &amp;= \mathbb{E}[r&rsquo; \mid s_2] - \hat{V}(s_2;\theta) = 1 - 0 = 1 \\
+    \overline{\delta}_{\theta}(s_2&rsquo;) &amp;= \mathbb{E}[r&rsquo; \mid s_2'] - \hat{V}(s_2&rsquo;;\theta) = -1 - 0 = -1
+\end{align*}
+\]
+</p><p>The Mean Squared Bellman Error is then:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \overline{\text{BE}}_2(\theta) = \frac{1}{3}(\overline{\delta}_{\theta}(s_1))^2 + \frac{1}{3}(\overline{\delta}_{\theta}(s_2))^2 + \frac{1}{3}(\overline{\delta}_{\theta}(s_2&rsquo;))^2 = \frac{1}{3}(0)^2 + \frac{1}{3}(1)^2 + \frac{1}{3}(-1)^2 = \frac{2}{3} \;.
+\end{equation*}
+\]
+</p><p>As with the value error, the Bellman error differs between two MRPs that produce identical data distributions demonstrating that the Bellman error is not learnable. <b>Unlike \(\overline{\text{VE}}\), however, it is not possible to learn the parameter for which \(\overline{\text{BE}}\) is optimal</b>. In the first MRP, \(\theta = 0\) is optimal regardless of the value of \(\gamma\). In the second MRP, the optimal \(\theta\) is a complex function of \(\gamma\), but as \(\gamma \to 1\), the optimal value approaches \((-1/3, 1/6)^\top\).
+</p>
+<p>The other bootstrapping objectives, \(\overline{\text{PBE}}\) and \(\overline{\text{TDE}}\), are learnable from the available data. The figure below summarizes the learnability of the three bootstrapping objectives described in this note.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/learnability/td-objectives.png" alt="TD objectives" width="400px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<table id="caption">
+<tr class="r1"><td class="c1">Image from <a href="http://incompleteideas.net/book/the-book-2nd.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction</a> (2018) by Richard S. Sutton and Andrew G. Barto. Two distinct Markov decision processes (MDPs) can generate identical data distributions but have different Bellman errors and minimizing parameter vectors. Consequently, Bellman error values cannot be learned, even with infinite data. Both the projected Bellman error and the TD error, along with their respective minima, can be directly learned from data. However, the parameter vectors minimizing these two objectives will generally differ.
+</td></tr></table>
+<h3>References</h3>
+<dl>
+<dt><a href="http://incompleteideas.net/book/the-book-2nd.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction</a>
+(2018)</dt>
+<dd><p>Richard S. Sutton and Andrew G. Barto
+</p></dd>
+</dl>
+<dl>
+<dt><a href="http://www.boris-belousov.net/2017/08/10/td-advantage-bellman/" target=&ldquo;blank&rdquo;>TD error vs advantage vs Bellman error</a> (2017)</dt>
+<dd><p>
+Boris Belousov
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

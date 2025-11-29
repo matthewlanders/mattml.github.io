@@ -1,0 +1,884 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Glossary</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html" class="current">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Glossary</h1>
+</div>
+<h2>A</h2>
+<dl>
+<dt><b>Action-value function</b></dt>
+<dd><p>A mapping \(Q_\pi(s,a)\) from state–action pairs to expected discounted return under policy \(\pi\), defined by \(Q_\pi(s,a)=\mathbb{E}\!\left[\sum_{t=0}^\infty \gamma^t r_{t+1}\mid s_0=s,a_0=a,\pi\right]\). It satisfies the Bellman relation \(Q_\pi(s,a)=\mathbb{E}[r_{t+1}+\gamma V_\pi(s_{t+1})\mid s_t=s,a_t=a]\) and relates to the state-value function via \(V_\pi(s)=\sum_a \pi(a\mid s)Q_\pi(s,a)\) (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Action-value methods</b></dt>
+<dd><p>Algorithms that maintain and update an estimate \(\hat{Q}(s,a)\) of either \(Q_\pi\) or \(Q_\ast\) using Bellman-style targets and sample transitions. A policy is then obtained by acting greedily or near-greedily with respect to \(\hat{Q}\), e.g., \(a\in\arg\max_a \hat{Q}(s,a)\) (see the <a href="policy-gradients.html" target=&ldquo;blank&rdquo;>Policy Gradients note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Activation function</b></dt>
+<dd><p>A scalar nonlinearity \(\sigma:\mathbb{R}\to\mathbb{R}\) applied to a neuron's pre-activation \(z\) to produce the output \(y=\sigma(z)\). In neural networks, such functions are applied elementwise to intermediate affine transformations and determine both representational capacity and gradient flow during learning (see the <a href="backpropagation.html" target=&ldquo;blank&rdquo;>Backpropagation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Actor</b></dt>
+<dd><p>A parameterized policy \(\pi_\theta(a\mid s)\) together with its parameter vector \(\theta\), treated as the object optimized in actor–critic algorithms. For each state \(s\), the actor specifies a distribution over actions, and \(\theta\) is updated according to a prescribed policy-optimization rule using feedback from returns or a critic (see the <a href="actor-critic.html" target=&ldquo;blank&rdquo;>Actor-Critic note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Actor-critic methods</b></dt>
+<dd><p>Algorithms that simultaneously maintain (i) a parameterized policy (the actor) and (ii) a parameterized value or action-value function (the critic). The critic supplies estimates such as \(V_\pi\), \(Q_\pi\), or \(A_\pi\) that enter the actor's update rule, combining policy-gradient ideas with value-function approximation (see the <a href="actor-critic.html" target=&ldquo;blank&rdquo;>Actor-Critic note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Advantage function</b></dt>
+<dd><p>The quantity \(A_\pi(s,a)=Q_\pi(s,a)-V_\pi(s)\), representing the relative value of action \(a\) in state \(s\) under policy \(\pi\). It serves as a baseline-adjusted measure of action quality and is commonly used to reduce variance in policy-gradient estimators (see the <a href="trpo.html" target=&ldquo;blank&rdquo;>TRPO note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Agent</b></dt>
+<dd><p>The decision-making entity in an MDP that implements a policy \(\pi\) mapping its available information to an action at each time step. Interaction with the environment proceeds through repeated observation, action selection, and reward reception (see the <a href="mdp.html" target=&ldquo;blank&rdquo;>Markov Decision Processes note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Agent state</b></dt>
+<dd><p>The information variable on which the agent's decision rule is conditioned; it may coincide with the true environment state, an observation, or a function of the history. Formally, if the policy is \(\pi(a\mid s^{\text{agent}})\), then \(s^{\text{agent}}\) is the agent state (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Aleatoric randomness</b></dt>
+<dd><p>Uncertainty arising from intrinsic stochasticity in the generative or dynamical process, such that outcome variability remains even under perfect knowledge of model parameters. In probabilistic modeling, it corresponds to variability encoded in the likelihood \(p(x\mid\theta)\) rather than uncertainty over \(\theta\) itself (see the <a href="bayes-theorem-for-probability-distributions.html" target=&ldquo;blank&rdquo;>Bayes&rsquo; Theorem for Probability Distributions note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Attention score</b></dt>
+<dd><p>A scalar compatibility measure between a query vector \(q\) and a key vector \(k\) used to compute attention weights. In scaled dot-product attention, the score is \(\frac{q^\top k}{\sqrt{d_k}}\), and normalized scores determine the weights in the resulting value aggregation (see the <a href="transformer.html" target=&ldquo;blank&rdquo;>Transformer note</a>).
+</p></dd>
+</dl>
+<h2>B</h2>
+<dl>
+<dt><b>Backpropagation</b></dt>
+<dd><p>An algorithm for computing exact gradients of a scalar objective with respect to all parameters in a feedforward computation graph. It applies the chain rule in reverse topological order, propagating adjoints (&ldquo;sensitivities&rdquo;) from outputs back to inputs (see the <a href="backpropagation.html" target=&ldquo;blank&rdquo;>Backpropagation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Backtracking line search</b></dt>
+<dd><p>A procedure for selecting a step size \(\alpha\) along a proposed descent/ascent direction by iteratively shrinking \(\alpha\) until a sufficient improvement criterion is satisfied. In policy optimization, it is used to ensure that a candidate parameter update satisfies both surrogate-improvement and KL-divergence constraints (see the <a href="trpo.html" target=&ldquo;blank&rdquo;>TRPO note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Backward pass</b></dt>
+<dd><p>The reverse sweep of backpropagation in which gradients are propagated from later computations to earlier ones. Each node receives adjoints from its dependents and applies local Jacobian–vector products to produce adjoints for its parents (see the <a href="backpropagation.html" target=&ldquo;blank&rdquo;>Backpropagation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Behavior policy</b></dt>
+<dd><p>The policy \(\pi_b\) that generates the data used for learning or evaluation. In off-policy settings, \(\pi_b\) may differ from the target policy (see the <a href="model-free-control.html" target=&ldquo;blank&rdquo;>Model-free Control note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Bellman backup</b></dt>
+<dd><p>The operation that maps a value estimate to a new estimate by applying a Bellman operator, e.g.,
+\((\mathcal{T}_\pi V)(s) = \sum_a \pi(a\mid s)\,\mathbb{E}[r+\gamma V(s&rsquo;)\mid s,a]\). In dynamic programming and TD learning, repeated Bellman backups drive value estimates toward fixed points corresponding to \(V_\pi\) or \(V_\ast\).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Bellman completeness</b></dt>
+<dd><p>A property of a function class \(\mathcal{F}\) stating that for any \(f\in\mathcal{F}\), the Bellman backup \(\mathcal{T}_\pi f\) also lies in \(\mathcal{F}\). Completeness ensures that the representational class is closed under Bellman updates, a key assumption in some theoretical analyses of approximate dynamic programming.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Bellman equation</b></dt>
+<dd><p>A recursive relation expressing a value-type function as its expected immediate reward plus the discounted value of the next state. In its generic form for a value function \(V\) under policy \(\pi\), \(V(s) = \mathbb{E}[r_{t+1} + \gamma V(s_{t+1}) \mid s_t = s]\). Variants arise by changing the control (e.g., maximization) or the quantity being evaluated (see the <a href="off-policy-control-with-function-approximation.html" target=&ldquo;blank&rdquo;>Off-policy Control with Function Approximation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Bellman error</b></dt>
+<dd><p>The expectation of the TD error \(\delta_t = r_{t+1} + \gamma V(s_{t+1}) - V(s_t)\), conditioned on state \(s\). Equivalently, for a value estimate \(V\), the Bellman error is the state-dependent quantity \(\mathbb{E}[(\mathcal{T}_\pi V)(s) - V(s)]\) (see the <a href="off-policy-control-with-function-approximation.html" target=&ldquo;blank&rdquo;>Off-policy Control with Function Approximation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Bellman expectation equations</b></dt>
+<dd><p>Recursive characterizations of \(V_\pi\) and \(Q_\pi\) under a fixed policy \(\pi\), e.g., \(V_\pi(s)=\sum_a\pi(a\mid s)\,\mathbb{E}[r+\gamma V_\pi(s&rsquo;)\mid s,a]\). These equations express value functions as fixed points of the policy-specific Bellman operator (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Bellman operator</b></dt>
+<dd><p>A contraction mapping \(\mathcal{T}_\pi: B(\mathcal{S})\to B(\mathcal{S})\) defined by \((\mathcal{T}_\pi V)(s)=\sum_a\pi(a\mid s)\,\mathbb{E}[r+\gamma V(s&rsquo;)\mid s,a]\). Repeated application of \(\mathcal{T}_\pi\) converges to the unique fixed point \(V_\pi\) (see the <a href="policy-and-value-iteration-proofs.html" target=&ldquo;blank&rdquo;>Policy and Value Iteration Proofs note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Bellman optimality equations</b></dt>
+<dd><p>The fixed-point characterizations of optimal value functions: \(V_\ast(s)=\max_a \mathbb{E}[r+\gamma V_\ast(s&rsquo;)\mid s,a]\) and \(Q_\ast(s,a)=\mathbb{E}[r+\gamma \max_{a&rsquo;}Q_\ast(s&rsquo;,a&rsquo;)\mid s,a]\). These equations describe the optimality conditions underlying dynamic programming and greedy control (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Bellman rank</b></dt>
+<dd><p>A complexity measure of an MDP or function class capturing the minimal rank of a bilinear form that factorizes certain Bellman error quantities. It appears in sample-complexity analyses for model-free RL and characterizes settings where value-based exploration and learning are tractable.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Bellman residual</b></dt>
+<dd><p>See Bellman error definition.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Bellman update</b></dt>
+<dd><p>The transformation \(V \leftarrow \mathcal{T}_\pi V\) or \(Q \leftarrow \mathcal{T} Q\) applied to a current value or action-value estimate. Bellman updates form the basis of iterative policy evaluation and many TD learning methods.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Bootstrapping</b></dt>
+<dd><p>The use of existing value estimates to construct new targets, such as replacing full returns with \(r+\gamma V(s&rsquo;)\) in TD learning. This produces biased but lower-variance targets and enables online, incremental updates (see the <a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>Dynamic Programming for Solving MDPs note</a>).
+</p></dd>
+</dl>
+<h2>C</h2>
+<dl>
+<dt><b>Catastrophic forgetting</b></dt>
+<dd><p>Large oscillations or divergence in learned value estimates arising when updates rely on recent, highly correlated data and overwrite previously acquired information. In deep RL, this manifests as instability in \(Q\)-values when the training distribution shifts rapidly relative to the network's capacity (see the <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>Deep Q-learning note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Conjugate prior</b></dt>
+<dd><p>A prior distribution \(p(\theta)\) for which the posterior \(p(\theta\mid x)\), under a given likelihood family, belongs to the same parametric family as the prior. Conjugacy ensures closed-form Bayesian updating (see the <a href="bayes-theorem-for-probability-distributions.html" target=&ldquo;blank&rdquo;>Bayes&rsquo; Theorem for Probability Distributions note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Consistent estimator</b></dt>
+<dd><p>An estimator \(\hat{\theta}_n\) for a parameter \(\theta\) such that \(\hat{\theta}_n \xrightarrow{p} \theta\) as the sample size \(n\to\infty\). Consistency guarantees that estimation error vanishes asymptotically under the data-generating distribution (see the <a href="off-policy-evaluation.html" target=&ldquo;blank&rdquo;>Off-Policy Evaluation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Contextual bandit problem</b></dt>
+<dd><p>A decision problem in which, at each round, the agent observes a context \(x\), chooses an action \(a\), and receives a reward drawn from a distribution depending on \((x,a)\), with no state transitions across rounds. It is a one-step MDP and serves as a simplified setting for off-policy evaluation and exploration analysis (see the <a href="off-policy-evaluation.html" target=&ldquo;blank&rdquo;>Off-Policy Evaluation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Continuing MDP</b></dt>
+<dd><p>An MDP in which interaction does not terminate, with timesteps \(t=0,1,2,\ldots\) extending indefinitely. Discounting or average-reward formulations are used to ensure that long-run performance objectives are well defined (see the <a href="mdp.html" target=&ldquo;blank&rdquo;>Markov Decision Processes note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Control</b></dt>
+<dd><p>The task of computing an optimal policy \(\pi^*\) by solving for optimal value functions such as \(Q^*(s,a)\) or \(V^*(s)\) and acting greedily with respect to the learned function. In reinforcement learning, control is synonymous with policy optimization (see the <a href="model-free-control.html" target=&ldquo;blank&rdquo;>Model-free Control note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Critic</b></dt>
+<dd><p>A parameterized estimate of a value-related function (e.g., \(V_\pi\), \(Q_\pi\), or \(A_\pi\)) used to evaluate the current policy and supply gradient information to the actor. The critic's outputs are used in the update rule for the policy parameters in actor–critic algorithms (see the <a href="actor-critic.html" target=&ldquo;blank&rdquo;>Actor-Critic note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Cross-attention</b></dt>
+<dd><p>An attention mechanism in which queries originate from one sequence (or representation) and keys/values originate from another. This allows alignment between distinct sources of information, as in encoder–decoder architectures (see the <a href="transformer.html" target=&ldquo;blank&rdquo;>Transformer note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Cross-entropy</b></dt>
+<dd><p>For discrete distributions \(p\) and \(q\) over the same support, the cross-entropy is \(H(p,q)=-\sum_x p(x)\log q(x)\), representing the expected code length when data generated from \(p\) are encoded using a code optimized for \(q\). In RL, it commonly appears as a policy-matching loss in distillation and imitation (see the <a href="policy-distillation.html" target=&ldquo;blank&rdquo;>Policy Distillation note</a>).
+</p></dd>
+</dl>
+<h2>D</h2>
+<dl>
+<dt><b>Deadly triad</b></dt>
+<dd><p>An instability phenomenon that can cause value estimates to diverge when three conditions — off-policy learning, bootstrapping, and function approximation — are present simultaneously. The interaction of these elements breaks key contraction properties required for stable policy evaluation (see the <a href="the-deadly-triad.html" target=&ldquo;blank&rdquo;>Deadly Triad note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Deep reinforcement learning</b></dt>
+<dd><p>The use of deep neural networks as function approximators within reinforcement learning algorithms, typically to represent policies, value functions, or models. This enables RL methods to operate on high-dimensional inputs such as images but introduces additional optimization and stability challenges (see the <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>Deep Q-learning note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Degenerate density</b></dt>
+<dd><p>A probability density that assigns all its mass to a lower-dimensional subset of the ambient space, such as a point mass in a continuous space or a deterministic action in a discrete space (see the <a href="off-policy-evaluation.html" target=&ldquo;blank&rdquo;>Off-Policy Evaluation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Deterministic policy</b></dt>
+<dd><p>A policy \(\pi\) for which each state \(s\) is mapped to a single action with probability one; i.e., \(\pi(a\mid s)=1\) for exactly one action \(a\). Deterministic policies eliminate stochasticity in action selection and are commonly used in control formulations (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Differential return</b></dt>
+<dd><p>In average-reward formulations of continuing MDPs, the differential return is the un-discounted cumulative deviation of instantaneous rewards from the average reward \(\bar{r}\). It appears in differential value functions defined by \(V(s)=\mathbb{E}[\sum_{t=0}^\infty (r_{t+1}-\bar{r})\mid s_0=s]\) (see the <a href="on-policy-control-with-function-approximation.html" target=&ldquo;blank&rdquo;>On-Policy Control with Function Approximation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Discount factor</b></dt>
+<dd><p>A scalar \(\gamma \in [0,1)\) that down-weights future rewards in the return \(G_t = \sum_{k=0}^\infty \gamma^k r_{t+k+1}\). Smaller \(\gamma\) emphasizes short-term rewards, while values close to \(1\) make the agent more far-sighted (see the <a href="mdp.html" target=&ldquo;blank&rdquo;>Markov Decision Processes note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Divergence</b></dt>
+<dd><p>The phenomenon in which iterates of a learning algorithm (e.g., value estimates or parameters) grow without bound or fail to converge to a fixed point. In RL, divergence is often associated with the deadly triad (see the <a href="the-deadly-triad.html" target=&ldquo;blank&rdquo;>Deadly Triad note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Double sampling problem</b></dt>
+<dd><p>The difficulty that arises because the gradient of the squared Bellman error involves expectations over two independent next-state samples, while only a single sample is available from the environment. Consequently, unbiased stochastic gradient descent on mean-squared Bellman error is generally impossible in model-free RL (see the <a href="off-policy-control-with-function-approximation.html" target=&ldquo;blank&rdquo;>Off-policy Control with Function Approximation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Dynamic programming</b></dt>
+<dd><p>A computational framework that solves optimization and decision problems by decomposing them into subproblems for which solutions satisfy recursive relations. In MDPs, dynamic programming uses Bellman equations to compute value functions and optimal policies via iterative application of Bellman operators (see the <a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>Dynamic Programming for Solving MDPs note</a>).
+</p></dd>
+</dl>
+<h2>E</h2>
+<dl>
+<dt><b>Eligibility trace</b></dt>
+<dd><p>A time-varying vector (or function over states/state–action pairs) that accumulates credit for recently visited states or actions, typically updated as \(e_t = \gamma \lambda e_{t-1} + \phi(s_t)\) (or its state–action analogue). Eligibility traces mediate how TD errors are assigned backward in time in TD(\(\lambda\)) (see the <a href="model-free-prediction.html" target=&ldquo;blank&rdquo;>Model-free Prediction note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Environment</b></dt>
+<dd><p>The external process with which the agent interacts, specified (in the MDP setting) by the state space, action space, transition kernel, and reward function. The environment evolves according to \(P(s_{t+1},r_{t+1}\mid s_t,a_t)\) in response to the agent's actions (see the <a href="mdp.html" target=&ldquo;blank&rdquo;>Markov Decision Processes note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Episode / Trajectory</b></dt>
+<dd><p>A finite sequence of states, actions, and rewards generated by interacting with an environment, typically written \((s_0,a_0,r_1,\dots,s_T)\) for some terminal time \(T\). In episodic MDPs, learning objectives are defined over such trajectories (see the <a href="mdp.html" target=&ldquo;blank&rdquo;>Markov Decision Processes note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Episodic MDP</b></dt>
+<dd><p>An MDP in which interaction terminates in finite time with probability one, producing trajectories \((s_0,a_0,r_1,\ldots,s_T)\) where the terminal time \(T\) is almost surely finite. Value functions are defined over full episodes, and return calculations sum rewards up to termination (see the <a href="mdp.html" target=&ldquo;blank&rdquo;>Markov Decision Processes note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Epistemic uncertainty</b></dt>
+<dd><p>Uncertainty arising from limited knowledge of model parameters or of the environment's dynamics, and which can, in principle, be reduced by acquiring more data. In Bayesian formulations, epistemic uncertainty is captured by the posterior distribution over parameters rather than by the likelihood (see the <a href="bayes-theorem-for-probability-distributions.html" target=&ldquo;blank&rdquo;>Bayes&rsquo; Theorem for Probability Distributions note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>\(\epsilon\)-greedy action selection</b></dt>
+<dd><p>A stochastic action-selection rule in which, with probability \(\epsilon\), an action is sampled uniformly at random, and with probability \(1-\epsilon\), an action is chosen greedily with respect to a value estimate. This yields near-greedy behavior while ensuring persistent exploration (see the <a href="model-free-control.html" target=&ldquo;blank&rdquo;>Model-free Control note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Ergodic Markov Decision Process</b></dt>
+<dd><p>An MDP in which, for any stationary policy \(\pi\), the induced Markov chain over states is ergodic (i.e., irreducible and aperiodic). Under such conditions, the long-run average reward \(R(\pi)=\lim_{H\to\infty} \frac{1}{H}\mathbb{E}[\sum_{t=1}^H r_t]\) exists and is independent of the initial state.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Ergodic Markov Process</b></dt>
+<dd><p>A Markov process in which every state is recurrent and aperiodic, ensuring that the chain visits each state infinitely often with well-defined stationary frequencies. Ergodicity guarantees the existence of a unique stationary distribution toward which state visitation frequencies converge.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Expectile loss</b></dt>
+<dd><p>A regression loss parametrized by \(\tau\in(0,1)\) defined via asymmetric quadratic penalties: \(\ell_\tau(u)=|\tau - \mathbf{1}\{u&lt;0\}|\,u^2\), where \(u\) is the prediction error. Minimizing expectile loss yields expectiles, which interpolate between mean and tail-sensitive estimates (see the <a href="implicit-q-learning.html" target=&ldquo;blank&rdquo;>Implicit Q-learning note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Experience replay</b></dt>
+<dd><p>A mechanism that stores past transitions in a replay buffer and samples batches from this buffer to perform updates. This breaks correlation between successive samples, stabilizes learning, and improves data efficiency in deep RL (see the <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>Deep Q-learning note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Exploitation</b></dt>
+<dd><p>The selection of actions that maximize current estimates of value or reward, thereby leveraging existing knowledge to obtain high expected return (see the <a href="model-free-control.html" target=&ldquo;blank&rdquo;>Model-free Control note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Exploration</b></dt>
+<dd><p>The selection of actions designed to acquire new information about the environment or improve value estimates, often by choosing actions with uncertain or under-explored outcomes (see the <a href="model-free-control.html" target=&ldquo;blank&rdquo;>Model-free Control note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Exploration-exploitation tradeoff</b></dt>
+<dd><p>The fundamental tension between gathering information to improve future decisions (exploration) and choosing actions believed to yield high immediate return (exploitation). Effective RL algorithms balance these objectives to achieve long-term optimal performance (see the <a href="model-free-control.html" target=&ldquo;blank&rdquo;>Model-free Control note</a>).
+</p></dd>
+</dl>
+<h2>F</h2>
+<dl>
+<dt><b>Finite MDP</b></dt>
+<dd><p>An MDP in which state space \(\mathcal{S}\), action space \(\mathcal{A}\), and reward set are all finite. Classical dynamic-programming results apply directly in this setting, guaranteeing existence of optimal value functions and optimal stationary policies (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Forward pass</b></dt>
+<dd><p>The ordered evaluation of all intermediate quantities in a computational graph, beginning from inputs and proceeding through each operation to produce outputs. In neural networks, the forward pass computes activations layer by layer before any gradient computation (see the <a href="backpropagation.html" target=&ldquo;blank&rdquo;>Backpropagation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Forward-mode automatic differentiation</b></dt>
+<dd><p>A method for computing Jacobian–vector products by propagating directional derivatives along the computational graph in the same direction as the forward evaluation. It is efficient when the number of inputs is small relative to the number of outputs (see the <a href="backpropagation.html" target=&ldquo;blank&rdquo;>Backpropagation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Fully observable MDP</b></dt>
+<dd><p>A Markov decision process in which the agent's observation at time \(t\) uniquely determines the underlying environment state \(s_t\). Under full observability, optimal control can be based solely on the current state without requiring belief-state inference (see the <a href="sac.html" target=&ldquo;blank&rdquo;>Soft Actor-Critic note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Function approximation</b></dt>
+<dd><p>The use of parameterized function classes — such as linear architectures or neural networks — to represent value functions, policies, or models in large or continuous state/action spaces. Approximation enables generalization across states but breaks exact Bellman contraction guarantees, making stability dependent on the chosen architecture and update rule (see the <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>Prediction with Function Approximation note</a>).
+</p></dd>
+</dl>
+<h2>G</h2>
+<dl>
+<dt><b>Generalized policy iteration (GPI)</b></dt>
+<dd><p>The simultaneous interplay of policy evaluation and policy improvement, where each process influences and is influenced by the other. GPI describes any scheme in which value estimates are brought closer to \(V_\pi\) while the policy is improved toward greediness with respect to those estimates, and convergence to an optimal policy arises from this coupled recursion (see the <a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>Dynamic Programming for Solving MDPs note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Global minimum</b></dt>
+<dd><p>A parameter value \(\theta^*\) satisfying \(f(\theta^*) \le f(\theta)\) for every \(\theta\) in the domain of \(f\). No other point attains a strictly smaller function value (see the <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>Prediction with Function Approximation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Gradient</b></dt>
+<dd><p>For a differentiable scalar function \(f(\theta)\), the vector of first partial derivatives \(\nabla f(\theta) = \big(\frac{\partial f}{\partial \theta_1},\dots,\frac{\partial f}{\partial \theta_d}\big)^\top\). The gradient points in the direction of steepest local increase of \(f\) and is used to construct first-order update rules (see the <a href="backpropagation.html" target=&ldquo;blank&rdquo;>Backpropagation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Greedy action selection</b></dt>
+<dd><p>The choice of an action \(a\in\arg\max_a Q(s,a)\). Greedy selection implements the maximization step in policy improvement (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<h2>H</h2>
+<dl>
+<dt><b>Hessian</b></dt>
+<dd><p>For a twice-differentiable scalar function \(f(\theta)\), the Hessian is the matrix of second-order partial derivatives \(H_{ij}=\frac{\partial^2 f}{\partial \theta_i\,\partial \theta_j}\). It characterizes local curvature and appears in second-order approximations such as quadratic models of KL divergence in TRPO (see the <a href="trpo.html" target=&ldquo;blank&rdquo;>TRPO note</a>).
+</p></dd>
+</dl>
+<h2>I</h2>
+<dl>
+<dt><b>Importance sampling </b></dt>
+<dd><p>A family of methods for estimating expectations under a target distribution \(p\) using samples from a behavior distribution \(q\). Each sample is weighted by the likelihood ratio \(p(x)/q(x)\) so that the weighted empirical average matches the target expectation in expectation (see the <a href="importance-sampling.html" target=&ldquo;blank&rdquo;>Importance Sampling note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Inner optimization (constrained optimization)</b></dt>
+<dd><p>A nested optimization problem in which parameters are adjusted to satisfy both an objective and one or more constraints. Algorithms such as projected gradient descent, penalty methods, or trust-region updates may serve as inner solvers enforcing feasibility (see the <a href="constrained-mdps.html" target=&ldquo;blank&rdquo;>Constrained MDPs note</a>).
+</p></dd>
+</dl>
+<h2>K</h2>
+<dl>
+<dt><b>\(k\)-armed bandit problem</b></dt>
+<dd><p>A repeated decision problem with \(k\) independent actions (&ldquo;arms&rdquo;), each associated with an unknown reward distribution. At each step the learner selects an arm and receives a reward sampled from that arm's distribution, with no state transitions across rounds (see the <a href="off-policy-evaluation.html" target=&ldquo;blank&rdquo;>Off-Policy Evaluation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Kernel</b></dt>
+<dd><p>For a probability distribution, the kernel is the unnormalized form of its density or mass function — the expression proportional to the full distribution but without the normalizing constant. Kernels are used to identify the distribution's functional form, especially in Bayesian conjugacy analysis (see the <a href="bayes-theorem-for-probability-distributions.html" target=&ldquo;blank&rdquo;>Bayes&rsquo; Theorem for Probability Distributions note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Kullback–Leibler divergence (KL divergence)</b></dt>
+<dd><p>A directed measure of discrepancy between two probability distributions \(P\) and \(Q\) defined by \(D_{\mathrm{KL}}(P\|Q)=\mathbb{E}_{P}[\log(P/Q)]\). It quantifies the information loss when \(Q\) is used to approximate \(P\) and appears as a proximity constraint in policy optimization (see the <a href="kl-divergence.html" target=&ldquo;blank&rdquo;>KL Divergence note</a>).
+</p></dd>
+</dl>
+<h2>L</h2>
+<dl>
+<dt><b>Lagrangian</b></dt>
+<dd><p>A function that augments an objective with constraint terms using Lagrange multipliers, typically of the form \(\mathcal{L}(\theta,\lambda) = f(\theta) + \sum_i \lambda_i g_i(\theta)\), where \(g_i(\theta)\le 0\) are constraints. Optimal solutions of constrained problems satisfy stationarity and complementary slackness conditions derived from the Lagrangian (see the <a href="constrained-mdps.html" target=&ldquo;blank&rdquo;>Constrained MDPs note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Likelihood function</b></dt>
+<dd><p>A function of parameters \(\theta\) defined by \(L(\theta\mid x)=p_\theta(x)\), treating the observed data \(x\) as fixed. It quantifies how well different parameter values explain the data and forms the basis for maximum-likelihood and Bayesian inference (see the <a href="bayes-theorem-for-probability-distributions.html" target=&ldquo;blank&rdquo;>Bayes&rsquo; Theorem for probability distributions note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Local minimum</b></dt>
+<dd><p>A point \(\theta^*\) such that \(f(\theta^*) \le f(\theta)\) for all \(\theta\) in some neighborhood of \(\theta^*\). Unlike a global minimum, a local minimum need not be optimal outside its neighborhood (see the <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>Prediction with Function Approximation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Logits</b></dt>
+<dd><p>The unnormalized scores produced by a model before application of a normalization function such as softmax. For a categorical distribution, logits \(z_i\) define probabilities via \(\pi(i)=\exp(z_i)/\sum_j\exp(z_j)\).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Loss function (objective)</b></dt>
+<dd><p>A mapping \(L(\theta)\) that assigns a scalar cost or objective value to parameters \(\theta\), often defined as an expectation of a per-sample loss under a data distribution. Learning or optimization procedures attempt to find \(\theta\) that minimize (or maximize) this function (see the <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>Deep Q-learning note</a>).
+</p></dd>
+</dl>
+<h2>M</h2>
+<dl>
+<dt><b>Markov Chain</b></dt>
+<dd><p>A stochastic process \(\{s_t\}\) with the property that \(p(s_{t+1}\mid s_0,\dots,s_t)=p(s_{t+1}\mid s_t)\) for all \(t\). Its dynamics are determined by a transition matrix, and long-run behavior is characterized by stationary distributions (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Markov Decision Process</b></dt>
+<dd><p>A controlled Markov chain defined by a tuple \((\mathcal{S},\mathcal{A},P,r,\gamma)\) specifying states, actions, transition dynamics, rewards, and a discount factor. An agent interacts with the MDP by selecting actions according to a policy \(\pi\) (see the <a href="mdp.html" target=&ldquo;blank&rdquo;>Markov Decision Processes note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Markov property</b></dt>
+<dd><p>The structural condition that future states and rewards depend on the past only through the current state: \(p(s_{t+1}\mid s_0,a_0,\dots,s_t,a_t)=p(s_{t+1}\mid s_t,a_t)\). A state satisfying this property contains all information needed for optimal control (see the <a href="mdp.html" target=&ldquo;blank&rdquo;>Markov Decision Processes note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Markov Reward Process</b></dt>
+<dd><p>A Markov Chain augmented with a reward function and discount factor, producing a value function \(V(s)=\mathbb{E}[\sum_{t=0}^\infty \gamma^t r_{t+1}\mid s_0=s]\). It is the uncontrolled special case of an MDP (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Marginal state distribution</b></dt>
+<dd><p>A distribution over states obtained by marginalizing an underlying joint distribution over states, actions, and rewards. For a behavior policy \(\pi_b\), \(d^{\pi_b}(s)\) denotes the marginal distribution of visited states; discounted variants such as \((1-\gamma)\sum_{t=0}^\infty\gamma^t p(s_t=s\mid\pi_b)\) weight earlier states more heavily.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Maximum-likelihood estimate</b></dt>
+<dd><p>A parameter value \(\hat{\theta}\) that maximizes the likelihood \(L(\theta\mid x)\) of observing the data under the model. In MDP estimation, this yields empirical transition probabilities and expected rewards computed from observed transitions.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Metric</b></dt>
+<dd><p>A function \(d:M\times M\to\mathbb{R}\) satisfying non-negativity, identity of indiscernibles, symmetry, and the triangle inequality. Metrics formalize the notion of distance and support analysis of contraction mappings (see the <a href="policy-and-value-iteration-proofs.html" target=&ldquo;blank&rdquo;>Policy and Value Iteration Proofs note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Metric space</b></dt>
+<dd><p>A set \(M\) equipped with a metric \(d\), forming the pair \((M,d)\). Properties such as completeness or compactness depend on the metric (see the <a href="policy-and-value-iteration-proofs.html" target=&ldquo;blank&rdquo;>Policy and Value Iteration Proofs note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Monte Carlo methods</b></dt>
+<dd><p>A class of prediction and control methods that estimate value functions from complete sampled returns without bootstrapping. Estimates converge in expectation to true values but may exhibit high variance (see the <a href="model-free-prediction.html" target=&ldquo;blank&rdquo;>Model-free Prediction note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Multi-armed bandit problem</b></dt>
+<dd><p>A sequential decision problem consisting of independent actions (&ldquo;arms&rdquo;) each associated with an unknown reward distribution. The agent repeatedly selects arms to balance exploration and exploitation, with no state transitions across rounds (see the <a href="off-policy-evaluation.html" target=&ldquo;blank&rdquo;>Off-Policy Evaluation note</a>).
+</p></dd>
+</dl>
+<h2>N</h2>
+<dl>
+<dt><b>\(n\)-step return</b></dt>
+<dd><p>A truncated return that uses \(n\) rewards followed by a bootstrap from a value estimate: \(G_t^{(n)} = \sum_{k=0}^{n-1} \gamma^k r_{t+k+1} + \gamma^n V(s_{t+n})\). Families of \(n\)-step methods interpolate between one-step TD and Monte Carlo returns (see the <a href="model-free-prediction.html" target=&ldquo;blank&rdquo;>Model-free Prediction note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Natural policy gradient / natural gradient</b></dt>
+<dd><p>A gradient direction preconditioned by the inverse Fisher Information Matrix \(F^{-1}\), yielding the update direction \(F^{-1}\nabla_\theta J(\theta)\). This direction corresponds to steepest ascent in the space of policy distributions under the Fisher–Rao metric, rather than in raw parameter space (see the <a href="trpo.html" target=&ldquo;blank&rdquo;>TRPO note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Non-stationary policy</b></dt>
+<dd><p>A policy sequence \(\{\pi_t\}_{t\ge 0}\) in which the action distribution may change with time, so that \(\pi_t(a\mid s)\) depends explicitly on the timestep \(t\). For the same state \(s\), the policy may assign different action probabilities at different times, in contrast to stationary policies \(\pi(a\mid s)\) that are time-invariant (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Norm</b></dt>
+<dd><p>A function \(p:B(\mathcal{S})\to\mathbb{R}\) assigning a nonnegative &ldquo;length&rdquo; to each bounded real-valued function on \(\mathcal{S}\) and satisfying: (i) positive definiteness: \(p(V)=0\) iff \(V(s)=0\) for all \(s\); (ii) absolute homogeneity: \(p(\gamma V)=|\gamma|\,p(V)\) for all scalars \(\gamma\); and (iii) the triangle inequality: \(p(V+U)\le p(V)+p(U)\). Norms induce metrics and support contraction analyses of Bellman operators (see the <a href="policy-and-value-iteration-proofs.html" target=&ldquo;blank&rdquo;>Policy and Value Iteration Proofs note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Nuisance function</b></dt>
+<dd><p>A function or component of a statistical model that affects estimation but is not itself the target of inference, such as an auxiliary regression or density ratio appearing in off-policy evaluation. Accurate estimation of nuisance functions is often required to construct unbiased or doubly robust estimators (see the <a href="off-policy-evaluation.html" target=&ldquo;blank&rdquo;>Off-Policy Evaluation note</a>).
+</p></dd>
+</dl>
+<h2>O</h2>
+<dl>
+<dt><b>Off-policy evaluation</b></dt>
+<dd><p>The problem of estimating the expected return of a target policy \(\pi\) using data generated by a different behavior policy \(\pi_b\). Because trajectories come from \(\pi_b\), correction techniques such as importance sampling or model-based estimation are required to produce unbiased or low-bias estimates (see the <a href="off-policy-evaluation.html" target=&ldquo;blank&rdquo;>Off-Policy Evaluation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Off-policy learning</b></dt>
+<dd><p>The process of improving a target policy using data for which the distribution is induced by a different behavior policy. Learning from transitions not generated by the target policy breaks on-policy contraction guarantees and requires mechanisms such as importance weighting or replay buffers (see the <a href="model-free-control.html" target=&ldquo;blank&rdquo;>Model-free Control note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Offline learning</b></dt>
+<dd><p>The setting in which learning occurs entirely from a fixed dataset of transitions without additional interaction with the environment. Algorithms must avoid actions unsupported by the dataset and typically incorporate conservatism or uncertainty estimates (see the <a href="implicit-q-learning.html" target=&ldquo;blank&rdquo;>Implicit Q-learning note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>On-policy distribution (continuing tasks)</b></dt>
+<dd><p>The long-run proportion of time that a trajectory following policy \(\pi\) spends in each state \(s\), i.e., the stationary state-visitation distribution under \(\pi\) for a continuing MDP (see the <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>Prediction with Function Approximation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>On-policy distribution (episodic tasks)</b></dt>
+<dd><p>The normalized expected number of visits to each state \(s\) per episode under policy \(\pi\), i.e., the fraction of time steps in an episode spent in \(s\). This quantity determines the weighting of states in episodic policy-evaluation updates (see the <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>Prediction with Function Approximation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>On-policy learning</b></dt>
+<dd><p>The process of improving the same policy that generates the training data. Updates reflect the statistics of the current policy's trajectories, preserving TD contraction properties (see the <a href="model-free-control.html" target=&ldquo;blank&rdquo;>Model-free Control note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Online learning</b></dt>
+<dd><p>A learning setting in which updates are performed sequentially as data are observed, often one transition at a time. Unlike offline learning, online algorithms continuously interact with and adapt to the environment's evolving data-generating process.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Optimal policy</b></dt>
+<dd><p>A policy \(\pi^*\) satisfying \(V_{\pi^*}(s)\ge V_\pi(s)\) for every state \(s\) and every alternative policy \(\pi\). In finite MDPs, at least one stationary deterministic optimal policy always exists (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Optimal substructure</b></dt>
+<dd><p>A structural property of a problem whereby an optimal solution can be constructed from optimal solutions to its subproblems. Dynamic programming relies on optimal substructure in order to justify Bellman recursions (see the <a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>Dynamic Programming for Solving MDPs note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Ordinary differential equation</b></dt>
+<dd><p>An equation involving an unknown function and its ordinary derivatives, relating the function's rate of change to its current value or to time. Solving an ODE yields a function or family of functions satisfying the differential constraint.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Outer optimization (constrained optimization)</b></dt>
+<dd><p>The optimization of the primary objective in a constrained problem after the inner mechanism for enforcing feasibility (e.g., trust-region or penalty step) has been applied. Outer iterations update primal variables while respecting constraint structure (see the <a href="constrained-mdps.html" target=&ldquo;blank&rdquo;>Constrained MDPs note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Overestimation bias</b></dt>
+<dd><p>A systematic upward bias in value estimates that arises when maximizing over noisy estimates of action values, such as \(\max_a \hat{Q}(s,a)\). This bias appears in Q-learning and motivates methods like double Q-learning that decouple action selection from action evaluation (see the <a href="double-q-learning.html" target=&ldquo;blank&rdquo;>Double Q-learning note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Overlapping subproblems</b></dt>
+<dd><p>A property of problems in which the same subproblems recur repeatedly, so that caching solutions yields computational savings. Dynamic programming exploits overlapping subproblems to avoid redundant computation (see the <a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>Dynamic Programming for Solving MDPs note</a>).
+</p></dd>
+</dl>
+<h2>P</h2>
+<dl>
+<dt><b>Plant</b></dt>
+<dd><p>The dynamical system or environment in which the state evolves in response to applied actions, described by transition dynamics \(P(s&rsquo; \mid s,a)\). In control and RL, the plant is the external process being regulated or optimized.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Policy</b></dt>
+<dd><p>A mapping from states (or observations) to a distribution over actions; formally, a stationary stochastic policy satisfies \(\pi(a \mid s) \ge 0\) and \(\sum_a \pi(a \mid s)=1\) for all \(s\). A policy determines the agent's behavior throughout interaction with the MDP (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Policy distillation</b></dt>
+<dd><p>A procedure that trains a student policy to match one or more teacher policies by minimizing a divergence (typically cross-entropy or KL divergence) between the student's action distribution and target action distributions. Distillation transfers behavioral competence without reproducing the teachers&rsquo; internal value estimates  (see the <a href="policy-distillation.html" target=&ldquo;blank&rdquo;>Policy Distillation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Policy evaluation</b></dt>
+<dd><p>See prediction definition.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Policy gradient methods</b></dt>
+<dd><p>A class of optimization methods that adjust policy parameters \(\theta\) in the direction of an unbiased (or low-bias) estimate of the gradient \(\nabla_\theta J(\theta)\) of expected return. These methods rely on identities such as the policy gradient theorem to express \(\nabla_\theta J(\theta)\) in terms of on-policy trajectories (see the <a href="policy-gradients.html" target=&ldquo;blank&rdquo;>Policy Gradients note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Policy iteration</b></dt>
+<dd><p>An algorithm that alternates between (i) evaluating the current policy to obtain \(V_\pi\) and (ii) improving it by acting greedily with respect to \(V_\pi\), converging to an optimal policy under standard conditions (see the <a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>Dynamic Programming for Solving MDPs</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Policy transfer</b></dt>
+<dd><p>The use of a policy learned in one task, environment, or domain as an initialization or prior for another. Transfer may require adaptation when dynamics, reward structure, or state representation differ across tasks.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Positive definite matrix</b></dt>
+<dd><p>A symmetric matrix \(A\) satisfying \(x^\top A x &gt; 0\) for all nonzero vectors \(x\). Such matrices induce inner products and define quadratic forms with strictly positive curvature (see the <a href="conjugate-gradient-method.html" target=&ldquo;blank&rdquo;>Conjugate Gradient Method note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Prediction</b></dt>
+<dd><p>The computation of the state-value function \(V_\pi\) for a given policy \(\pi\), often by Monte Carlo or temporal-difference methods. Prediction is also called policy evaluation (see the <a href="model-free-prediction.html" target=&ldquo;blank&rdquo;>Model-free Prediction note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Primal-dual methods</b></dt>
+<dd><p>Optimization schemes that update primal variables (e.g., policy parameters) and dual variables (e.g., Lagrange multipliers) simultaneously to satisfy both optimality and constraint feasibility. These methods solve constrained RL problems by coupling policy improvement with adjustments to penalty or constraint terms (see the <a href="constrained-mdps.html" target=&ldquo;blank&rdquo;>Constrained MDPs note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Projected Bellman error</b></dt>
+<dd><p>The Bellman error \(\mathcal{T}_\pi V - V\) projected onto the function-approximation subspace using an orthogonal projection operator, typically under a weighted norm. This projected error measures how well the representable function class can satisfy the Bellman fixed-point condition (see the <a href="off-policy-control-with-function-approximation.html" target=&ldquo;blank&rdquo;>Off-policy Control with Function Approximation note</a>).
+</p></dd>
+</dl>
+<h2>Q</h2>
+<dl>
+<dt><b>Q-values</b></dt>
+<dd><p>See action-value function definition.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Quantile</b></dt>
+<dd><p>For a distribution \(F\), the \(\tau\)-quantile is the value \(x\) such that \(F(x) = \tau\), i.e., the value below which a fraction \(\tau\) of probability mass lies (see the <a href="implicit-q-learning.html" target=&ldquo;blank&rdquo;>Implicit Q-learning note</a>).
+</p></dd>
+</dl>
+<h2>R</h2>
+<dl>
+<dt><b>Replay buffer</b></dt>
+<dd><p>A finite memory that stores previously observed transitions \((s,a,r,s&rsquo;)\) from which minibatches are sampled uniformly (or by priority) to perform updates. By breaking temporal correlations and reusing past data, replay buffers stabilize and improve the efficiency of deep RL (see the <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>Deep Q-learning note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Reparameterization trick</b></dt>
+<dd><p>A variance-reduction technique for gradient estimation in which sampling from a parameterized distribution is expressed as a deterministic transformation of a parameter-free noise variable, e.g., \(a = \mu_\theta(s) + \sigma_\theta(s)\,\varepsilon\) with \(\varepsilon\sim\mathcal{N}(0,I)\). This allows gradients of expectations w.r.t. parameters to be computed via standard backpropagation (see the <a href="reparameterization-trick.html" target=&ldquo;blank&rdquo;>Reparameterization Trick note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Representation gap</b></dt>
+<dd><p>A discrepancy between the representational capacity of a function class and the requirements imposed by a task (e.g., when the feature space learned by a representation is insufficient to express value functions). Such gaps limit performance even with perfect optimization (see the <a href="successor-features.html" target=&ldquo;blank&rdquo;>Successor Features note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Residual connection</b></dt>
+<dd><p>A computation of the form \(y = x + F(x)\), where \(F\) is a learned transformation, enabling gradients to flow more easily through deep architectures. Residual connections mitigate vanishing gradients and permit substantially deeper models, such as Transformer blocks (see the <a href="transformer.html" target=&ldquo;blank&rdquo;>Transformer note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Return</b></dt>
+<dd><p>The cumulative reward obtained by the agent, typically expressed as the discounted sum
+\(G_t=\sum_{k=0}^\infty \gamma^k r_{t+k+1}\). Returns define value functions and serve as training targets in prediction and control (see the <a href="mdp.html" target=&ldquo;blank&rdquo;>MDPs note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Return error</b></dt>
+<dd><p>The difference between a value estimate \(V_\theta(s_t)\) and the corresponding sampled return \(G_t\), i.e., \(G_t - V_\theta(s_t)\). This quantity appears in gradient expressions for function-approximation methods (see the <a href="learnability-of-rl-objectives.html" target=&ldquo;blank&rdquo;>Learnability of RL Objectives note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Reverse-mode automatic differentiation</b></dt>
+<dd><p>A method for computing vector–Jacobian products by propagating adjoints backward through a computational graph. It is efficient when the number of outputs is small relative to the number of inputs and underlies backpropagation in neural networks (see the <a href="backpropagation.html" target=&ldquo;blank&rdquo;>Backpropagation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Reward</b></dt>
+<dd><p>A scalar signal emitted by the environment that quantifies instantaneous performance and drives learning of value functions and policies. Rewards shape the objective that the agent seeks to optimize (see the <a href="mdp.html" target=&ldquo;blank&rdquo;>MDPs note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Reward shaping</b></dt>
+<dd><p>The modification of the reward function by adding a potential-based term \(F(s,s&rsquo;)=\gamma \Phi(s&rsquo;)-\Phi(s)\) that preserves optimal policies while altering learning dynamics. Proper shaping can accelerate learning by providing more informative intermediate feedback.
+</p></dd>
+</dl>
+<h2>S</h2>
+<dl>
+<dt><b>Self-attention</b></dt>
+<dd><p>A mechanism by which each element of a sequence computes attention weights over all other elements using learned queries, keys, and values. This enables contextualized representations that capture long-range dependencies without recurrence (see the <a href="transformer.html" target=&ldquo;blank&rdquo;>Transformer note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Semi-gradient descent</b></dt>
+<dd><p>An update method in which the gradient is taken only with respect to the parameters of the value-function approximation, treating target values that themselves depend on the parameters as fixed. Semi-gradients yield stable TD updates even when full gradients would introduce harmful feedback loops (see the <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>Prediction with Function Approximation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Soft target updates</b></dt>
+<dd><p>A target-network update rule defined by the incremental movement of target parameters toward online parameters via \(\theta_{\text{targ}} \leftarrow \tau\,\theta_{\text{online}} + (1-\tau)\,\theta_{\text{targ}}\) with \(\tau\in(0,1]\). This reduces variance and stabilizes temporal-difference targets (see the <a href="ddpg.html" target=&ldquo;blank&rdquo;>DPG &amp; DDPG note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Softmax action selection</b></dt>
+<dd><p>A stochastic policy that samples actions according to a Boltzmann distribution over action preferences or value estimates: \(\pi(a\mid s) = \frac{\exp(H(s,a)/\tau)}{\sum_{a&rsquo;} \exp(H(s,a&rsquo;)/\tau)}\), where \(\tau&gt;0\) controls exploration (see the <a href="policy-gradients.html" target=&ldquo;blank&rdquo;>Policy Gradients note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>State-conditioned marginal likelihood</b></dt>
+<dd><p>The conditional probability of an observed sequence of actions and rewards given the value of the state at a specific time step, i.e., \(p(a_{1:T}, r_{1:T} \mid s_t, \pi)\). It quantifies how well a policy and environment model explain the trajectory data conditioned on \(s_t\).
+</p></dd>
+</dl>
+<dl>
+<dt><b>State-value function</b></dt>
+<dd><p>A mapping \(V_\pi(s)=\mathbb{E}_\pi[G_t \mid s_t=s]\) that assigns to each state the expected return obtained when starting in that state and subsequently following policy \(\pi\). It is the fixed point of the Bellman expectation equation for \(\pi\) (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Stationary policy</b></dt>
+<dd><p>A time-invariant policy \(\pi(a\mid s)\) that depends only on the current state and does not change across timesteps. When interacting with an MDP, a stationary policy induces a time-homogeneous Markov chain over states (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Steady-state distribution</b></dt>
+<dd><p>A distribution \(\mu\) satisfying \(\sum_s \mu(s)\sum_a \pi(a\mid s)p(s'\mid s,a)=\mu(s&rsquo;)\) for all \(s'\). When a Markov chain induced by policy \(\pi\) is ergodic, state visitation frequencies converge to this stationary distribution (see the <a href="policy-gradients.html" target=&ldquo;blank&rdquo;>Policy Gradients note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Step size</b></dt>
+<dd><p>A scalar parameter controlling the magnitude of updates in iterative optimization or learning algorithms. Step-size choice affects convergence speed and stability (see the <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>Prediction with Function Approximation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Stochastic gradient descent</b></dt>
+<dd><p>An iterative optimization method that updates parameters using noisy gradient estimates computed from minibatches or single samples. SGD enables scalable training in high-dimensional models such as neural networks (see the <a href="backpropagation.html" target=&ldquo;blank&rdquo;>Backpropagation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Stochastic policy</b></dt>
+<dd><p>A policy \(\pi(a\mid s)\) that assigns nonzero probability to multiple actions in a given state, selecting actions at random according to its distribution. Stochastic policies are central to exploration and to policy-gradient formulations (see the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Sufficient set of policies</b></dt>
+<dd><p>A collection of policies for which occupancy measures span all feasible state–action occupancy distributions required for solving a constrained MDP. Such sets ensure that optimal solutions can be represented using mixtures or combinations of the included policies (see the <a href="constrained-mdps.html" target=&ldquo;blank&rdquo;>Constrained MDPs note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Support</b></dt>
+<dd><p>The set of points for which a probability distribution assigns nonzero density or mass. In off-policy evaluation, well-defined importance ratios require that the support of the target policy be contained in that of the behavior policy (see the <a href="off-policy-evaluation.html" target=&ldquo;blank&rdquo;>Off-Policy Evaluation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Surrogate objective</b></dt>
+<dd><p>An auxiliary objective \(L(\theta)\) constructed so that its value and gradient agree with the true performance objective \(J(\theta)\) at a reference parameter \(\theta_{\text{old}}\), but which is simpler to estimate or optimize. In TRPO, the surrogate replaces state distributions induced by the new policy with those induced by the old policy, yielding a local first-order approximation to \(J\) (see the <a href="trpo.html" target=&ldquo;blank&rdquo;>TRPO note</a>).
+</p></dd>
+</dl>
+<h2>T</h2>
+<dl>
+<dt><b>Tabular methods</b></dt>
+<dd><p>Algorithms that represent value functions or policies using explicit tables indexed by states or state–action pairs. These methods assume finite state and action spaces and avoid approximation error by storing a separate parameter for each entry (see the <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>Prediction with Function Approximation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Target network</b></dt>
+<dd><p>A secondary network for which parameters are updated slowly or periodically to provide stable targets for temporal-difference updates. By decoupling the target from the rapidly changing online network, target networks reduce moving-target instability in deep RL (see the <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>Deep Q-learning note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Target policy</b></dt>
+<dd><p>The policy \(\pi\) for which value or performance is being evaluated or optimized, possibly using data generated by a different behavior policy. Off-policy methods explicitly distinguish between target and behavior policies in their estimators.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Taylor approximation</b></dt>
+<dd><p>A local polynomial approximation of a function \(f\) around a point \(\theta_0\), typically \(f(\theta)\approx f(\theta_0)+\nabla f(\theta_0)^\top(\theta-\theta_0)+\tfrac12(\theta-\theta_0)^\top H(\theta_0)(\theta-\theta_0)\). In TRPO, second-order Taylor expansions approximate KL divergence and surrogate objectives (see the <a href="trpo.html" target=&ldquo;blank&rdquo;>TRPO note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Temporal difference (TD fixed point)</b></dt>
+<dd><p>A value function \(V\) satisfying \(V = \Pi \mathcal{T}_\pi V\), where \(\mathcal{T}_\pi\) is the Bellman operator for policy \(\pi\) and \(\Pi\) is the projection onto the approximation subspace under a chosen norm (see the <a href="policy-and-value-iteration-proofs.html" target=&ldquo;blank&rdquo;>Policy and Value Iteration Proofs note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Temporal difference error (TD error)</b></dt>
+<dd><p>The discrepancy \(\delta_t = r_{t+1} + \gamma V(s_{t+1}) - V(s_t)\) between a value estimate and a bootstrap return. TD errors serve as the update signal in TD learning and appear in policy-gradient estimators (see the <a href="learnability-of-rl-objectives.html" target=&ldquo;blank&rdquo;>Learnability of RL Objectives note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Temporal difference learning (TD learning)</b></dt>
+<dd><p>A class of prediction methods that update value estimates toward bootstrap targets formed from one-step returns, e.g., \(V(s_t)\leftarrow V(s_t)+\alpha\delta_t\). TD learning combines aspects of Monte Carlo and dynamic programming and converges under standard on-policy conditions (see the <a href="model-free-control.html" target=&ldquo;blank&rdquo;>Model-free Control note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>TD(\(\lambda\))</b></dt>
+<dd><p>A family of temporal-difference algorithms indexed by a trace-decay parameter \(\lambda \in [0,1]\) that combine \(n\)-step returns of all lengths via \(\lambda\)-weighted averaging. TD(\(0\)) corresponds to one-step TD, while TD(\(1\)) approaches Monte Carlo methods through full-return updates (see the <a href="model-free-prediction.html" target=&ldquo;blank&rdquo;>Model-free Prediction note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Transfer gap</b></dt>
+<dd><p>A discrepancy between value estimates or successor features learned in a source task and those required in a target task. This gap limits the effectiveness of transfer unless the shared structure is sufficiently aligned (see the <a href="successor-features.html" target=&ldquo;blank&rdquo;>Successor Features note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Transfer learning</b></dt>
+<dd><p>The use of knowledge — such as value functions, policies, or learned representations — from a source task to accelerate learning or improve performance in a related target task. Transfer may involve direct reuse, adaptation, or distillation (see the <a href="successor-features.html" target=&ldquo;blank&rdquo;>Successor Features note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Trust region</b></dt>
+<dd><p>A constrained neighborhood around a reference parameter or policy within which local approximations of the objective are assumed reliable. In TRPO, the trust region is defined by a KL-divergence constraint \(D_{\mathrm{KL}}(\pi_{\theta_{\text{old}}}\|\pi_\theta) \le \delta\), limiting how far the new policy may move from the old one in distribution space (see the <a href="trpo.html" target=&ldquo;blank&rdquo;>TRPO note</a>).
+</p></dd>
+</dl>
+<h2>U</h2>
+<dl>
+<dt><b>Unbiased estimator</b></dt>
+<dd><p>An estimator \(\hat{\theta}\) for which expectation equals the true parameter value, i.e., \(\mathbb{E}[\hat{\theta}]=\theta\). Unbiasedness ensures correctness on average across repeated sampling (see the <a href="model-free-prediction.html" target=&ldquo;blank&rdquo;>Model-free Prediction note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Uniformly optimal policy</b></dt>
+<dd><p>A policy that is optimal for every possible initial state of the MDP (see the <a href="constrained-mdps.html" target=&ldquo;blank&rdquo;>Constrained MDPs note</a>).
+</p></dd>
+</dl>
+<h2>V</h2>
+<dl>
+<dt><b>Value error</b></dt>
+<dd><p>The difference between an approximate value function \(V_\theta\) and the true value function \(V_\pi\), measured under a specific norm or state distribution. Value error quantifies approximation quality and appears in analyses of TD learning (see the <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>Prediction with Function Approximation note</a>).
+</p></dd>
+</dl>
+<dl>
+<dt><b>Verification</b></dt>
+<dd><p>The process of proving that a neural network satisfies specified properties (e.g., robustness or safety) over all admissible inputs. Verification techniques include interval analysis, convex relaxations, and exact branching methods (see the <a href="nn-verification.html" target=&ldquo;blank&rdquo;>Neural Network Verification note</a>).
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

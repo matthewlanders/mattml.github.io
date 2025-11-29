@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Implicit Q-Learning</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html" class="current">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Implicit Q-Learning</h1>
+</div>
+<p><i>Revised September 28, 2025</i>
+</p>
+<p><i>The <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>Deep Q-Learning note</a> is optional but recommended background reading.</i>
+</p>
+<p><a href="glossary.html" target=&ldquo;blank&rdquo;>Offline reinforcement</a> learning assumes access to a fixed dataset \(\mathcal{B} = \{(s_t,a_t,r_t,s_{t+1})\}_{t=1}^Z\) generated by a behavior policy \(\pi_b\), which may be optimal, suboptimal, or a mixture of policies. The learning agent has no additional access to the environment and must train entirely from this static dataset. In offline RL the maximization in the <a href="learnability-of-rl-objectives.html" target=&ldquo;blank&rdquo;>mean squared Bellman error</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L_{TD}(\theta) = \mathbb{E}_{(s,a,r,s&rsquo;) \sim \mathcal{B}} \left[ \left(r + \gamma \max_{a&rsquo;} Q(s&rsquo;, a&rsquo;) - Q(s, a) \right)^2 \right] \;,
+\end{equation*}
+\]
+</p><p>induces systematic overestimation. For actions \(a'\) outside the support of \(\mathcal{B}\) the estimates \(Q(s&rsquo;,a&rsquo;;\hat{\theta})\) are purely extrapolated, since \(\mathcal{B}\) provides no evidence for their value. If such actions receive spuriously high estimates the \(\max\) operator selects them and Bellman updates propagate the bias through successive targets. In <a href="glossary.html" target=&ldquo;blank&rdquo;>online RL</a> such errors can be corrected by evaluating actions through additional environmental interaction. Offline RL lacks this validation, so extrapolated estimates persist. Reliable offline learning therefore requires constraining policies to the support of \(\mathcal{B}\). Common approaches penalize out-of-distribution actions through value regularization or constrain the learned policy directly, though these methods do not fully prevent extrapolation error.
+</p>
+<p>Implicit Q-Learning (IQL) mitigates extrapolation error by (i) learning a state-value \(V(s)\) via expectile regression over in-dataset action values \(Q(s,a)\), and then (ii) training \(Q\) with targets \(r+\gamma V(s&rsquo;)\). This replaces the explicit maximization  over (potentially out-of-support) actions and biases value estimates toward higher in-support actions through the expectile parameter \(\tau\).
+</p>
+<h3>Expectile Regression</h3>
+<p>Out-of-distribution actions can be trivially avoided by defining the backup only with actions \(a'\) sampled from the dataset:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:sarsa-like-loss}
+    L(\theta) = \mathbb{E}_{(s,a,r,s&rsquo;,\color{red}{a&rsquo;})\sim\mathcal{B}} \left[\big(r + \gamma Q(s&rsquo;,a&rsquo;;\hat{\theta}) - Q(s,a;\theta)\big)^2\right],
+\end{equation}
+\]
+</p><p>Equation \(\eqref{eq:sarsa-like-loss}\) recovers the Q-function of the behavior policy, \(Q^{\pi_b}\). A new policy \(\pi\) can then be extracted by \(\arg \max_a Q^{\pi_b}(s,a)\), which corresponds to a single step of <a href="glossary.html" target=&ldquo;blank&rdquo;>policy iteration</a> — first evaluate the behavior policy, then take the greedy improvement. Such one-step dynamic programming methods, however, are <a href="https://arxiv.org/pdf/2110.06169" target=&ldquo;blank&rdquo;>known to fail on complex tasks</a>.
+</p>
+<p>The loss in Equation \(\eqref{eq:sarsa-like-loss}\) minimizes the Bellman error under the behavior policy, yielding the average action value under \(\pi_b\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathbb{E}_{a \sim \pi_b}[Q(s,a)] \;.
+\end{equation*}
+\]
+</p><p>The mean arises because squared error penalizes positive and negative deviations symmetrically. To bias the estimate toward higher values supported by the dataset, IQL replaces MSE with <i>expectile regression</i>. For a distribution \(X\), the \(\tau\)-expectile \(m_\tau\) is defined by:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:expectile}
+    m_\tau = \arg\min_m \mathbb{E}_{x \sim X}\big[L_2^\tau(x-m)\big] \;,
+\end{equation}
+\]
+</p><p>with asymmetric loss:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L_2^\tau(u) = |\tau - \mathbf{1}_{\{u&lt;0\}}| u^2 \;.
+\end{equation*}
+\]
+</p><table class="imgtable"><tr><td>
+<img src="static/images/iql/mse_and_expectile.png" alt="mse vs expectile regression" width="500px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<table id="caption">
+<tr class="r1"><td class="c1">The mean-squared loss (left) penalizes positive and negative errors symmetrically, with weight growing quadratically in the error magnitude. The expectile loss (right) introduces asymmetry: for \(\tau&gt;0.5\) (here \(\tau=0.9\)), positive errors \(r + \gamma Q(s&rsquo;,a&rsquo;;\hat{\theta}) - Q(s,a;\theta) &gt; 0\) are penalized more heavily than negative errors. Underestimates of the target therefore incur larger loss than overestimates, biasing the solution upward toward the upper tail of the distribution.
+</td></tr></table>
+<p>An expectile can be viewed as a squared analogue of a quantile. The <a href="glossary.html" target=&ldquo;blank&rdquo;>first-order condition</a> of Equation \(\eqref{eq:expectile}\) is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathbb{E}\big[(\tau-\mathbf{1}_{\{X&lt;m_\tau\}})(X-m_\tau)\big] = 0 \;.
+\end{equation*}
+\]
+</p><p>When \(\tau\) increases, positive deviations \((X-m_\tau)&gt;0\) are weighted more heavily, so \(m_\tau\) shifts upward. As \(\tau \to 1\), the weight on negative deviations vanishes and \(m_\tau\) approaches the supremum of the support of \(X\). Applied to the distribution of \(Q(s,a)\) under \(a \sim \pi_b(\cdot\mid s)\), the \(\tau\)-expectile interpolates between the mean action value (\(\tau=0.5\)) and, in the limit, the maximum in-support action value:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \lim_{\tau \to 1} \text{Expectile}_\tau\big(Q(s,a), a \sim \pi_b(\cdot\mid s)\big) = \max_{a \in \Omega(s)} Q(s,a) \;,
+\end{equation*}
+\]
+</p><p>where \(\Omega(s)=\{a \in A : \pi_b(a\mid s) &gt; 0\}\) denotes the dataset support.
+</p>
+<p>Thus when used as the target in the SARSA-style update (Equation \(\eqref{eq:sarsa-like-loss}\)), the expectile value function trains the Q-function to approximate the maximum value attainable from actions in the support of \(\pi_b\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L_{TD}(\theta) = \mathbb{E}_{(s,a,r,s&rsquo;) \sim \mathcal{B}}
+    \Big[ \big(r + \gamma \max_{a&rsquo; \in \Omega(s)} Q(s&rsquo;,a&rsquo;;\hat{\theta}) - Q(s,a;\theta)\big)^2 \Big] \;.
+\end{equation*}
+\]
+</p><table class="imgtable"><tr><td>
+<img src="static/images/iql/histogram.png" alt="mse vs expectile regression" width="350px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<table id="caption">
+<tr class="r1"><td class="c1">If \(Q\) generalizes, each state \(s \in \mathcal{B}\) induces a distribution of action values \(Q(s,a)\) under \(\pi_b\), shown by the histogram. Minimizing mean-squared error yields the expectation of this distribution (gray line), corresponding to the average action value. Expectile regression instead shifts the estimate upward: for \(\tau&gt;0.5\), positive deviations receive larger weight than negative deviations, so the estimate (black line) lies above the mean.
+</td></tr></table>
+<p>A naive approach to bias Q-learning toward higher in-support values would be to replace the squared loss in Equation \(\eqref{eq:sarsa-like-loss}\) with an asymmetric expectile loss:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:expectile-loss}
+    L(\theta) = \mathbb{E}_{(s,a,r,s&rsquo;,a&rsquo;) \sim \mathcal{B}} \left[ L_2^\tau \left(r + \gamma Q(s&rsquo;,a&rsquo;;\hat{\theta}) - Q(s,a;\theta)\right) \right] \;,
+\end{equation}
+\]
+</p><p>For \(\tau &gt; 0.5\), positive errors \(u&gt;0\) receive larger weight than negative errors \(u&lt;0\). That is, underestimates of the target are penalized more heavily than overestimates. The resulting estimator is biased upward, shifting \(Q(s,a;\theta)\) toward the upper tail of the distribution of returns.
+</p>
+<p>However, applying expectile regression directly to the Bellman targets conflates two sources of variability: the action distribution under \(\pi_b\) and stochasticity in the transition dynamics \(s&rsquo; \sim P(\cdot \mid s,a)\). A &ldquo;lucky&rdquo; high target can arise from rare transitions rather than systematically good actions. IQL therefore does not use expectile loss for \(Q\). Instead, it applies expectile regression only to learn a state-value \(V(s)\) over in-dataset actions, and then trains \(Q\) with standard mean-squared error toward the target \(r + \gamma V(s&rsquo;)\).
+</p>
+<p>The loss in Equation \(\eqref{eq:expectile-loss}\) mitigates overestimation but does not isolate the contribution of the action distribution — its targets also reflect stochasticity from the dynamics \(s&rsquo; \sim P(\cdot \mid s,a)\). A &ldquo;lucky&rdquo;, high value of \(r + \gamma Q(s&rsquo;,a&rsquo;;\hat{\theta})\) may therefore arise from a rare positive transition rather than the typical value of an action. Thus, IQL trains a separate value function \(V_\psi\) that estimates an expectile with respect only to the action distribution:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L_V(\psi) = \mathbb{E}_{(s,a) \sim \mathcal{B}} \Big[ L_2^\tau \big(Q(s,a;\hat{\theta}) - V(s;\psi)\big) \Big] \;.
+\end{equation*}
+\]
+</p><p>The expectile value \(V_\psi\) then defines the targets for Q-learning through a mean-squared loss:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:iql-loss}
+    L_Q(\theta) = \mathbb{E}_{(s,a,r,s&rsquo;) \sim \mathcal{B}} \Big[\big(r + \gamma V(s&rsquo;;\psi) - Q(s,a;\theta)\big)^2\Big] \;.
+\end{equation}
+\]
+</p><p>Using \(V_\psi\) averages over transition stochasticity, avoiding spurious targets from rare &ldquo;lucky&rdquo; outcomes.
+</p>
+<h3>Recovering a Policy</h3>
+<p>Equation \(\eqref{eq:iql-loss}\) trains \(Q\) toward targets \(r+\gamma V(s&rsquo;)\), where \(V\) is an upper-biased in-support estimate (controlled by \(\tau\)). This implicitly favors higher in-support actions without taking an explicit \(\max\). The policy for which these Q-values are approximated is &ldquo;implicit&rdquo; — the Bellman update evaluates the policy that selects the maximal in-support action, but this policy is never constructed explicitly. Greedy extraction from \(Q\) is unstable in the offline setting, since \(\max_{a&rsquo;} Q(s,a&rsquo;)\) may still favor unsupported actions. IQL therefore extracts the policy with a constrained method, advantage-weighted regression (AWR).
+</p>
+<p>AWR fits a parametric policy \(\pi_\phi\) to the dataset actions while reweighting them according to their <a href="glossary.html" target=&ldquo;blank&rdquo;>advantage</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    A(s,a) = Q(s,a) - V(s) \;,
+\end{equation*}
+\]
+</p><p>so that actions with higher advantage are imitated more strongly. Concretely, the policy is obtained by minimizing the weighted log-loss
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L_\pi(\phi) =
+    \mathbb{E}_{(s,a)\sim \mathcal{B}}
+    \left[ - \exp\!\left(\tfrac{A(s,a)}{\beta}\right)\,\log \pi_\phi(a\mid s) \right] \;,
+\end{equation*}
+\]
+</p><p>where \(\beta&gt;0\) is a temperature parameter controlling how aggressively the policy concentrates on high-advantage actions. This procedure ensures that policy learning remains within the dataset support, while still biasing toward actions that improve on \(\pi_b\).
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/iql/iql.png" alt="IQL pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<h3>References</h3>
+<dl>
+<dt><a href="https://openreview.net/forum?id=68n2s9ZJWF8" target=&ldquo;blank&rdquo;>Offline Reinforcement Learning with Implicit Q-Learning</a> (2021)</dt>
+<dd><p>
+Ilya Kostrikov, Ashvin Nair, and Sergey Levine
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.youtube.com/watch?v=NV4oSWe1H9o&amp;ab_channel=RAIL" target=&ldquo;blank&rdquo;>CS 285 at UC Berkeley: Deep Reinforcement Learning.
+Lecture 15, Part 1: Offline Reinforcement Learning [video]</a> (2021)</dt>
+<dd><p>Sergey Levine
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.youtube.com/watch?v=TCn26YClkCw&amp;ab_channel=RAIL" target=&ldquo;blank&rdquo;>CS 285 at UC Berkeley: Deep Reinforcement Learning.
+Lecture 16, Part 1: Offline Reinforcement Learning 2 [video]</a> (2021)</dt>
+<dd><p>Sergey Levine
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://transferlab.ai/pills/2023/implicit-q-learning/" target=&ldquo;blank&rdquo;>Implicit Q Learning</a> (2023)</dt>
+<dd><p>Robert Müller
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1910.00177" target=&ldquo;blank&rdquo;>Advantage-Weighted Regression: Simple and Scalable Off-Policy Reinforcement Learning</a> (2019)</dt>
+<dd><p>Xue Bin Peng, Aviral Kumar, Grace Zhang, and Sergey Levine
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

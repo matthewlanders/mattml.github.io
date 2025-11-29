@@ -1,0 +1,132 @@
+# jemdoc: menu{MENU}{ddpg.html}
+= Deep Deterministic Policy Gradient (DDPG)
+
+/Revised January 9, 2025/
+
+/The [deep-q-learning.html Deep Q-learning], [actor-critic.html Actor-critic], and [policy-gradients.html Policy Gradients] notes are optional but recommended background reading./
+
+[deep-q-learning.html Deep Q-learning] relies on a greedy action selection strategy, requiring the computation of a Q-value for every possible action in the current state. When the action space is large or continuous, however, enumerating all possible actions becomes computationally infeasible. Consequently, identifying the optimal action at each timestep involves solving an iterative optimization problem. For instance, using gradient ascent, the action can be defined as follows:
+
+\(
+\begin{equation*}
+    a_{k+1} = a_k + \alpha \nabla_a Q(s_t, a_k)
+\end{equation*}
+\)
+where $k$ is the optimization iteration.
+
+However, this approach is similarly computationally expensive, making it impractical. Deep Deterministic Policy Gradient (DDPG) avoids the need to solve this optimization problem by combining principles from deep Q-learning and Deterministic Policy Gradient (DPG).
+
+=== Deterministic Policy Gradient
+
+When states and actions are continuous, the [policy-gradients.html policy gradient theorem] allows us to express the gradient of the [policy-gradients.html policy objective] as:
+
+\(
+\begin{align}
+    \nabla_\theta J(\theta) &\propto \int_\mathcal{S} \mu(s) \int_\mathcal{A} Q_\pi(s, a) \nabla_\theta \pi(a \mid s; \theta) \; da \, ds \label{eq:pg} \\
+    &= \mathbb{E}_{s \sim \mu, a \sim \pi(\cdot \mid s; \theta)} \left[ Q_\pi(s_t, a_t) \nabla_\theta \ln \pi(a_t \mid s_t; \theta) \right] \nonumber \;,
+\end{align}
+\)
+where $\mu(s)$ is the normalized [glossary.html discounted state distribution] under the policy $\pi$.
+
+In Equation $\eqref{eq:pg}$, the policy gradient requires integration over both the state space $\mathcal{S}$ and the action space $\mathcal{A}$. In practice, estimating this gradient via sampling-based methods involves drawing samples of $(s, a)$ pairs that sufficiently cover $\mathcal{S} \times \mathcal{A}$. As the dimensionality of $\mathcal{S}$ and/or $\mathcal{A}$ increases, the number of samples required to obtain a low-variance estimate of the gradient grows exponentially, making the procedure sample-intensive. When actions are deterministic, by contrast, integration is required *only over the state space*, which significantly reduces sample complexity. *This insight underpins Deterministic Policy Gradient (DPG)*.
+
+To define the deterministic policy gradient, we first express the parameterized deterministic policy as $a = \rho(s; \theta)$, which approximates the maximizer $\arg \max_a Q(s, a)$. Using this definition, the objective function can be reformulated as:
+
+\(
+\begin{equation}\label{eq:deterministic-objective}
+    J(\theta) = \int_\mathcal{S} \mu(s) Q_\rho(s, \rho(s; \theta)) \; ds
+\end{equation}
+\)
+
+From Equation $\eqref{eq:deterministic-objective}$, the deterministic policy gradient is derived as:
+
+\(
+\begin{align}
+    \nabla_\theta J(\theta) &= \int_\mathcal{S} \mu(s) \nabla_a Q_\rho(s, a) \nabla_\theta \rho(s; \theta) \big|_{a = \rho(s; \theta)} \; ds \label{eq:dpg} \\
+    &= \mathbb{E}_{s \sim \mu} \left[ \nabla_a Q_\rho(s_t, a) \nabla_\theta \rho(s_t; \theta) \big|_{a = \rho(s_t; \theta)} \right] \;. \nonumber
+\end{align}
+\)
+
+Although Equations $\eqref{eq:pg}$ and $\eqref{eq:dpg}$ differ in form, the deterministic policy gradient is a special (limiting) case of the stochastic policy gradient obtained by considering a sequence of increasingly peaked stochastic policies that converge to a deterministic policy. This relationship allows Equation $\eqref{eq:dpg}$ to be applied within the standard [actor-critic.html actor-critic framework] (with a critic $Q(\psi)$ parameterized by $\psi$). Because deterministic policies lack an inherent mechanism for exploration, however, samples are typically collected using a fixed stochastic behavior policy $\beta$. These samples are then leveraged using [glossary.html off-policy learning]:
+Although Equations $\eqref{eq:pg}$ and $\eqref{eq:dpg}$ differ in form, the deterministic policy gradient is a special (limiting) case of the stochastic policy gradient obtained by considering a sequence of increasingly peaked stochastic policies that converge to a deterministic policy. This relationship allows Equation $\eqref{eq:dpg}$ to be applied within the standard [actor-critic.html actor-critic framework] (with a critic $Q(\psi)$ parameterized by $\psi$). Because deterministic policies lack an inherent mechanism for exploration, however, samples are typically collected using a fixed stochastic behavior policy $\beta$. These samples are then leveraged using [glossary.html off-policy learning]:
+
+\(
+\begin{align*}
+    \nabla J(\theta) &\approx \int_\mathcal{S} \mu^\beta(s) \nabla_a Q_\rho(s, a; \psi) \nabla_\theta \rho(s; \theta) \big|_{a = \rho(s; \theta)} \; ds \\
+    &\approx \mathbb{E}_{s \sim \mu^\beta} \left[ \nabla_a Q_\rho(s_t, a; \psi) \nabla_\theta \rho(s_t; \theta) \big|_{a = \rho(s_t; \theta)} \right] \;,
+\end{align*}
+\)
+where $\mu^\beta(s)$ is the state density induced by the behavior policy $\beta$. Note that while the expectation $\mathbb{E}_{s \sim \mu^\beta}$ is taken over states sampled from the behavior policy $\beta$, the gradient $\nabla_a Q_\rho(s, a)|_{a = \rho(s; \theta)}$ is computed with respect to the action defined by the deterministic policy $\rho(s; \theta)$.
+
+~~~
+*"Evaluated at" notation*
+
+The notation $\nabla_a Q_\rho(s, a)$ denotes the gradient of $Q_\rho$ with respect to $a$, treating $a$ as an independent variable by ignoring any dependence on $\theta$. Although $Q_\rho$ also depends on $s$, the differentiation isolates the effect of $a$. After computing this partial derivative, as indicated by the notation $|_{a=\rho(s;\theta)}$, we substitute $a = \rho(s;\theta)$ into the result.
+
+More specifically, because $Q_\rho(s, a)$ is a scalar-valued function, its gradient with respect to $a$, $\nabla_a Q_\rho(s, a)$, is a column vector of partial derivatives, expressed as:
+
+\(
+\begin{equation*}
+    \nabla_a Q_\rho(s, a) =
+    \begin{bmatrix}
+    \frac{\partial Q_\rho(s, a)}{\partial a_1} \\
+    \frac{\partial Q_\rho(s, a)}{\partial a_2} \\
+    \vdots \\
+    \frac{\partial Q_\rho(s, a)}{\partial a_n}
+    \end{bmatrix} \;.
+\end{equation*}
+\)
+Here, each entry $\frac{\partial Q_\rho(s, a)}{\partial a_i}$ is a function of $s$ and $a$, representing how $Q_\rho(s, a)$ changes as $a_i$ varies slightly, with all other components of $a$ held constant. Intuitively, $Q_\rho(s, a)$ can be visualized as a surface in a high-dimensional space, where $\frac{\partial Q_\rho(s, a)}{\partial a_i}$ describes the slope of the surface along the $i$-th coordinate axis of $a$.
+
+When we evaluate the gradient at $a = \rho(s; \theta)$, we replace the variable $a$ in each partial derivative function $\frac{\partial Q_\rho(s, a)}{\partial a_i}$ with the value $\rho(s; \theta)$. In other words, we compute these sensitivity functions at the specific point $a = \rho(s; \theta)$. This yields a column vector of values:
+
+\(
+\begin{equation*}
+    \nabla_a Q_\rho(s, a)\big|_{a = \rho(s; \theta)} =
+    \begin{bmatrix}
+    \frac{\partial Q_\rho(s, a)}{\partial a_1}\big|_{a = \rho(s; \theta)} \\
+    \frac{\partial Q_\rho(s, a)}{\partial a_2}\big|_{a = \rho(s; \theta)} \\
+    \vdots \\
+    \frac{\partial Q_\rho(s, a)}{\partial a_n}\big|_{a = \rho(s; \theta)}
+    \end{bmatrix} \;.
+\end{equation*}
+\)
+
+Before the substitution $a = \rho(s; \theta)$, the gradient $\nabla_a Q_\rho(s, a)$ is a column vector of *functions* that depend on $s$ and $a$. For a given state $s$, after the substitution, it becomes a column vector of *numerical values*, wherein each entry corresponds to the partial derivative evaluated at the specific point $a = \rho(s; \theta)$.
+~~~
+
+~~~
+{}{img_left}{static/images/ddpg/dpg.png}{deterministic policy gradient pseudocode}{600px}
+~~
+
+=== Deep Deterministic Policy Gradient
+
+Deep Deterministic Policy Gradient (DDPG) is an [glossary.html actor-critic] method that extends DPG by incorporating mechanisms from deep Q-learning. Specifically, DDPG uses a [glossary.html replay buffer] to break the correlation between samples and a [glossary.html target network] to improve learning stability.
+
+To further stabilize learning, DDPG introduces /soft target updates/. Instead of [deep-q-learning.html directly copying] the parameters of the primary networks to their corresponding target networks, the target networks are updated incrementally:
+
+\(
+\begin{align*}
+    \theta^- &\gets \tau \theta + (1-\tau) \theta^- \\
+    \psi^- &\gets \tau \psi + (1-\tau) \psi^- \;,
+\end{align*}
+\)
+where $\tau \ll 1$ controls the rate of update.
+
+Finally, to ensure sufficient exploration, DDPG defines a behavior policy by adding stochastic noise, such as Ornstein-Uhlenbeck (OU) process noise or mean-zero Gaussian noise, to the action produced by the actor policy.
+
+~~~
+{}{img_left}{static/images/ddpg/ddpg.png}{deep deterministic policy gradient pseudocode}{600px}
+~~
+
+=== References
+
+: {[https://proceedings.mlr.press/v32/silver14.pdf Deterministic Policy Gradient Algorithms], International Conference
+on Machine Learning (2014)} David Silver, Guy Lever, Nicolas Heess, Thomas Degris, Daan Wierstra, and Martin Riedmiller
+
+: {[https://arxiv.org/abs/1509.02971 Continuous control with deep reinforcement learning] (2015)} Timothy P. Lillicrap,
+Jonathan J. Hunt, Alexander Pritzel, Nicolas Heess, Tom Erez, Yuval Tassa, David Silver, and Daan Wierstra
+
+: {[https://spinningup.openai.com/en/latest/algorithms/ddpg.html Deep Deterministic Policy Gradient] (2020)} Open AI
+
+: {[https://lilianweng.github.io/posts/2018-04-08-policy-gradient/ Policy Gradient Algorithms] (2018)} Lilian Weng

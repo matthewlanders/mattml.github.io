@@ -1,0 +1,45 @@
+# jemdoc: menu{MENU}{index.html}
+= Matthew Landers
+
+~~~
+{}{raw}
+<table class="imgtable" id="bio-table"><tr><td>
+<img src="static/images/Matt_Landers.jpg" alt="image of Matt Landers" />&nbsp;</td>
+<td align="left"><p>Computer science PhD student in the Human-Artificial Intelligence Lab at the University of Virginia
+</p>
+<p><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a> · <a href="https://scholar.google.com/citations?user=yiWlY9IAAAAJ&hl=en" target="blank">Google Scholar</a> · <a href="https://www.linkedin.com/in/mattmlanders/" target="blank">LinkedIn</a>
+</p>
+<p>notes [at] mattlanders [dot] net
+</p>
+</td></tr></table>
+~~~
+
+I am a computer science PhD student at the University of Virginia studying under Afsaneh Doryab and Tom Hartvigsen. Previously, I earned my master's degree from Johns Hopkins University where I was advised by Suchi Saria. I have founded two startups.
+
+My research focuses on trustworthy deep reinforcement learning approaches designed for real-world systems. I am especially interested in methods that can account for environmental constraints, human feedback, and other types of domain knowledge.
+
+=== Papers
+
+: {Improving and Accelerating Offline RL in Large Discrete Action Spaces with Structured Policy Initialization, /Under Review/ (2025)} *Matthew Landers*, Taylor W. Killian, Thomas Hartvigsen, Afsaneh Doryab
+
+: {[https://arxiv.org/pdf/2505.12109 SAINT: Attention-Based Policies for Discrete Combinatorial Action Spaces], /Under Review/ (2025)} *Matthew Landers*, Taylor W. Killian, Thomas Hartvigsen, Afsaneh Doryab
+
+: {[https://arxiv.org/pdf/2410.21151 BraVE: Offline Reinforcement Learning for Discrete Combinatorial Action Spaces], NeurIPS (2025)} *Matthew Landers*, Taylor W. Killian, Hugo Barnes, Thomas Hartvigsen, Afsaneh Doryab
+
+: {[https://ieeexplore.ieee.org/document/11228810 Parameter Transfer for Single-Task Reinforcement Learning], International Joint Conference on Neural Networks (2025)} *Matthew Landers* and Afsaneh Doryab
+
+: {[https://dl.acm.org/doi/10.1145/3596444 Deep Reinforcement Learning Verification: A Survey], ACM Computing Surveys (2023)} *Matthew Landers* and Afsaneh Doryab
+
+: {[https://academic.oup.com/jamia/advance-article/doi/10.1093/jamia/ocac065/6586579 A bias evaluation checklist for predictive models and its pilot application for 30-day hospital readmission models],
+Journal of the American Medical Informatics Association (2022)} Echo Wang\*, *Matthew Landers\**, Roy Adams\*, Adarsh Subbaswamy, Hadi Kharrazi, Darrell Gaskin, and Suchi Saria
+
+: {[https://www.karger.com/Article/Abstract/517885 Digital Endpoints: Definition, Benefits, and Current Barriers in Accelerating Development and Adoption],
+Digital Biomarkers (2021)} *Matthew Landers*, Ray Dorsey, and Suchi Saria
+
+: {[https://content.iospress.com/articles/journal-of-parkinsons-disease/jpd212545 Will Artificial Intelligence Replace the Movement Disorders Specialist for Diagnosing and Managing Parkinson’s Disease?],
+Journal of Parkinson’s Disease (2021)}  *Matthew Landers*, Suchi Saria, and Alberto Espay
+
+: {[https://www.mdpi.com/1424-8220/21/22/7510 Prediction of Hospital Readmission from Longitudinal Mobile Data Streams],
+Sensors (2021)} Chen Qian, Patraporn Leelaprachakul, *Matthew Landers*, Carissa Low, Anind K . Dey, and Afsaneh Doryab
+
+\* indicates equal contribution

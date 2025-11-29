@@ -1,0 +1,125 @@
+# jemdoc: menu{MENU}{alphazero.html}
+= AlphaZero
+
+/Revised June 25, 2025/
+
+The structure of a modern computer chess engine is largely standardized. Given complete knowledge of the rules, the engine constructs a directed game tree in which nodes alternate between white-to-move and black-to-move positions. Edges correspond to legal moves, and the root node represents the current board state; i.e., the position for which the engine attempts to identify the optimal move. The tree is searched to a nominal depth $d$, and candidate moves are evaluated based on estimated state values at that depth.
+
+Due to chess's combinatorial complexity — there are an estimated $10^{43}$ distinct positions — exhaustive enumeration of the game tree is intractable. Engine strength thus depends primarily on the quality of its search algorithm and evaluation function. [https://stockfishchess.org/ Stockfish], the perennial winner of the Top Chess Engine Championship, uses a highly optimized alpha-beta pruning algorithm augmented with heuristic move ordering (e.g., prioritizing captures), iterative deepening (where a shallow search guides deeper exploration), and data structures such as [https://www.chessprogramming.org/Transposition_Table transposition tables] and [https://www.chessprogramming.org/Aspiration_Windows aspiration windows].
+
+Because fixed-depth search terminates after a pre-specified number of evaluations, it can produce highly misleading evaluations when terminating in tactically unstable positions. For example, if the search terminates at a position in which a queen captures a pawn, it may incorrectly assign a high value to the position, even if the queen is immediately recaptured on the next move. This phenomenon, known as the /horizon problem/, motivates the use of quiescence search to better approximate the long-term implications of tactical sequences. The auxiliary procedure extends the search in "volatile" positions, typically those involving captures or checks, until a "quiet" state is reached.
+
+Stockfish evaluates positions using an efficiently updatable neural network (NNUE) trained on search-derived targets that combine the engine's traditional handcrafted evaluation with lookahead. The classical evaluation can be viewed as computing a score $V_{\text{classical}}(s) = \phi(s)^\top w$, where $\phi(s)$ is a sparse feature vector encoding expert-designed features such as pawn structure, passed pawns, and phase-dependent material values, and $w$ is a corresponding weight vector. NNUE instead takes a lower-level, board-centric input representation (typically piece–square features) and outputs a scalar $V_{\text{NNUE}}(s)$. The network architecture and implementation are optimized for rapid, incrementally updatable inference, allowing the engine to evaluate millions of positions per second while remaining aligned with classical chess heuristics.
+
+AlphaZero, by contrast, is a general-purpose framework that forgoes handcrafted features and domain-specific targets, instead learning directly from self-play through deep reinforcement learning and tree search. A deep neural network $f_\theta$ both estimates the value of a state $s$ and generates a policy vector $\mathbf{p}$, where each $p_a = \mathbb{P}[a \mid s]$ is the probability of selecting action $a$ in state $s$. At each time step $t$, the algorithm performs a fixed number of Monte Carlo Tree Search (MCTS) simulations starting from the current state $s_t$. The search returns a policy vector $\pi$, with components $\pi_a = \mathbb{P}[a \mid s_t]$, representing the normalized visit counts across actions. A move is then sampled from this distribution. After each game, the network parameters $\theta$ are updated to minimize a composite loss comprising the cross-entropy between the predicted policy $\mathbf{p}$ and the MCTS policy $\pi$, the mean squared error between the predicted value $v$ and the final game outcome $z$, and an $L_2$ regularization term penalizing the magnitude of $\theta$.
+
+=== Monte Carlo Tree Search
+
+As in Stockfish, each node in AlphaZero's game tree represents a board position with alternating player turns, and edges correspond to legal moves. However, AlphaZero replaces Stockfish's alpha-beta pruning with Monte Carlo Tree Search (MCTS), a simulation-based planning algorithm that combines stochastic rollout with value-guided search.
+
+MCTS begins at the root node and recursively selects child nodes until it reaches a leaf; that is, a position for which the value and policy have not yet been computed by the neural network during the current search. If the leaf is not terminal, the algorithm expands it by adding one or more child nodes. Standard MCTS would then simulate the remainder of the game by playing random moves from the new position (hence the term "Monte Carlo"). AlphaZero replaces this simulation step with a neural network evaluation, which predicts the expected outcome of the game from that position. This substitution allows the search to focus on strategically relevant positions rather than relying on random sampling. This value estimated by the network is then backpropagated along the path from the root to update the statistics associated with each visited action.
+
+Action selection during the search follows the [https://inria.hal.science/hal-00835352/document/ Polynomial Upper Confidence Trees] (PUCT) algorithm, a variant of the  [http://ggp.stanford.edu/readings/uct.pdf Upper Confidence Bounds] strategy adapted for reinforcement learning. At each state $s$, the algorithm maintains a set of statistics for every action $a$: the visit count $N(s,a)$, the total value $W(s,a)$ accumulated over simulations, the mean value $Q(s,a) = W(s,a)/N(s,a)$, and the prior probability $P(s,a)$ predicted by the network. Given these quantities, the action selected at time $t$ is:
+
+\(
+\begin{equation*}
+    a_t = \arg\max_a \left( Q(s_t, a) + U(s_t, a) \right)
+\end{equation*}
+\)
+
+where the exploration term $U(s,a)$ is defined as
+
+\(
+\begin{equation*}
+    U(s,a) = c \cdot P(s,a) \cdot \frac{\sqrt{N(s)}}{1 + N(s,a)} \,, \quad \text{with} \quad N(s) = \sum_b N(s,b) \,.
+\end{equation*}
+\)
+
+Intuitively, PUCT selects actions by balancing [glossary.html exploitation and exploration]. The term $Q(s,a)$ promotes actions with high empirical value, while $U(s,a)$ encourages exploration of under-visited actions with high prior probability. The constant $c > 0$ controls the balance between exploration and exploitation. As $N(s,a)$ increases, the uncertainty associated with action $a$ in state $s$ decreases, reducing $U(s,a)$. Conversely, unvisited actions maintain low $N(s,a)$, and as $N(s)$ grows, the relative incentive to explore them increases. This mechanism encourages broad initial exploration, gradually shifting toward exploitation as estimates become more reliable.
+
+MCTS proceeds until it reaches a leaf node $s_{\text{leaf}}$, defined as a position for which the value and policy have not yet been computed by the network during the current search. Given the board position $s_{\text{leaf}}$, the network $f_\theta$ returns two outputs: a vector $\mathbf{p}$ of move probabilities, where $p_a = \mathbb{P}(a \mid s_{\text{leaf}})$, and a scalar value estimate $v \in [-1,1]$ approximating $\mathbb{E}[z \mid s_{\text{leaf}}]$, the expected game outcome from the current player's perspective. If $s_{\text{leaf}}$ is a terminal state, then $v \in \{-1, 0, +1\}$ corresponds to the actual game outcome: $-1$ for a loss, $0$ for a draw, and $+1$ for a win, from the perspective of the player at $s_{\text{leaf}}$.
+
+The leaf is then added to the tree, and the associated statistics for each legal action $a$ from $s_{\text{leaf}}$ are initialized as:
+
+\(
+\begin{equation*}
+    N(s_{\text{leaf}},a) = 0, \quad W(s_{\text{leaf}},a) = 0, \quad Q(s_{\text{leaf}},a) = 0, \quad P(s_{\text{leaf}},a) = p_a \,.
+\end{equation*}
+\)
+
+The value $v$ is backpropagated along the path from the root to the leaf. For each visited state-action pair $(s_t, a_t)$, the statistics are updated as
+
+\(
+\begin{equation*}
+    N(s_t,a_t) \leftarrow N(s_t,a_t) + 1, \quad W(s_t,a_t) \leftarrow W(s_t,a_t) + \sigma_t v, \quad Q(s_t,a_t) \leftarrow \frac{W(s_t,a_t)}{N(s_t,a_t)} \;,
+\end{equation*}
+\)
+where $\sigma_t = +1$ if the player at $s_t$ is the same as the player at $s_{\text{leaf}}$, and $\sigma_t = -1$ otherwise. This ensures that value updates reflect the correct player perspective at each node.
+
+After completing the search, the visit counts define a probability distribution over actions at the root:
+
+\(
+\begin{equation*}
+    \pi(a \mid s) = \frac{N(s,a)}{N(s)} \,.
+\end{equation*}
+\)
+
+Within a self-play game, the search tree is reused across time steps. After selecting action $a$ in state $s$, the resulting position $s' = s_{s,a}$ becomes the new root. The subtree rooted at $s'$ is preserved along with its statistics ($N$, $W$, $Q$, $P$), while the rest of the tree is discarded. Between self-play games, the tree is reinitialized and all statistics are reset.
+
+Note that, although each state is typically encountered only once during a game, MCTS performs hundreds of simulations per move (e.g., 800 in chess). During a single invocation of the search procedure, the tree is traversed repeatedly, and the same state-action pair may be visited multiple times. The visit count $N(s,a)$ reflects this intra-search frequency. These repeated visits accumulate in $N(s,a)$, even if $s$ is never revisited during actual play.
+
+=== Action Selection Strategy
+
+AlphaZero uses different action selection strategies during training (self-play) and evaluation (gameplay). During self-play, actions are sampled proportionally to $N(s,a)^{1/\tau}$:
+
+\(
+\begin{equation}\label{eq:self-play-policy}
+    \pi(a\mid s;\tau)\;=\;\frac{N(s,a)^{1/\tau}}{\sum_b N(s,b)^{1/\tau}} \;,
+\end{equation}
+\)
+where $\tau$ is a temperature parameter. For the first 30 moves of each game, $\tau = 1$ to encourage diverse exploration; thereafter, $\tau \to 0$ to favor higher-confidence moves.
+
+To further promote diversity, Dirichlet noise is added to the prior probabilities at the root of the search tree. Specifically, the prior used by MCTS is set to $P(s_{\text{root}}, a) = (1 - \epsilon) p_a + \epsilon \eta_a$, where $p_a$ is the network’s original output, $\eta \sim \text{Dir}(\alpha)$ is noise sampled from a Dirichlet distribution, and $\epsilon = 0.25$ is the mixing parameter. The concentration parameter $\alpha$ is chosen in inverse proportion to the typical number of legal moves; in chess, $\alpha = 0.3$.
+
+During evaluation, AlphaZero selects moves greedily with respect to visit counts by setting $\tau \to 0$. No Dirichlet noise is added. This deterministic policy ensures that evaluation reflects the true strength of the trained agent.
+
+=== Updating the DNN
+
+During self-play, AlphaZero collects training data after each move. For each state $s_t$, the corresponding MCTS policy $\pi_t$ and game outcome $z_g \in \{-1, 0, +1\}$ are stored. The outcome is measured from the perspective of the player at $s_t$. Each training example is thus a tuple $(s_t, \pi_t, z_g)$.
+
+These examples are accumulated in a [glossary.html replay buffer] containing positions from recent self-play games. Network parameters $\theta$ are updated periodically during training by sampling mini-batches from this buffer. Each update minimizes the difference between the predicted value $v_t$ and the final game result $z_g$, and aligns the predicted policy $\mathbf{p}_t$ with the MCTS policy $\pi_t$. The network $f_\theta(s_t) = (\mathbf{p}_t, v_t)$ is trained by gradient descent on the loss:
+
+\(
+\begin{equation*}
+    L = (z_g - v_t)^2 - \pi_t^\top \log \mathbf{p}_t + c \lVert \theta \rVert^2 \;,
+\end{equation*}
+\)
+where $c$ controls the strength of $L_2$ regularization.
+
+Note that the target policy $\pi_t$ is defined by the normalized visit counts: $\pi(a \mid s_t) = N(s_t,a) / N(s_t)$. Although temperature influences action selection during self-play (Equation $\eqref{eq:self-play-policy}$), it is not included in the training target.
+
+~~~
+{}{img_left}{static/images/alphazero/alphazero.png}{AlphaZero pseudocode}{600px}
+~~~
+
+=== Action Representation
+
+In chess, the set of legal moves depends on the current position, which complicates action representation. AlphaZero encodes moves using a stack of 73 planes of size $8 \times 8$, defining a fixed output space of $73 \times 8 \times 8 = 4672$ possible actions. Each plane corresponds to a specific move type, and each cell within a plane represents a move originating from a particular square.
+
+The first 56 planes encode "queen moves" for any piece — translations along one of eight compass directions $\{N, NE, E, SE, S, SW, W, NW\}$ by $1$ to $7$ squares. Since rook, bishop, king, and non-promotion pawn moves are subsets of these translations, they are included in this encoding. The next eight planes represent knight moves, and the final nine planes capture pawn underpromotions. For example, index $(0,0)$ in any plane might correspond to square A1, and the first plane may encode a one-square move north. Here, index $(0,0)$ in the first plane represents a move from A1 to A2. Each output thus corresponds to a concrete move defined by origin square and movement type.
+
+This representation includes many syntactically valid but illegal moves, such as moving a piece from an empty square or capturing one's own piece. AlphaZero does not train the network to avoid such moves. Instead, it masks out illegal actions at inference time by setting their probabilities to zero and re-normalizing over the remaining legal moves.
+
+=== References
+
+: {[https://oscarbalcells.com/assets/nnue_paper_english.pdf Efficiently updatable neural-network-based evaluation functions for computer shogi] (2018)} Yu Nasu
+
+: {[https://arxiv.org/pdf/1712.01815 Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm] (2017)} David Silver, Thomas Hubert, Julian Schrittwieser, Ioannis Antonoglou, Matthew Lai, Arthur Guez, Marc Lanctot, Laurent Sifre, Dharshan Kumaran, Thore Graepel, Timothy Lillicrap, Karen Simonyan, and Demis Hassabis
+
+: {[https://www.science.org/doi/10.1126/science.aar6404 A general reinforcement learning algorithm that masters chess, shogi, and Go through self-play] (2018)} David Silver, Thomas Hubert, Julian Schrittwieser, Ioannis Antonoglou, Matthew Lai, Arthur Guez, Marc Lanctot, Laurent Sifre, Dharshan Kumaran, Thore Graepel, Timothy Lillicrap, Karen Simonyan, and Demis Hassabis
+
+: {[https://www.nature.com/articles/nature24270 Mastering the game of Go without human knowledge] (2017)} David Silver, Julian Schrittwieser, Karen Simonyan, Ioannis Antonoglou, Aja Huang, Arthur Guez, Thomas Hubert, Lucas Baker, Matthew Lai, Adrian Bolton, Yutian Chen, Timothy Lillicrap, Fan Hui, Laurent Sifre, George van den Driessche, Thore Graepel, and Demis Hassabis
+
+: {[http://incompleteideas.net/book/the-book-2nd.html Reinforcement Learning: An Introduction] (2018)} Richard S. Sutton and Andrew G. Barto
+
+: {[http://gauss.ececs.uc.edu/Workshops/isaim2010/papers/rosin.pdf Multi-armed Bandits with Episode Context] (2011)} Christopher D. Rosin

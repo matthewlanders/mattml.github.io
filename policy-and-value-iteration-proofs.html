@@ -1,0 +1,653 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Policy and Value Iteration Proofs</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html" class="current">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Policy and Value Iteration Proofs</h1>
+</div>
+<p><i>Revised October 17, 2024</i>
+</p>
+<p><i>The <a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>Dynamic Programming for Solving MDPs note</a> is optional but recommended background reading.</i>
+</p>
+<p><a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>Policy and Value Iteration</a> are guaranteed to converge to an optimal policy. This can be proven using Banach's fixed-point theorem, which asserts that in a complete metric space \((M, d)\), any contraction mapping \(f: M \rightarrow M\) has a unique fixed point. Before proving this theorem, we must define several key terms.
+</p>
+<h4>Complete Metric Space</h4>
+<p>A <i>metric space</i> \((M, d)\) is a set \(M\) paired with a metric \(d\). A <i>metric</i> is a function \(d : M \times M \rightarrow \mathbb{R}\) that satisfies the following properties:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    d(x,y) &amp;\geq 0 &amp;&amp; \text{non-negativity} \nonumber \\
+    d(x,y) &amp;= 0 \iff x=y &amp;&amp; \text{identity of indiscernibles} \nonumber \\
+    d(x,y) &amp;= d(y,x) &amp;&amp; \text{symmetry} \nonumber \\
+    d(x,y) &amp;\leq d(x,z) + d(z,y) &amp;&amp; \text{triangle inequality} \nonumber
+\end{align}
+\]
+</p><p>Informally, a metric can be understood as a measure of distance. Common examples include the Euclidean distance, \(d(x, y) = \sqrt{\sum_{i=1}^n (x_i - y_i)^2}\), and the absolute difference, \(d(x, y) = |x - y|\).
+</p>
+<p>A metric space is <i>complete</i> if every Cauchy sequence in it converges to a limit that is also within the space. In a metric space \((M, d)\), a sequence is Cauchy if, for all \(\epsilon &gt; 0\), there exists a positive integer \(N_\epsilon \in \mathbb{N}\) such that \(d(x_n, x_m) &lt; \epsilon\) for all \(n, m &gt; N_\epsilon\). That is, after some point in the sequence, all elements are within any arbitrarily small distance \(\epsilon\) of each other. Intuitively, this means that the elements of a Cauchy sequence eventually become arbitrarily close together.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/dp-proofs/cauchy_sequence.png" alt="example of a cauchy and non-cauchy sequence" width="400px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<table id="caption">
+<tr class="r1"><td class="c1">In a Cauchy sequence elements become arbitrarily close to each other as the sequence progresses. The black sequence is Cauchy while the gray sequence is not.
+</td></tr></table>
+<h4>Contraction</h4>
+<p>A <i>contraction</i> on a metric space \((M, d)\) is a function \(f: M \to M\) such that there exists a constant \(k \in [0,1)\) for which:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:contraction}
+    d \big(f(x), f(y) \big) \leq k d(x, y) \quad \forall \, x, y \in M \;.
+\end{equation}
+\]
+</p><p>In other words, a contraction maps any two distinct points \(x, y \in M\) to points that are closer together by at least a factor of \(k\), where \(k\) is strictly less than 1.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/dp-proofs/open_ball.png" alt="contraction of an open ball" width="450px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<table id="caption">
+<tr class="r1"><td class="c1">Image from <a href="https://www.math.ucdavis.edu/~hunter/book/pdfbook.html" target=&ldquo;blank&rdquo;>Applied Analysis, Chapter 3</a> (2005) John Hunter and Bruno Nachtergaele. In a metric space \((M, d)\), an open ball of radius \(r\) centered at a point \(p\), denoted \(B_r(p)\), is the set of all points in \(M\) whose distance from \(p\) (as measured by the metric \(d\)) is less than \(r\). Specifically, \(B_r(p) = \{x \in M \mid d(x, p) &lt; r\}.\) For a contraction mapping \(f: M \to M\), there exists a constant \(k \in [0, 1)\) such that for every pair of points \(x, y \in M\), the distance between their images is strictly reduced by a factor of \(k\): \(d(f(x), f(y)) \leq k \cdot d(x, y)\). This property implies that points are mapped closer together. Moreover, for any \(p \in M\) and any radius \(r &gt; 0\), the image of the ball \(B_r(p)\) under \(f\) will be contained in a smaller ball \(B_s(f(p))\) centered at \(f(p)\), where \(s = kr\). That is, \(f(B_r(p)) \subseteq B_{kr}(f(p))\).
+</td></tr></table>
+<h4>Fixed Point</h4>
+<p>A fixed point of a transformation \(f\) is a point \(p\) such that \(f(p) = p\). In the figure, \(p\) remains unchanged after \(f\) is applied to the space \(M\), indicating that \(p\) is a fixed point of \(f\).
+</p>
+<h3>Banach's Fixed-Point Theorem</h3>
+<p>With the necessary terms defined, we can now prove Banach's fixed-point theorem. The theorem asserts that in a complete metric space \((M, d)\), a contraction \(f: M \to M\) has a unique fixed point \(x^*\), where \(f(x^*) = x^*\). We will first prove the existence of a fixed point, and then demonstrate its uniqueness.
+</p>
+<h4>Proof That There is a Fixed Point</h4>
+<p>Given a contraction brings points closer together, it is intuitive that iterating \(f\) causes points to converge. Starting from an arbitrary point \(a\), repeated application of \(f\) yields the sequence:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:iterative-contraction}
+    a, f(a), f(f(a)), f(f(f(a))), \dots \;,
+\end{equation}
+\]
+</p><p>causing the distance between consecutive points to progressively decrease. We will formally prove this and establish an upper bound on the distance between consecutive points. For convenience, let \(x_0 = a\), \(x_1 = f(a)\), \(x_2 = f(f(a))\), and so on.
+</p>
+<p>We begin by establishing an upper bound on the distance between two consecutive terms \(x_n\) and \(x_{n-1}\). Without loss of generality, assume the metric is the absolute difference, \(d(x, y) = \lvert x - y \rvert\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    d(x_n, x_{n-1}) &amp;= \lvert x_n - x_{n-1} \rvert \nonumber \\
+    &amp;= \lvert f(x_{n-1}) - f(x_{n-2}) \rvert \label{eq:consecutive-term-def}\\
+    &amp;\leq k \lvert x_{n-1} - x_{n-2} \rvert \label{eq:by-contraction-def} \\
+    &amp;= k \lvert f(x_{n-2}) - f(x_{n-3}) \rvert \nonumber \\
+    &amp;\leq k \big ( k \lvert x_{n-2} - x_{n-3} \rvert \big ) \nonumber \\
+    &amp;= k^2 \lvert x_{n-2} - x_{n-3} \rvert \nonumber \\
+    &amp;\vdots \nonumber \\
+    &amp;\leq k^{n-1} \lvert x_1 - x_0 \rvert \label{eq:upper-bound}
+\end{align}
+\]
+</p><p>This proof follows a straightforward pattern: each term in the sequence is defined as the image of the preceding term under \(f\), e.g., \(x_1 = f(x_0)\), as exemplified in Equation \(\eqref{eq:consecutive-term-def}\). Applying the contraction property Equation \(\eqref{eq:contraction}\) yields Equation \(\eqref{eq:by-contraction-def}\), and iterating this process produces Equation \(\eqref{eq:upper-bound}\). Because \(k \in [0,1)\), the upper bound for \(d(x_n, x_{n-1})\) in Equation \(\eqref{eq:upper-bound}\) is small, and it decreases as \(n\) increases.
+</p>
+<p>While Equation \(\eqref{eq:upper-bound}\) bounds consecutive terms, we can generalize this result to bound \(d(x_n, x_m)\) for any \(n &gt; m\), even if \(n\) and \(m\) are not consecutive:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    d(x_n, x_m) &amp;= \lvert x_n - x_m \rvert \\
+    &amp;= \lvert (x_n - x_{n-1}) + (x_{n-1} - x_{n-2}) + \dots + (x_{m+1} - x_m) \rvert \label{eq:expanding-difference} \\
+    &amp;\leq  \lvert x_n - x_{n-1} \rvert + \lvert x_{n-1} - x_{n-2} \rvert + \dots + \lvert x_{m+1} - x_m \rvert \label{eq:using-tri-inequality} \\
+    &amp;\leq (k^{n-1} + k^{n-2} + \dots + k^m) \lvert x_1 - x_0 \rvert \label{eq:generic-upper-bound} \\
+    &amp;\leq (k^m + k^{m+1} + \dots) \lvert x_1 - x_0 \rvert \label{eq:infinite-sum} \\
+    &amp;= \frac{k^m}{1-k} \lvert x_1 - x_0 \rvert \label{eq:sum-infinite-geometric-series}
+\end{align}
+\]
+</p><p>In Equation \(\eqref{eq:expanding-difference}\), we decompose \(\lvert x_n - x_m \rvert\) into the sum of consecutive differences. The triangle inequality gives Equation \(\eqref{eq:using-tri-inequality}\). Using the upper bound on each term from Equation \(\eqref{eq:upper-bound}\), we derive Equation \(\eqref{eq:generic-upper-bound}\), which leads to the geometric series in Equation \(\eqref{eq:infinite-sum}\). Extending the sum to infinity in Equation \(\eqref{eq:infinite-sum}\) provides a convenient upper bound, as the series converges due to \(k \in [0,1)\). The result in Equation \(\eqref{eq:sum-infinite-geometric-series}\) is obtained by summing the infinite geometric series from Equation \(\eqref{eq:infinite-sum}\).
+</p>
+<p>Finding this bound is important because it proves that the sequence \(\lvert (x_n - x_{n-1}) + (x_{n-1} - x_{n-2}) + \dots + (x_{m+1} - x_m) \rvert\) in Equation \(\eqref{eq:expanding-difference}\) is Cauchy. Specifically, in Equation \(\eqref{eq:sum-infinite-geometric-series}\), both \((1 - k)\) and \(\lvert x_1 - x_0 \rvert\) are constants, so we can make \(d(x_n, x_m)\) arbitrarily small by making \(k^m\) small. Since \(k^m\) decreases exponentially as \(m\) increases, we can make \(d(x_n, x_m)\) arbitrarily small by choosing \(m, n &gt; N\) for some sufficiently large \(N\). This satisfies the definition of a Cauchy sequence (see the &ldquo;Complete metric space&rdquo; section of this note). By the definition of a complete metric space, the sequence must therefore converge.
+</p>
+<p>We now find the limit of the sequence. Let \(a = \lim_{n \to \infty} x_n\), where \(x_n = f(x_{n-1})\) as defined in Equation \(\eqref{eq:iterative-contraction}\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    f(a) &amp;= f\left(\lim_{n \to \infty} x_n\right) \label{eq:c-replaced} \\
+    &amp;= \lim_{n \to \infty} f(x_n) \label{eq:continuous-function} \\
+    &amp;= \lim_{n \to \infty} x_{n+1} \label{eq:by-consecutive-term-def} \\
+    &amp;= a \nonumber \;,
+\end{align}
+\]
+</p><p>In Equation \(\eqref{eq:c-replaced}\), we replace \(a\) with \(\lim_{n \to \infty} x_n\), which is valid since the sequence \((x_n)\) is Cauchy and the space is complete, guaranteeing the existence of the limit. The step from Equation \(\eqref{eq:c-replaced}\) to Equation \(\eqref{eq:continuous-function}\) holds because \(f\) is continuous. We can see that \(f\) is continuous by recalling the definition of a contraction, \(\lvert f(x) - f(y) \rvert \leq k \lvert x - y \rvert\). As \(x \to y\), we have \(k \lvert x - y \rvert \to 0\), since \(k \in [0, 1)\) and \(\lvert x - y \rvert \geq 0\). Because \(\lvert f(x) - f(y) \rvert\) is bounded above by \(k \lvert x - y \rvert\), it also tends to 0 as \(x \to y\). Thus, \(f(x) \to f(y)\), satisfying the definition of continuity, where \(f(x) \to f(y)\) as \(x \to y\).. From Equation \(\eqref{eq:continuous-function}\) to Equation \(\eqref{eq:by-consecutive-term-def}\), we use \(x_n = f(x_{n-1})\), so \(f(x_n) = x_{n+1}\). Finally, since Equation \(\eqref{eq:by-consecutive-term-def}\) matches the definition of \(a\), we conclude \(f(a) = a\). This implies that \(a\) is a fixed point, as defined in the &ldquo;Fixed Point&rdquo; section of this note.
+</p>
+<h4>Proof that the Fixed Point is Unique</h4>
+<p>We have now proven that the contraction has a fixed point. To complete the proof of Banach’s fixed-point theorem, we must show that the fixed point is unique. We can do this by contradiction. Suppose there are two distinct fixed points \(a\) and \(a^\prime\), such that \(f(a) = a\) and \(f(a^\prime) = a^\prime\). Then:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    &amp;\lvert a - a^\prime \rvert \geq 0 \quad &amp;&amp; \text{by the non-negativity of the metric,} \nonumber \\
+    &amp;\lvert a - a^\prime \rvert = \lvert f(a) - f(a^\prime) \rvert \leq k \lvert a - a^\prime \rvert
+    &amp;&amp; \text{by the contraction property and definition of a fixed point,} \label{eq:fp-inequality} \\
+    &amp;k \in [0,1) &amp;&amp; \text{because \(f\) is a contraction.} \nonumber
+\end{align}
+\]
+</p><p>Since \(k &lt; 1\), this implies that \(\lvert a - a^\prime \rvert &gt; 0\) leads to \(k \lvert a - a^\prime \rvert &lt; \lvert a - a^\prime \rvert\), which contradicts the inequality \(\lvert a - a^\prime \rvert \leq k \lvert a - a^\prime \rvert\). Hence, the only possibility is that \(\lvert a - a^\prime \rvert = 0\), meaning \(a = a^\prime\). Therefore, the fixed point must be unique.
+</p>
+<h3>Application of Banach's Fixed-Point Theorem to MDPs</h3>
+<p>Recall that Banach's fixed-point theorem applies to complete metric spaces. In the context of MDPs, we work with a specific type of metric space called a normed vector space, \(B(\mathcal{S})\), which is the space of bounded real-valued functions defined on the state space \(\mathcal{S}\) (i.e., \(\mathcal{S}\) is the set of all possible inputs over which the functions are defined):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    B(\mathcal{S}) = \{ V: \mathcal{S} \to \mathbb{R} : \lVert V \rVert_\infty &lt; +\infty \} \;,
+\end{equation*}
+\]
+</p><p>where \(V\) is a bounded function, meaning there exists a real number \(M\) such that \(\lvert V(s) \rvert \leq M\) for all \(s \in \mathcal{S}\), and \(\lVert \cdot \rVert_\infty\) is the infinity norm.
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>Infinity norm</b>
+</p>
+<p>Norms, like metrics, provide a way to measure distances or lengths. More formally, a norm on a vector space \(B(\mathcal{S})\), which is the space of bounded real-valued functions defined on the state space \(\mathcal{S}\), is a function \(p: B(\mathcal{S}) \to \mathbb{R}\) that satisfies the following properties:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    p(V) &amp;= 0 \iff V(s) = 0 \text{ for all } s \in \mathcal{S} &amp;&amp; \text{(positive definiteness)} \\
+    p(\gamma V) &amp;= \lvert \gamma \rvert p(V) \quad \forall \gamma \in \mathbb{R}, V \in B(\mathcal{S}) &amp;&amp; \text{(absolute homogeneity)} \\
+    p(V + U) &amp;\leq p(V) + p(U) \quad \forall V, U \in B(\mathcal{S}) &amp;&amp; \text{(triangle inequality)}
+\end{align*}
+\]
+</p><p>The infinity norm for a bounded function \(V\) is defined as \(\lVert V \rVert_\infty = \sup_{s \in \mathcal{S}} \lvert V(s) \rvert\), which gives the maximum absolute value of the function across all states. In the context of MDPs, this norm provides a measure of the maximum possible value that the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>state-value function</a> \(V\) can take across the state space.
+</p>
+</div></div>
+<h4>Bellman Operator</h4>
+<p>Having defined a normed vector space, we now introduce an appropriate contraction. Since we are using Banach's fixed-point theorem to prove the convergence of policy and Value Iteration to the optimal policy, it is natural to define our contraction in terms of a policy's value function.
+</p>
+<p>Using the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>matrix form</a> of the Bellman equation, we define a contraction, called the
+<i>Bellman operator</i>, \(\mathcal{T}_\pi: B(\mathcal{S}) \to B(\mathcal{S})\), which maps one state-value function
+\(\mathbf{v}\) to another:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}
+    \mathcal{T}_\pi(\mathbf{v}) = \mathbf{r}_\pi + \gamma \mathbf{P}_\pi \mathbf{v} \label{eq:bellman-operator} \;.
+\end{equation}
+\]
+</p><p>To illustrate this operator, consider a simple example where \(\mathcal{S} = \{ s_1, s_2, s_3 \}\). Applying \(\mathcal{T}_\pi\)
+to the value function:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathcal{T}_\pi \Bigg (
+    \begin{bmatrix}
+        v(s_1) \\ v(s_2) \\ v(s_3)
+    \end{bmatrix}
+    \Bigg )
+    =
+    \begin{bmatrix}
+        r_\pi(s_1) \\ r_\pi(s_2) \\ r_\pi(s_3)
+    \end{bmatrix}
+    +
+    \gamma
+    \begin{bmatrix}
+        P_\pi(s_1, s_1) &amp; P_\pi(s_1, s_2) &amp; P_\pi(s_1, s_3) \\
+        P_\pi(s_2, s_1) &amp; P_\pi(s_2, s_2) &amp; P_\pi(s_2, s_3) \\
+        P_\pi(s_3, s_1) &amp; P_\pi(s_3, s_2) &amp; P_\pi(s_3, s_3)
+    \end{bmatrix}
+    \begin{bmatrix}
+        v(s_1) \\ v(s_2) \\ v(s_3)
+    \end{bmatrix}
+\end{equation*}
+\]
+</p><p>For \(s_1\), the Bellman operator can be expanded as:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    [\mathcal{T}_\pi\mathbf{v}](s_1) &amp;= r_{\pi}(s_1) + \gamma \left( P_\pi(s_1, s_1) \cdot v(s_1) + P_\pi(s_1, s_2) \cdot v(s_2) + P_\pi(s_1, s_3) \cdot v(s_3) \right) \\
+    &amp;= \sum_{a \in \mathcal{A}} \pi(a \mid s_1) R(s_1, a) + \gamma \left( \sum_{a \in \mathcal{A}} \pi(a \mid s_1) P(s_1, a, s_1) \cdot v(s_1) +
+    \sum_{a \in \mathcal{A}} \pi(a \mid s_1) P(s_1, a, s_2) \cdot v(s_2) + \sum_{a \in \mathcal{A}} \pi(a \mid s_1) P(s_1, a, s_3) \cdot v(s_3) \right) \\
+    &amp;= \sum_{a \in \mathcal{A}} \pi(a \mid s_1) \left( R(s_1, a) + \gamma \left( P(s_1, a, s_1) \cdot v(s_1) +
+    P(s_1, a, s_2) \cdot v(s_2) + P(s_1, a, s_3) \cdot v(s_3) \right) \right) \\
+    &amp;= \sum_{a \in \mathcal{A}} \pi(a \mid s_1) \left( R(s_1, a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s_1, a, s&rsquo;) \cdot v(s&rsquo;) \right) \; .
+\end{align*}
+\]
+</p><p>Using a <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>deterministic policy</a> \(\pi(s)\), we can prove that the Bellman operator is a
+contraction in the infinity norm \(\lVert \cdot \rVert_\infty\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    [\mathcal{T}_\pi \mathbf{u}](s) &amp;= R(s, \pi(s)) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, \pi(s), s&rsquo;) \mathbf{u}(s&rsquo;) \label{eq:u-value-function} \\
+    [\mathcal{T}_\pi \mathbf{v}](s) &amp;= R(s, \pi(s)) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, \pi(s), s&rsquo;) \mathbf{v}(s&rsquo;) \label{eq:v-value-function} \\
+
+    \lVert \mathcal{T}_\pi(\mathbf{u}) - \mathcal{T}_\pi(\mathbf{v}) \rVert_\infty &amp;=
+    \max_{s \in \mathcal{S}} \Bigg \lvert R(s, \pi(s)) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, \pi(s), s&rsquo;) \mathbf{u}(s&rsquo;)
+    - \left( R(s, \pi(s)) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, \pi(s), s&rsquo;) \mathbf{v}(s&rsquo;) \right) \Bigg \rvert \label{eq:value-function-difference} \\
+
+    &amp;= \gamma \max_{s \in \mathcal{S}} \Bigg \lvert \sum_{s&rsquo; \in \mathcal{S}} P(s, \pi(s), s&rsquo;) \big( \mathbf{u}(s&rsquo;) - \mathbf{v}(s&rsquo;) \big) \Bigg \rvert \label{eq:simplify-difference} \\
+    &amp;\leq \gamma \max_{s \in \mathcal{S}} \sum_{s&rsquo; \in \mathcal{S}} P(s, \pi(s), s&rsquo;) \lvert \mathbf{u}(s&rsquo;) - \mathbf{v}(s&rsquo;) \rvert \label{eq:value-func-triangle-inequality} \\
+    &amp;\leq \gamma \max_{s \in \mathcal{S}} \sum_{s&rsquo; \in \mathcal{S}} P(s, \pi(s), s&rsquo;) \lVert \mathbf{u} - \mathbf{v} \rVert_\infty \label{eq:replace-with-norm} \\
+    &amp;= \gamma \lVert \mathbf{u} - \mathbf{v} \rVert_\infty \;, \label{eq:bellman-is-contraction}
+\end{align}
+\]
+</p><p>Each step in this derivation can be justified as follows. The first two equations, Equation \(\eqref{eq:u-value-function}\) and Equation \(\eqref{eq:v-value-function}\), come directly from the definition of the Bellman operator Equation \(\eqref{eq:bellman-operator}\) (note that since we are using a deterministic policy, there is no need to sum over all actions \(a \in \mathcal{A}\), simplifying the expressions). In Equation \(\eqref{eq:value-function-difference}\), the infinity norm \(\lVert \cdot \rVert_\infty\) is applied, which captures the maximum absolute difference between the value functions across all states. Simplification in Equation \(\eqref{eq:simplify-difference}\) removes the reward term \(R(s, \pi(s))\), as it cancels out, leaving only the differences in future state values. The triangle inequality is then applied in Equation \(\eqref{eq:value-func-triangle-inequality}\), which ensures that \(\lvert \sum_n a_n \rvert \leq \sum_n \lvert a_n \rvert\). Next, Equation \(\eqref{eq:replace-with-norm}\) follows from the definition of the infinity norm, which guarantees \(\lvert \mathbf{u}(s&rsquo;) - \mathbf{v}(s&rsquo;) \rvert \leq \lVert \mathbf{u} - \mathbf{v} \rVert_\infty\) for all \(s&rsquo; \in \mathcal{S}\). Finally, Equation \(\eqref{eq:bellman-is-contraction}\) holds because \(\sum_{s&rsquo; \in \mathcal{S}} P(s, \pi(s), s&rsquo;) = 1\) (since these are transition probabilities). Thus, we conclude that \(\lVert \mathcal{T}_\pi(\mathbf{u}) - \mathcal{T}_\pi(\mathbf{v}) \rVert_\infty \leq \gamma \lVert \mathbf{u} - \mathbf{v} \rVert_\infty\), satisfying the definition of a contraction in Equation \(\eqref{eq:contraction}\).
+</p>
+<p>To clarify the connection between the terms in Equation \(\eqref{eq:u-value-function}\) through Equation \(\eqref{eq:bellman-is-contraction}\) and the general terms used when describing a contraction in the &ldquo;Proving Banach's Fixed-Point Theorem&rdquo; section of this note, we can map them as follows:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    d &amp;\longrightarrow \lVert \cdot \rVert_\infty  &amp;&amp;\text{(the infinity norm as the metric)} \\
+    f &amp;\longrightarrow \mathcal{T}_\pi &amp;&amp;\text{(the Bellman operator as the contraction)} \\
+    x &amp;\longrightarrow \mathbf{v} &amp;&amp;\text{(the first value function)} \\
+    y &amp;\longrightarrow \mathbf{u} &amp;&amp;\text{(the second value function)} \\
+    k &amp;\longrightarrow \gamma &amp;&amp;\text{(the discount factor as the contraction constant)} \\
+\end{align*}
+\]
+</p><h4>Intuition for the Bellman Operator Fixed Point</h4>
+<p>Having proven that the Bellman operator is a contraction, Banach's fixed-point theorem guarantees the existence of a unique fixed point. It is important to develop an intuition for what a fixed point represents in this context. The sequence generated by the Bellman operator proceeds as follows:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \mathbf{v}_0, \mathcal{T}_\pi(\mathbf{v}_0), \mathcal{T}_\pi(\mathcal{T}_\pi(\mathbf{v}_0)),
+    \mathcal{T}_\pi(\mathcal{T}_\pi(\mathcal{T}_\pi(\mathbf{v}_0))), \dots  &amp;&amp; \text{cf. } \eqref{eq:iterative-contraction}
+\end{align*}
+\]
+</p><p>That is, the Bellman operator generates a Cauchy sequence:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \mathbf{v}_{k+1} = \mathcal{T}_\pi(\mathbf{v}_k) = \mathcal{T}_\pi^{k+1}(\mathbf{v}_0) \quad \text{for } k \geq 0 \;,
+\end{align*}
+\]
+</p><p>where \(\mathbf{v}_0\) is an arbitrary initial value function and \(\mathcal{T}_\pi^{k+1}\) denotes the operator applied \(k+1\) times, e.g., \(\mathcal{T}_\pi^2(\mathbf{v}) = \mathcal{T}_\pi(\mathcal{T}_\pi(\mathbf{v}))\).
+</p>
+<p>Since this sequence is Cauchy and we are in a normed vector space, for any initial value function \(\mathbf{v}_0\) the sequence converges to a unique fixed point  \(\mathbf{v}\), which satisfies \(\mathbf{v} = \mathcal{T}_\pi(\mathbf{v})\). The fixed point is the value function that solves the Bellman equation, representing the value of each state under the policy \(\pi\) after convergence (highlighted in red):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    [\mathcal{T}_\pi (\mathbf{v})](s) = \sum_{a \in \mathcal{A}} \pi(a \mid s) \left( R(s, a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) \color{red}{\mathbf{v}} (s&rsquo;) \right) \;.
+\end{equation*}
+\]
+</p><p>If we start with an arbitrary function \(\mathbf{v}_0\) that is not the true value function \(\mathbf{v}\), we get:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \sum_{a \in \mathcal{A}} \pi(a \mid s) \left( R(s, a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) \color{red}{\mathbf{v}_0}(s&rsquo;) \right),
+\end{equation*}
+\]
+</p><p>which is not a solution, as illustrated by the following example.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/policies/mrp.png" alt="Simple MRP" width="400px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>This is a two-state system where the agent transitions from state \(s_1\) to \(s_2\) with probability \(0.2\) and to \(s_1\) with probability \(0.8\). These transitions yield rewards of \(-10\) and \(15\), respectively. From state \(s_2\), the agent transitions to \(s_1\) with probability \(0.6\) and remains in \(s_2\) with probability \(0.4\), with corresponding rewards of \(15\) and \(-10\).
+</p>
+<p>Plugging \(\mathbf{v}_0 \neq \mathbf{v}_\pi\) into the Bellman operator Equation \(\eqref{eq:bellman-operator}\), we observe that \(V_0\) is not a fixed point. For instance, if \(\mathbf{v}_0 = [20, 10]^\top\) and \(\gamma = 0.9\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation} \nonumber
+    \begin{bmatrix}
+        10 \\ 5
+    \end{bmatrix}
+    +
+    0.9
+    \begin{bmatrix}
+        0.8 &amp; 0.2 \\
+        0.6 &amp; 0.4
+    \end{bmatrix}
+    \begin{bmatrix}
+        \color{red}{20} \\ \color{red}{10}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        \color{red}{26.2} \\ \color{red}{19.4}
+    \end{bmatrix}
+\end{equation}
+\]
+</p><p>Because \([20,10]^\top \neq [26.2,19.4]^\top\), \(\mathbf{v}_0\) is, by definition, not a fixed point.
+</p>
+<p>In fact, the true value function \(\mathbf{v}_\pi\) is the only fixed point. We can show that \(\mathbf{v}_\pi\) is a fixed point as follows:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    [\mathcal{T}_\pi (\mathbf{v}_\pi)](s) &amp;= \sum_{a \in \mathcal{A}} \pi(a \mid s) \left( R(s, a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) \mathbf{v}_\pi(s&rsquo;) \right) \\
+    &amp;= \sum_{a \in \mathcal{A}} \pi(a \mid s) R(s, a) + \gamma \sum_{a \in \mathcal{A}} \pi(a \mid s) \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) \mathbf{v}_\pi(s&rsquo;) \\
+    &amp;= \mathbf{v}_\pi(s) \;.
+\end{align*}
+\]
+</p><p>Continuing with the example, as shown in the <a href="policies.html" target=&ldquo;blank&rdquo;>value function and policies note</a>, the true value function for this MDP is \(\mathbf{v}_\pi = [89.02, 82.93]^\top\). Substituting this into the Bellman operator Equation \(\eqref{eq:bellman-operator}\), we get:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \begin{bmatrix}
+        10 \\ 5
+    \end{bmatrix}
+    +
+    0.9
+    \begin{bmatrix}
+        0.8 &amp; 0.2 \\
+        0.6 &amp; 0.4
+    \end{bmatrix}
+    \begin{bmatrix}
+        \color{red}{89.02} \\ \color{red}{82.93}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        \color{red}{89.02} \\ \color{red}{82.93}
+    \end{bmatrix} \;.
+\end{equation*}
+\]
+</p><p>Since \([89.02, 82.93]^\top = [89.02, 82.93]^\top\), we conclude that \(\mathbf{v}_\pi\) is indeed a fixed point. By Banach's fixed-point theorem, this fixed point is unique.
+</p>
+<h4>Bellman Optimality Operator</h4>
+<p>Analogous to the Bellman operator defined in Equation \(\eqref{eq:bellman-operator}\), we define the <i>Bellman optimality operator</i> \(\mathcal{T}_* : B(\mathcal{S}) \to B(\mathcal{S})\) as follows:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:bellman-optimality-operator}
+    [\mathcal{T}_*(\mathbf{v})](s) = \max_{a} \left[ R(s, a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) \mathbf{v}(s&rsquo;) \right] \;.
+\end{equation}
+\]
+</p><p>Like the Bellman operator, the Bellman optimality operator is a contraction. Specifically, we have:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    [\mathcal{T}_*(\mathbf{u})](s) &amp;= \max_{a \in \mathcal{A}} \left( R(s, a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) \mathbf{u}(s&rsquo;) \right) \nonumber \\
+    [\mathcal{T}_*(\mathbf{v})](s) &amp;= \max_{a \in \mathcal{A}} \left( R(s, a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) \mathbf{v}(s&rsquo;) \right) \nonumber \\
+
+    \lVert \mathcal{T}_*(\mathbf{u}) - \mathcal{T}_*(\mathbf{v}) \rVert_\infty &amp;=
+    \max_{s \in \mathcal{S}} \left| \max_{a \in \mathcal{A}} \left( R(s, a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) \mathbf{u}(s&rsquo;) \right)
+    - \max_{a \in \mathcal{A}} \left( R(s, a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) \mathbf{v}(s&rsquo;) \right) \right| \label{eq:optimality-func-before-factor} \\
+
+    &amp;\leq \gamma \max_{s \in \mathcal{S}, a \in \mathcal{A}} \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) \lvert \mathbf{u}(s&rsquo;) - \mathbf{v}(s&rsquo;) \rvert \label{eq:optimality-func-factor-max} \\
+    &amp;\leq \gamma \max_{s \in \mathcal{S}, a \in \mathcal{A}} \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) \lVert \mathbf{u} - \mathbf{v} \rVert_\infty \nonumber \\
+    &amp;= \gamma \lVert \mathbf{u} - \mathbf{v} \rVert_\infty \;. \nonumber
+\end{align}
+\]
+</p><p>Except for Equation \(\eqref{eq:optimality-func-factor-max}\), the logic proceeds as it did for proving that the Bellman operator is a contraction (Equation \(\eqref{eq:u-value-function}\) – Equation \(\eqref{eq:bellman-is-contraction}\)). In Equation \(\eqref{eq:optimality-func-factor-max}\), we cannot directly factor out \(\max_{a \in \mathcal{A}}\) because the value functions \(\mathbf{u}\) and \(\mathbf{v}\) differ, meaning the maximizing action \(a^*\) may be different for \(\mathbf{u}\) and \(\mathbf{v}\). However, since we are using the infinity norm, we are considering the worst-case (i.e., maximum) possible difference between the value functions. This is why the equality in Equation \(\eqref{eq:optimality-func-before-factor}\) becomes an inequality in Equation \(\eqref{eq:optimality-func-factor-max}\). Thus, the Bellman optimality operator is a contraction.
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>Bounding the difference of maximums by the maximum difference</b>
+</p>
+<p>We can justify Equation \(\eqref{eq:optimality-func-factor-max}\) by showing that the maximum absolute difference of two functions is greater than or equal to the absolute difference of their respective maxima:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \lvert \max_a f(a) - \max_a g(a) \rvert \leq \max_a \lvert f(a) - g(a) \rvert \;.
+\end{equation*}
+\]
+</p><p>Assuming, without loss of generality, that \(\max_a f(a) \geq \max_a g(a)\) and letting \(a^* = \text{argmax}_a f(a)\), we can prove this inequality as follows:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \lvert \max_a f(a) - \max_a g(a) \rvert &amp;= \max_a f(a) - \max_a g(a) \\
+    &amp;= f(a^*) - \max_a g(a) \\
+    &amp;\leq f(a^*) - g(a^*) \\
+    &amp;\leq \max_a \lvert f(a) - g(a) \rvert \;.
+\end{align*}
+\]
+</p></div></div>
+<p>The Bellman optimality operator \(T_*\), like the Bellman operator \(T_\pi\), is a contraction. By Banach's fixed-point theorem, it therefore has a unique fixed point, denoted \(v_{fp}\). By definition of a fixed point, this function satisfies \(T_*(v_{fp}) = v_{fp}\). Expanding this expression for any state \(s\) gives:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    v_{fp}(s) = [\mathcal{T}_*(v_{fp})](s) = \max_{a} \left( R(s,a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) v_{fp}(s&rsquo;) \right) \;.
+\end{equation*}
+\]
+</p><p>This is exactly the Bellman optimality equation (Equation \(\eqref{eq:bellman-optimality-operator}\)). The optimal value function \(v_*\) is defined as the unique solution to this equation, so the fixed point of the Bellman optimality operator is the optimal value function: \(v_{fp} = v_*\).
+</p>
+<h3>Proving Value Iteration Converges to the Optimal Policy</h3>
+<p><a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>Value Iteration</a> is effectively the repeated application of the Bellman optimality operator, \(\mathbf{v}_{k+1} = \mathcal{T}_*(\mathbf{v}_k)\). Using our previous results, we can directly show that Value Iteration converges to \(\mathbf{v}_*\). Specifically, we have already proven that the Bellman optimality operator is a contraction with a fixed point \(\mathbf{v}_*\). Therefore, by Banach’s fixed-point theorem, \(\mathcal{T}_*\) applied repeatedly will converge to the optimal value function \(\mathbf{v}_*\) for any arbitrary initial value function \(\mathbf{v}_0\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \lim_{k \to \infty} \mathbf{v}_k = \mathbf{v}_* \;,
+\end{equation*}
+\]
+</p><p>where the sequence is defined by the Value Iteration update rule \(v_{k+1} = \mathcal{T}_*(v_k)\).
+</p>
+<p>Once \(\mathbf{v}_*\) is obtained, the optimal policy can be derived using a one-step lookahead to select the action that maximizes the state-action value: \(\text{argmax}_a Q_*(s, a)\).
+</p>
+<h3>Proving Policy Iteration Converges to the Optimal Policy</h3>
+<p>We now prove that Policy Iteration converges to the optimal policy using the <i>policy improvement theorem</i>, which guarantees that the greedy policy \(\pi'\) is always at least as good as the original policy \(\pi\).
+</p>
+<p>Let \(\pi'\) be the greedy policy with respect to the value function \(V_\pi\), defined for all \(s \in \mathcal{S}\) as:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \pi&rsquo;(s) &amp;= \arg \max_a Q_\pi(s, a) \\
+    &amp;= \arg \max_a \left( R(s, a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) V_\pi(s&rsquo;) \right) \;.
+\end{align*}
+\]
+</p><p>By construction, this greedy policy satisfies the condition:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:greedy}
+    Q_\pi(s, \pi&rsquo;(s)) \ge V_\pi(s) \;,
+\end{equation}
+\]
+</p><p>since \(V_\pi(s)\) is the expected action-value under policy \(\pi\), and the maximum of a set of values is always greater than or equal to its expectation.
+</p>
+<p>We can now show that \(V_{\pi&rsquo;}(s) \ge V_\pi(s)\) by expanding the Q-function and repeatedly applying this inequality:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    V_\pi(s) &amp;\leq Q_\pi(s, \pi&rsquo;(s)) \\
+    &amp;= \mathbb{E}[r_{t+1} + \gamma V_\pi(s_{t+1}) \mid s_t = s, a_t = \pi&rsquo;(s)] \\
+    &amp;= \mathbb{E}_{\pi&rsquo;}[r_{t+1} + \gamma V_\pi(s_{t+1}) \mid s_t = s] \\
+    &amp;\leq \mathbb{E}_{\pi&rsquo;}[r_{t+1} + \gamma Q_\pi(s_{t+1}, \pi&rsquo;(s_{t+1})) \mid s_t = s] &amp;&amp; \text{by Equation \eqref{eq:greedy}} \\
+    &amp;= \mathbb{E}_{\pi&rsquo;}[r_{t+1} + \gamma \mathbb{E}[r_{t+2} + \gamma V_\pi(s_{t+2}) \mid s_{t+1}, a_{t+1} = \pi&rsquo;(s_{t+1})] \mid s_t = s] \\
+    &amp;= \mathbb{E}_{\pi&rsquo;}[r_{t+1} + \gamma r_{t+2} + \gamma^2 V_\pi(s_{t+2}) \mid s_t = s] \\
+    &amp;\leq \mathbb{E}_{\pi&rsquo;}[r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + \gamma^3 V_\pi(s_{t+3}) \mid s_t = s] \\
+    &amp;\vdots \\
+    &amp;\leq \mathbb{E}_{\pi&rsquo;}[r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + \dots \mid s_t = s] \\
+    &amp;= V_{\pi&rsquo;}(s) \;.
+\end{align*}
+\]
+</p><p>This proves that the greedy policy \(\pi'\) is better than (or is equally good as) \(\pi\).
+</p>
+<p>The preceding derivation proved that for a greedy policy \(\pi'\), \(V_{\pi&rsquo;}(s) \ge V_\pi(s)\). We now prove that if this policy improvement step results in no change (i.e., \(V_{\pi&rsquo;}(s) = V_\pi(s)\)), then the original policy \(\pi\) must be optimal. Specifically, the proof that \(V_{\pi&rsquo;}(s) \ge V_\pi(s)\) is a chain of inequalities that starts from the condition given in Equation \(\eqref{eq:greedy}\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    V_\pi(s) \leq Q_\pi(s, \pi&rsquo;(s)) \;.
+\end{equation*}
+\]
+</p><p>If the final result of that chain of inequalities is an equality \(V_{\pi&rsquo;}(s) = V_\pi(s)\), then every intermediate step in the chain must also be an equality. In particular, this forces the starting inequality to become a strict equality:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:first-step-equality}
+    V_\pi(s) = Q_\pi(s, \pi&rsquo;(s)) \;.
+\end{equation}
+\]
+</p><p>By definition, the greedy policy \(\pi'\) is the action that maximizes the Q-value: \(\pi&rsquo;(s) = \arg \max_a Q_\pi(s,a)\). Therefore, we can substitute the \(\max\) operator for the specific action \(\pi&rsquo;(s)\) in Equation \(\eqref{eq:first-step-equality}\) without changing the value:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    V_\pi(s) = \max_a Q_\pi(s,a) \;.
+\end{equation*}
+\]
+</p><p>Expanding the action-value function \(Q_\pi(s,a)\) gives:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    V_\pi(s) = \max_a \left( R(s,a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s,a,s&rsquo;) V_\pi(s&rsquo;) \right) \;.
+\end{equation*}
+\]
+</p><p>This is precisely the <a href="glossary.html" target=&ldquo;blank&rdquo;>Bellman optimality equation</a>. The optimal value function \(V_*\) is the unique solution to this equation. Since \(V_\pi\) satisfies the Bellman optimality equation, we have \(V_\pi = V_*\). Consequently, \(\pi\), being greedy with respect to \(V_*\), is the optimal policy \(\pi_*\).
+</p>
+<p>This process — improving a policy by making it greedy with respect to the value function of the current policy — is called <a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>policy improvement</a>. Since Policy Iteration includes a policy improvement step, the policy improvement theorem guarantees that the new policy is strictly better than (or equally as good as) the previous policy. Convergence follows from the finiteness of the policy set, which forces the improvement process to terminate.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://sites.math.northwestern.edu/~scanez/courses/320/notes/metric-spaces.pdf" target=&ldquo;blank&rdquo;>Notes on Metric Spaces</a>,
+Real Analysis (2020)</dt>
+<dd><p>Santiago Cañez
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://runzhe-yang.science/2017-10-04-contraction/" target=&ldquo;blank&rdquo;>How Does Value-Based Reinforcement Learning Find the Optimal
+Policy? — A General Explanation from Topological Point of View</a> (2017)</dt>
+<dd><p>Runzhe Yang
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.math.ucdavis.edu/~hunter/book/ch3.pdf" target=&ldquo;blank&rdquo;>The Contraction Mapping Theorem</a> Chapter 3 in Applied Analysis,
+(2005)</dt>
+<dd><p>John Hunter and Bruno Nachtergaele
+</p></dd>
+</dl>
+<dl>
+<dt>Balls, Chapter 5 in Metric Spaces — A Companion to Analysis (2022)</dt>
+<dd><p>Robert Magnus
+</p></dd>
+</dl>
+<dl>
+<dt><a href="http://www.math.utah.edu/~toledo/4510notes.pdf" target=&ldquo;blank&rdquo;>Metric Spaces</a>, Notes for Math 4510 (2010)</dt>
+<dd><p>Domingo Toledo
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.youtube.com/watch?v=ZMZxjVE_4WY" target=&ldquo;blank&rdquo;>Contraction Mapping Theorem &amp; Finding Fixed Points of Functions
+Contraction Mapping Theorem &amp; Finding Fixed Points of Functions [video]</a> (2021)</dt>
+<dd><p>Mohamed Omar
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://yuanz.web.illinois.edu/teaching/IE498fa19/lec_16.pdf" target=&ldquo;blank&rdquo;>Value Iteration, Policy Iteration and
+Policy Gradient</a>, Online Learning and Decision Making (2019)</dt>
+<dd><p>Yuan Zhou
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://sites.ualberta.ca/~szepesva/rlbook.html" target=&ldquo;blank&rdquo;>Algorithms for Reinforcement Learning</a>,
+Synthesis Lectures on Artificial Intelligence and Machine Learning (2019)</dt>
+<dd><p>Csaba Szepesvari
+</p></dd>
+</dl>
+<dl>
+<dt><a href="http://incompleteideas.net/book/first/the-book.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction</a>
+(1998)</dt>
+<dd><p>Richard S. Sutton and Andrew G. Barto
+</p></dd>
+</dl>
+<dl>
+<dt><a href="http://incompleteideas.net/book/the-book-2nd.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction</a>
+(2018)</dt>
+<dd><p>Richard S. Sutton and Andrew G. Barto
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.udacity.com/course/reinforcement-learning--ud600" target=&ldquo;blank&rdquo;>Reinforcement Learning
+by Georgia Tech [video]</a></dt>
+<dd><p>Charles Isbell, Michael Littman, and Chris Pryby
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.fi.muni.cz/~xivora/files/Chapter4_Dynamic_Programming.pdf" target=&ldquo;blank&rdquo;>Dynamic Programming</a> (2021)</dt>
+<dd><p>Adam Ivora
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.econ.uzh.ch/dam/jcr:b0faffaf-eb72-48c7-ac3c-c13510aaa71c/5%20-%20The%20Bellman%20Equation.pdf" target=&ldquo;blank&rdquo;>The Bellman Equation</a> (2017)</dt>
+<dd><p>Florian Scheuer
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

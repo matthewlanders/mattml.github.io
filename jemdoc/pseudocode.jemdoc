@@ -1,0 +1,157 @@
+# jemdoc: menu{MENU}{pseudocode.html}
+= Pseudocode
+
+=== AlphaZero
+
+~~~
+{}{img_left}{static/images/alphazero/alphazero.png}{AlphaZero pseudocode}{600px}
+~~~
+
+=== Backpropagation
+
+~~~
+{}{img_left}{static/images/backpropagation/backpropagation.png}{backpropagation pseudocode}{600px}
+~~~
+
+=== Conjugate Gradient Method
+
+~~~
+{}{img_left}{static/images/cg-method/pseudocode.png}{conjugate gradient pseudocode}{600px}
+~~~
+
+=== Constraint-Controlled Reinforcement Learning
+
+~~~
+{}{img_left}{static/images/pid-lagrangian/constraint-controlled-rl.png}{Constraint-Controlled Reinforcement Learning pseudocode}{600px}
+~~~
+
+=== Deep Q-learning
+
+~~~
+{}{img_left}{static/images/deep-q-learning/deep-q-learning-with-experience-replay-and-target-network.png}{Deep Q learning with experience replay and target network pseudocode}{600px}
+~~~
+
+=== Deep Deterministic policy gradients (DDPG)
+
+~~~
+{}{img_left}{static/images/ddpg/ddpg.png}{deep deterministic policy gradients pseudocode}{600px}
+~~
+
+=== Deterministic policy gradients
+
+~~~
+{}{img_left}{static/images/ddpg/dpg.png}{deterministic policy gradients pseudocode}{600px}
+~~
+
+=== Double Deep Q-learning
+
+~~~
+{}{img_left}{static/images/double-dqn/double-q-learning.png}{double q-learning pseudocode}{600px}
+~~~
+
+=== Dual Gradient Descent
+
+~~~
+{}{img_left}{static/images/cmdps/dual_descent.png}{dual gradient descent pseudocode}{600px}
+~~~
+
+=== Every-visit Monte Carlo prediction
+~~~
+{}{img_left}{static/images/model-free-prediction/every-visit-mc.png}{every-visit MC pseudocode}{600px}
+~~~
+
+=== First-visit Monte Carlo prediction
+~~~
+{}{img_left}{static/images/model-free-prediction/first-visit-mc.png}{first-visit MC pseudocode}{600px}
+~~~
+
+=== Implicit Q-Learning
+
+~~~
+{}{img_left}{static/images/iql/iql.png}{IQL pseudocode}{600px}
+~~~
+
+=== $n$-step TD
+~~~
+{}{img_left}{static/images/model-free-prediction/n-step_td.png}{n-step TD pseudocode}{600px}
+~~~
+
+=== One-step actor-critic
+
+~~~
+{}{img_left}{static/images/actor-critic/one-step-actor-critic.png}{one step actor critic pseudocode}{600px}
+~~
+
+=== Policy iteration
+~~~
+{}{img_left}{static/images/dp-for-mdps/policy_iteration.png}{policy iteration pseudocode}{600px}
+~~~
+
+=== PPO
+
+~~~
+{}{img_left}{static/images/ppo/pseudocode.png}{PPO pseudocode}{600px}
+~~~
+
+=== Q-learning
+~~~
+{}{img_left}{static/images/model-free-control/q-learning.png}{SARSA pseudocode}{600px}
+~~~
+
+=== REINFORCE
+
+~~~
+{}{img_left}{static/images/policy-gradients/REINFORCE.png}{REINFORCE pseudocode}{600px}
+~~
+
+=== SARSA
+~~~
+{}{img_left}{static/images/model-free-control/sarsa.png}{SARSA pseudocode}{600px}
+~~~
+
+=== Semi-gradient SARSA (episodic)
+~~~
+{}{img_left}{static/images/control-with-approx/semi-gradient_sarsa.png}{semi-gradient sarsa pseudocode}{600px}
+~~~
+
+=== Semi-gradient TD(0)
+~~~
+{}{img_left}{static/images/prediction-with-approx/semi-gradient-td.png}{semi-gradient TD(0)}{600px}
+~~~
+
+=== Soft Actor-Critic (SAC)
+~~~
+{}{img_left}{static/images/sac/sac.png}{soft actor-critic pseudocode}{600px}
+~~
+
+=== Successor Features with Generalized Policy Improvement
+
+~~~
+{}{img_left}{static/images/sfs/sfs-with-gpi.png}{successor features with GPI pseudocode CMDP}{600px}
+~~~
+
+=== Twin Delayed Deep Deterministic Policy Gradients (TD3)
+~~~
+{}{img_left}{static/images/td3/td3.png}{td3 pseudocode}{600px}
+~~
+
+=== TD(0)
+~~~
+{}{img_left}{static/images/model-free-prediction/td.png}{TD(0) pseudocode}{600px}
+~~~
+
+=== TD($\lambda$)
+~~~
+{}{img_left}{static/images/model-free-prediction/td-lambda.png}{TD-lambda pseudocode}{600px}
+~~~
+
+=== Trust Region Policy Optimization (TRPO)
+
+~~~
+{}{img_left}{static/images/trpo/pseudocode.png}{TRPO pseudocode}{600px}
+~~~
+
+=== Value iteration
+~~~
+{}{img_left}{static/images/dp-for-mdps/value_iteration.png}{value iteration pseudocode}{600px}
+~~~

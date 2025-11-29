@@ -1,0 +1,500 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Double Q-learning</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html" class="current">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Double Q-learning</h1>
+</div>
+<p><i>Revised June 16, 2025</i>
+</p>
+<p><i>The <a href="model-free-control.html" target=&ldquo;blank&rdquo;>Model Free Control</a> and <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>Deep Q-Learning</a> notes are optional but recommended background reading.</i>
+</p>
+<p>The technical density of this note may suggest that Double Q-learning is algorithmically complex. In fact, it is remarkably simple. Standard Q-learning uses a single action-value function to both select and evaluate actions:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \delta_{t} &amp;= r_{t+1} +  \gamma \max_{a&rsquo;} Q(s_{t+1},a&rsquo;) - Q(s_t, a_t) \label{eq:q-learning} \\
+    Q(s_t, a_t) &amp;\gets Q(s_t, a_t) + \alpha \delta_{t} \;. \nonumber
+\end{align}
+\]
+</p><p>This, however, is prone to overestimation bias as a general statistical consequence of maximizing over random variables (i.e, due to the use of the \(\max\) operator in Equation \(\eqref{eq:q-learning}\)). The bias is not attributable to any single source of error; it can emerge from function approximation, stochastic transitions, or <a href="glossary.html" target=&ldquo;blank&rdquo;>non-stationarity</a>. Although uniform overestimation preserves relative action preferences and leaves the policy unaffected, in practice this bias often causes poor states to be assigned high value, leading to suboptimal updates and, under <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>function approximation</a>, potential divergence. More precisely, even when estimation errors are unbiased across actions, the \(\max\) operator tends to select overestimated values both in expectation and in individual samples.
+</p>
+<p>Double Q-learning mitigates this bias by maintaining two independent estimators \(Q^A\) and \(Q^B\). At each update, one estimator is selected at random to determine the greedy action and is then updated using the value assigned by the other estimator. For example, if \(Q^A\) is being updated, the greedy action is selected using \(Q^A\) and evaluated using \(Q^B\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \delta_t &amp;= r_{t+1} + \gamma Q^B(s_{t+1}, \max_{a&rsquo;} Q^A(s_{t+1}, a_{t+1})) - Q^A(s_t, a_t) \\
+    Q^A(s_t, a_t) &amp;\gets Q^A(s_t, a_t) + \alpha \delta_t \;.
+\end{align*}
+\]
+</p><p>Despite its algorithmic simplicity, Double Q-learning is motivated by a nontrivial mathematical analysis.
+</p>
+<h4>Expected Error for Q-learning</h4>
+<p>To formally prove that Q-learning overestimates values in expectation, consider a state \(s'\) for which all true action-values are equal: \(Q^*(s&rsquo;, a) = V^*(s&rsquo;)\) for all \(a \in \mathcal{A}\). Let the estimated action-values be modeled as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:q-error}
+    Q_t(s&rsquo;, a) = V^*(s&rsquo;) + X_a \;,
+\end{equation}
+\]
+</p><p>where the error terms \(X_a\) are independent and identically distributed (i.i.d.) random variables drawn from a uniform distribution \(U[-\epsilon, \epsilon]\) for some \(\epsilon &gt; 0\). Because \(X_a \sim U[-\epsilon, \epsilon]\), each \(X_a\) has zero mean: \(\mathbb{E}[X_a] = 0\), due to the symmetry of the uniform distribution about zero. The estimator is therefore unbiased for each action, ensuring that any overestimation arises solely from the maximization step, not from systematic bias in the individual estimates.
+</p>
+<p>Q-learning estimates the value of \(s'\) using \(\max_{a&rsquo;} Q_t(s&rsquo;, a&rsquo;)\). Substituting the decomposition from Equation \(\eqref{eq:q-error}\) gives:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \max_{a&rsquo;} Q_t(s&rsquo;, a&rsquo;) &amp;= \max_{a&rsquo;} \left(V^*(s&rsquo;) + X_{a&rsquo;}\right) \\
+    &amp;= V^*(s&rsquo;) + \max_{a&rsquo;} X_{a&rsquo;} \;,
+\end{align*}
+\]
+</p><p>since \(V^*(s&rsquo;)\) is constant with respect to the maximization. Taking the expectations yields:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \mathbb{E}\left[\max_{a&rsquo;} Q_t(s&rsquo;, a&rsquo;)\right] &amp;= V^*(s&rsquo;) + \mathbb{E}\left[\max_{a&rsquo;} X_{a&rsquo;}\right] \\
+    \mathbb{E}\left[\max_{a&rsquo;} Q_t(s&rsquo;, a&rsquo;) - V^*(s&rsquo;)\right] &amp;= \mathbb{E}\left[\max_{a&rsquo;} X_{a&rsquo;}\right] \;.
+\end{align*}
+\]
+</p><p>Let \(Y = \max_{a&rsquo;} X_{a&rsquo;}\). To compute \(\mathbb{E}[Y]\), we require the probability density function (PDF) of \(Y\), since the expectation of a continuous random variable is defined as an integral over its density:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:y-expectation}
+    \mathbb{E}[Y] = \int_{-\epsilon}^{\epsilon} y \cdot f_Y(y) \, dy \;.
+\end{equation}
+\]
+</p><p>While the PDF can be derived directly, it is simpler in this setting to first compute the cumulative distribution function (CDF), because \(X_{a&rsquo;}\) are i.i.d. and uniformly distributed on \([-\epsilon, \epsilon]\) and the maximum of i.i.d. variables reduces to a product of marginals. Formally, for \(Y = \max_{a&rsquo;} X_{a&rsquo;}\), the CDF is:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    F_Y(y) &amp;= P(Y \le y) \nonumber \\
+    &amp;= P(X_1 \le y, \dots, X_m \le y) \nonumber \\
+    &amp;= \prod_{i=1}^m P(X_i \le y) \nonumber \\
+    &amp;= \left(F_{X_a}(y)\right)^m  \;, \label{eq:independent-cdf}
+\end{align}
+\]
+</p><p>where \(F_{X_a}\) is a marginal CDF. Since \(X_a \sim U[-\epsilon, \epsilon]\), these marginals take the standard form for a uniform distribution \(U[a, b]\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    F_X(x) = \frac{x - a}{b - a} \quad \text{for } x \in [a, b] \;.
+\end{equation*}
+\]
+</p><p>Substituting \(a = -\epsilon\) and \(b = \epsilon\) yields:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    F_{X_a}(x) = \frac{x + \epsilon}{2\epsilon} \quad \text{for } x \in [-\epsilon, \epsilon] \;.
+\end{equation*}
+\]
+</p><p>Plugging these marginals into Equation \(\eqref{eq:independent-cdf}\) gives:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    F_Y(y) = \left(\frac{y + \epsilon}{2\epsilon}\right)^m \quad \text{for } y \in [-\epsilon, \epsilon] \;.
+\end{equation*}
+\]
+</p><p>Differentiating the CDF gives the PDF:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    f_Y(y) &amp;= \frac{d}{dy}F_Y(y) \\
+    &amp;= \frac{d}{dy} \left(\frac{y+\epsilon}{2\epsilon}\right)^m \\
+    &amp;= \frac{m}{2\epsilon} \left(\frac{y+\epsilon}{2\epsilon}\right)^{m-1} \;, \quad y \in [-\epsilon, \epsilon] \;.
+\end{align*}
+\]
+</p><p>Substituting into Equation \(\eqref{eq:y-expectation}\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \mathbb{E}[Y] &amp;= \int_{-\epsilon}^{\epsilon} y \cdot \frac{m}{2\epsilon} \left(\frac{y+\epsilon}{2\epsilon}\right)^{m-1} dy \;.
+\end{align*}
+\]
+</p><p>Let \(u = (y + \epsilon)/(2\epsilon)\) so that \(y = 2\epsilon u - \epsilon\) and \(dy = 2\epsilon \, du\), mapping \(y \in [-\epsilon, \epsilon]\) to \(u \in [0, 1]\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \mathbb{E}[Y] &amp;= \int_0^1 (2\epsilon u - \epsilon) \cdot \frac{m}{2\epsilon} u^{m-1} \cdot 2\epsilon \, du \\
+    &amp;= m\epsilon \int_0^1 (2u - 1) u^{m-1} du \\
+    &amp;= m\epsilon \int_0^1 (2u^m - u^{m-1}) du \\
+    &amp;= m\epsilon \left( \frac{2}{m+1} - \frac{1}{m} \right) \\
+    &amp;= \epsilon \cdot \frac{m-1}{m+1} \;.
+\end{align*}
+\]
+</p><p>Since \(m \ge 2\) and \(\epsilon &gt; 0\),
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathbb{E}[\max_a X_a] = \epsilon \cdot \frac{m - 1}{m + 1} &gt; 0 \;.
+\end{equation*}
+\]
+</p><p>Q-learning, therefore, overestimates the value of \(s'\) in expectation. The bias increases with both the number of actions \(m\) and the noise scale \(\epsilon\).
+</p>
+<h4>Deterministic Error for Q-learning</h4>
+<p>While maximization over random estimation errors yields overestimation in expectation, a complementary deterministic result provides a lower bound on overestimation at a fixed state, under structural constraints on the estimation errors \(X_a = Q_t(s, a) - V^*(s)\) (Equation \(\eqref{eq:q-error}\)).
+</p>
+<p>Consider a state \(s\) such that all true action-values are equal:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:all-true-values-equal}
+    Q^*(s, a) = V^*(s) \quad \text{for all } a \in \mathcal{A} \;.
+\end{equation}
+\]
+</p><p>Assume the errors \(X_a\) satisfy two constraints. First, zero-sum bias:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:zero-mean}
+    \sum_{a=1}^m X_a = 0 \;,
+\end{equation}
+\]
+</p><p>and second, fixed nonzero variance:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:mse}
+    \frac{1}{m} \sum_{a=1}^m X_a^2 = C &gt; 0 \;,
+\end{equation}
+\]
+</p><p>where \(m = |\mathcal{A}|\). (Note that these jointly imply \(m \ge 2\): if \(m = 1\), then Equation \(\eqref{eq:zero-mean}\) forces \(X_1 = 0\), contradicting Equation \(\eqref{eq:mse}\)).
+</p>
+<p>We now determine the minimum possible value of the algebraically maximal error (i.e.; the largest signed error, as opposed to the largest absolute error), \(\max_a X_a\), subject to constraints \(\eqref{eq:zero-mean}\) and \(\eqref{eq:mse}\).
+</p>
+<p>To obtain this tight lower bound, consider the configuration in which \(m - 1\) actions have error \(x &gt; 0\), and the remaining action offsets their sum:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:errors}
+    X_1 = \dots = X_{m - 1} = x \;, \quad X_m = -(m - 1)x \;.
+\end{equation}
+\]
+</p><p>This configuration is known to minimize the algebraic maximum error, \(x = \max_a X_a\), under constraints \(\eqref{eq:zero-mean}\) and \(\eqref{eq:mse}\), though we do not prove this here as the result is standard in convex optimization and information theory. We simply verify that the configuration satisfies the constraints and then solve for \(x\) to obtain the bound.
+</p>
+<p>The zero-mean constraint is satisfied:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \sum_{a=1}^m X_a = (m - 1)x + ( - (m - 1)x ) = 0 \;.
+\end{equation*}
+\]
+</p><p>To verify the variance constraint, compute the sum of squared errors:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \sum_{a=1}^m X_a^2 &amp;= (m - 1)x^2 + (-(m - 1)x)^2 \\
+    &amp;= (m - 1)x^2 + (m - 1)^2 x^2 \\
+    &amp;= x^2 (m - 1)(1 + m - 1) \\
+    &amp;= x^2 m(m - 1) \;.
+\end{align*}
+\]
+</p><p>Dividing by \(m\) gives the mean squared error:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \frac{1}{m} \sum_{a=1}^m X_a^2 = x^2 (m - 1) \;.
+\end{equation*}
+\]
+</p><p>Imposing the constraint \(x^2 (m - 1) = C\) (Equation \(\eqref{eq:mse}\)) gives:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    x^2 (m - 1) &amp;= C \\
+    x^2 &amp;= \frac{C}{m - 1} \\
+    x &amp;= \sqrt{\frac{C}{m - 1}} \;.
+\end{align*}
+\]
+</p><p>Of the \(m\) errors, \(m - 1\) are equal to \(x\) and one equals \(-(m - 1)x\) (by Equation \(\eqref{eq:errors}\)). Because \(x &gt; 0\) (given \(C &gt; 0\) and \(m \ge 2\)) and \(-(m-1)x\) is non-positive, the algebraically largest error is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:main-bound}
+    \max_a X_a = x = \sqrt{\frac{C}{m - 1}} \;.
+\end{equation}
+\]
+</p><p>Given that the configuration in Equation \(\eqref{eq:errors}\) minimizes the algebraically maximal error under the constraints, this establishes a lower bound on worst-case overestimation. Specifically, any configuration satisfying constraints \(\eqref{eq:zero-mean}\) and \(\eqref{eq:mse}\) must exhibit an overestimation of at least \(\sqrt{C/(m - 1)}\) in individual samples.
+</p>
+<h3>Double Q-learning</h3>
+<p>Double Q-learning mitigates overestimation bias by decoupling action selection from evaluation. It maintains two independent value estimators, \(Q^A\) and \(Q^B\). At each step, one of the two estimators, typically chosen at random, is updated. The target is computed by selecting the greedy action under the estimator being updated and using the other estimator to assign a value to that action. For example, if \(Q^A\) is being updated, the greedy action is selected using \(Q^A\) and evaluated using \(Q^B\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \delta_t &amp;= r_{t+1} + \gamma Q^B(s_{t+1}, \max_{a&rsquo;} Q^A(s_{t+1}, a&rsquo;)) - Q^A(s_t, a_t) \\
+    Q^A(s_t, a_t) &amp;\gets Q^A(s_t, a_t) + \alpha \delta_t \;.
+\end{align*}
+\]
+</p><h4>Expected Error for Double Q-learning</h4>
+<p>Without loss of generality, let the action be selected by \(Q^A\) and its value evaluated by \(Q^B\). Assume further that all action-values equal the true state value \(Q^*(s,a) = V^*(s)\) for all \(a\), as in Equation \(\eqref{eq:all-true-values-equal}\). Define the estimation error at state \(s\) as
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    Y_a = Q^B(s, a) - V^*(s) \;,
+\end{equation*}
+\]
+</p><p>where \(V^*(s)\) is the true state value. Suppose the errors \(Y_a\) are zero-mean across runs (i.e., \(\mathbb{E}[Y_a] = 0\) for all \(a\)) and statistically independent of the action \(a^*\) selected by \(Q^A\). Then the expected error in the Double Q-learning estimate satisfies:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathbb{E}[Q^B(s, a^*) - V^*(s)] = \mathbb{E}[Y_{a^*}] = 0 \;.
+\end{equation*}
+\]
+</p><p>Thus, there exists a set of conditions under which Double Q-learning eliminates the overestimation bias of standard Q-learning in expectation.
+</p>
+<h4>Deterministic Error for Double Q-learning</h4>
+<p>Unlike Q-learning, Double Q-learning can, under structural constraints, produce exact value estimates in individual states. We analyze this deterministic behavior by imposing the same conditions used in the Q-learning case. Specifically, applying the same zero-mean and fixed-variance constraints (Equations \(\eqref{eq:zero-mean}\) and \(\eqref{eq:mse}\)), choose the extremal pattern from Equation \(\eqref{eq:errors}\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+X_1=\dots=X_{m-1}=x,\qquad X_m=-(m-1)x,\qquad x= \sqrt{\frac{C}{m-1}} \;.
+\end{align*}
+\]
+</p><p>As established in the previous section, this configuration ensures that any of the first \(m - 1\) actions attains the maximum of \(Q^A\). Without loss of generality, let the greedy action be denoted by \(a^* = a_1\). The Double Q-learning estimate is then:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    Q_B(s, a_1) = V^*(s) + Y_{a_1} \;.
+\end{equation*}
+\]
+</p><p>Zero error in this estimate requires:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    Y_{a_1} = 0 \;.
+\end{equation*}
+\]
+</p><p>Under the constraints of Equations \(\eqref{eq:zero-mean}\) and \(\eqref{eq:mse}\), the following assignment is admissible:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:dq-assignment}
+    Y_{a_1} = 0 \;, \quad Y_2 = \sqrt{\frac{mC}{2}} \;, \quad Y_3 = -\sqrt{\frac{mC}{2}} \;, \quad Y_i = 0 \quad \text{for } i = 4, \dots, m \;.
+\end{equation}
+\]
+</p><p>This configuration satisfies the zero-mean constraint (Equation \(\eqref{eq:zero-mean}\)):
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \sum_a Y_a &amp;= Y_{a_1} + Y_2 + Y_3 + \sum_{i=4}^m Y_i \\
+    &amp;= 0 + \sqrt{\frac{mC}{2}} - \sqrt{\frac{mC}{2}} + 0 \\
+    &amp;= 0 \;.
+\end{align*}
+\]
+</p><p>The total squared error is:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \sum_a Y_a^2 &amp;= Y_{a_1}^2 + Y_2^2 + Y_3^2 + \sum_{i=4}^m Y_i^2 \\
+    &amp;= 0 + \frac{mC}{2} + \frac{mC}{2} + 0 \\
+    &amp;= mC \;,
+\end{align*}
+\]
+</p><p>which yields a mean-squared error of:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \frac{1}{m} \sum_a Y_a^2 = C \;,
+\end{equation*}
+\]
+</p><p>satisfying the variance constraint (Equation \(\eqref{eq:mse}\)).
+</p>
+<p>This construction results in:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    |Q_B(s, a^*) - V^*(s)| = |Y_{a_1}| = 0 &amp;&amp; \text{by Equation } \eqref{eq:dq-assignment} \;.
+\end{align*}
+\]
+</p><p>Thus, for \(m \ge 3\), the absolute error in the Double Q-learning estimate can be zero, even under the same constraints that impose a nonzero deterministic lower bound for Q-learning. In particular, Q-learning guarantees
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \max_a X_a \ge \sqrt{\frac{C}{m - 1}} &amp;&amp; \text{cf. Equation } \eqref{eq:main-bound} \;,
+\end{align*}
+\]
+</p><p>while Double Q-learning allows
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    |Y_{a^*}| = 0 \;.
+\end{equation*}
+\]
+</p><p>Double Q-learning thus eliminates not only the expected overestimation bias, but also the deterministic lower bound on absolute error when \(m \ge 3\).
+</p>
+<h4>Deterministic error for Double Q-learning when \(m = 2\)</h4>
+<p>Although unrealistic in practice, the case \(m = 2\) serves as a degenerate boundary condition that must be treated separately. With only two actions, the zero-mean and fixed-variance constraints leave no flexibility: the error structure is fully determined. Unlike the \(m \ge 3\) case, where the constraints admit many configurations (including some with zero absolute error), here Equation \(\eqref{eq:zero-mean}\) forces \(X_2 = -X_1\).
+</p>
+<p>Substituting this identity into the mean-squared error expression gives
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \frac{1}{2}(X_1^2 + X_2^2)
+    &amp;= \frac{1}{2}(X_1^2 + (-X_1)^2) \\
+    &amp;= \frac{1}{2}(2 X_1^2) \\
+    &amp;= X_1^2 \\
+    &amp;= C \;.
+\end{align*}
+\]
+</p><p>Thus, \(X_1 = \pm \sqrt{C}\) and \(X_2 = \mp \sqrt{C}\). The valid error pairs are therefore \((\sqrt{C}, -\sqrt{C})\) or \((-\sqrt{C}, \sqrt{C})\). Since the selected action \(a^*\) maximizes \(Q^A(s, a) = V^*(s) + X_a\) and \(C &gt; 0\), the maximizer is always the action with error \(+\sqrt{C}\). Therefore,
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    X_{a^*} = \sqrt{C}
+\end{equation*}
+\]
+</p><p>in all cases.
+</p>
+<p>The \(Y_a\) errors are subject to the same constraints. By identical reasoning, the only valid configurations are \((\sqrt{C}, -\sqrt{C})\) and \((-\sqrt{C}, \sqrt{C})\).
+</p>
+<p>Since \(a^*\) is determined by the \(X_a\) values and the \(Y_a\) configuration is independent, \(Y_{a^*}\) may take either value in the pair. In both cases, the absolute error is
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    |Y_{a^*}| = \sqrt{C} \;.
+\end{equation*}
+\]
+</p><p>Thus, for \(m = 2\), the Double Q-learning estimate incurs deterministic absolute error \(\sqrt{C}\).
+</p>
+<h3>Double DQN</h3>
+<p>It is natural to assume that Double Deep Q-learning, the deep variant of Double Q-learning, would require two fully decoupled networks. In practice, however, it repurposes the DQN's <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>target network</a> to serve as the second value function.  That is, the algorithm is identical to <a href="pseudocode.html" target=&ldquo;blank&rdquo;>DQN</a> except for the update target, which becomes:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    Y_t^{DDQN} = r + \gamma Q(s&rsquo;, \max_{a&rsquo;} Q(s&rsquo;, a&rsquo;; \theta); \theta^-) \;.
+\end{equation*}
+\]
+</p><p>As in a standard DQN, the target network is updated by periodic copying from the online network.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/double-dqn/double-q-learning.png" alt="double q-learning pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<h3>References</h3>
+<dl>
+<dt><a href="https://papers.nips.cc/paper_files/paper/2010/file/091d584fced301b442654dd8c23b3fc9-Paper.pdf" target=&ldquo;blank&rdquo;>Double Q-learning</a>,
+Advances in neural information processing systems (2010)</dt>
+<dd><p>Hado van Hasselt
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1509.06461.pdf" target=&ldquo;blank&rdquo;>Deep Reinforcement Learning with Double Q-learning</a>, Proceedings of the AAAI
+conference on artificial intelligence (2016)</dt>
+<dd><p>Hado van Hasselt, Arthur Guez, and David Silver
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1802.09477.pdf" target=&ldquo;blank&rdquo;>Addressing Function Approximation Error in Actor-Critic Methods</a>, International
+conference on machine learning (2018)</dt>
+<dd><p>Scott Fujimoto, Herke van Hoof, and David Meger
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

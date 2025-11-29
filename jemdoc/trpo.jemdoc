@@ -1,0 +1,578 @@
+# jemdoc: menu{MENU}{trpo.html}
+= Trust Region Policy Optimization (TRPO)
+
+/Revised April 9, 2025/
+
+/The [policy-gradients.html policy gradients note] is optional but recommended background reading./
+
+In [glossary.html off-policy learning], data are collected under a behavior policy $\pi_\beta$ that differs from the target policy $\pi$. [Importance-sampling.html Importance sampling] corrects for the distribution mismatch between $\pi_\beta$ and $\pi$, yielding a /surrogate objective/ for improving $\pi$ using data collected under $\pi_\beta$:
+
+\(
+\begin{equation}\label{eq:objective}
+    L(\pi, \pi_\beta) = \mathbb{E}_{(s, a) \sim \rho_\beta} \left[ \frac{\pi(a \mid s)}{\pi_\beta(a \mid s)} Q^{\pi_\beta}(s,a) \right] \;,
+\end{equation}
+\)
+where $\rho_\beta$ is the distribution over state-action pairs induced by the behavior policy $\pi_\beta$.
+
+In Equation $\eqref{eq:objective}$, the use of $Q^{\pi_\beta}(s,a)$ instead of $Q^\pi(s,a)$ may appear misaligned with the goal of improving $\pi$. This choice, however, is deliberate: the surrogate objective recovers the standard ([glossary.html on-policy]) [policy-gradients.html policy gradient] when evaluated at the current policy. Let the behavior policy $\pi_\beta$ be the current version of the policy, parameterized by $\theta_\text{old}$, and let the target policy $\pi$ be parameterized by $\theta$. When $\theta = \theta_\text{old}$, the gradient of the surrogate objective $L(\theta, \theta_\text{old})$ reduces to the standard policy gradient:
+
+\(
+\begin{align}
+    \left. \nabla_\theta L(\theta, \theta_\text{old})\right|_{\theta = \theta_\text{old}}
+    &= \mathbb{E}_{(s, a) \sim \rho_{\theta_\text{old}}} \left[ \frac{\nabla_\theta \pi(a \mid s; \theta)|_{\theta=\theta_\text{old}}}{\pi(a \mid s; \theta_\text{old})} Q^{\theta_\text{old}}(s,a) \right] \nonumber \\
+    &= \mathbb{E}_{(s, a) \sim \rho_{\theta_\text{old}}} \left[ \frac{\nabla_\theta \pi(a \mid s; \theta_\text{old})}{\pi(a \mid s; \theta_\text{old})} Q^{\theta_\text{old}}(s,a) \right] \nonumber \\
+    &= \mathbb{E}_{(s, a) \sim \rho_{\theta_\text{old}}} \left[ \nabla_\theta \ln \pi(a \mid s; \theta_\text{old}) Q^{\theta_\text{old}}(s,a) \right] && \text{by the log-derivative trick.} \label{eq:gradient}
+\end{align}
+\)
+
+For comparison, in standard on-policy policy gradient methods, a typical stochastic gradient ascent update rule takes the form:
+
+\(
+\begin{equation*}
+    \theta_{t+1} = \theta_t + \alpha \nabla_\theta \ln \pi(a_t \mid s_t; \theta_t) Q^{\theta_t}(s_t, a_t) \;,
+\end{equation*}
+\)
+where $(s_t, a_t)$ is sampled according to the current policy $\pi_{\theta_t}$.
+
+This update relies on a /first-order/ approximation of the objective in Equation $\eqref{eq:objective}$, with the update direction given by the gradient at the current parameters: $d = \left. \nabla_\theta L(\theta, \theta_\text{old})\right|{\theta = \theta_\text{old}}$. This gradient $d$, which defines the tangent line to the objective at $\theta_\text{old}$, serves as a local estimate of its behavior near that point. The use of a first-order approximation, however, implicitly assumes the objective is locally linear. When this assumption fails (i.e., in regions of high curvature) the approximation may become unreliable. To reduce this risk, standard policy gradient methods constrain updates to remain near the current policy *in parameter space*. Because the gradient specifies only a /direction/ and not a step /size/, updates are typically made using small steps, controlled by a [glossary.html step size] hyperparameter $\alpha$.
+
+However, small changes in parameter space can lead to large differences in performance and a single misguided update can collapse the policy. More specifically, in supervised learning, the consequences of an overly large update are typically minor — because the data distribution is fixed, future updates can correct the error. In RL, by contrast, the agent gathers its own data. A bad update can degrade the policy, resulting in poor data collection that carries little or no learning signal, making recovery difficult or impossible. This issue is further exacerbated by the non-uniform curvature of the objective: a step size that performs well in one region of parameter space may be catastrophically large in another.
+
+In principle, these issues can be avoided by using a very small step size. In practice, however, this severely reduces sample efficiency and slows learning considerably. Several methods exist for selecting an appropriate step size. In /backtracking line search/, for example, a large initial step size is iteratively reduced (or /backtracked/) until a predefined condition is met, such as achieving sufficient improvement in the *true* objective $J$. This method is computationally expensive, as each candidate step size requires multiple rollouts to evaluate $J(\theta_\text{old} + \alpha d)$. Moreover, backtracking line search evaluates only the objective value at the updated parameters, $J(\theta) = J(\theta_\text{old} + \alpha d)$, without accounting for the quality of linear approximation implied by the update direction $d$. That is, it follows the direction $d = \nabla L|_{\theta_\text{old}}$ derived from the surrogate, but selects the step size $\alpha$ based solely on the observed improvement in the *true* objective $J$, without explicitly verifying the quality of the local linear approximation (based on $L$) that justified this direction.
+
+These limitations motivate the need for a more principled method that preserves both stability and sample efficiency. Rather than relying on step size heuristics or expensive line searches in /parameter space/, Trust Region Policy Optimization (TRPO) formulates the optimization problem directly in /policy space/. Specifically, TRPO maximizes a variant of the surrogate objective in Equation $\eqref{eq:objective}$, while constraining the updated policy to remain close to the current policy. The constraint is enforced by bounding the average [kl-divergence.html KL divergence] between the new policy $\pi_\theta$ and the previous policy $\pi_{\theta_\text{old}}$, thereby defining a /trust region/ — a local neighborhood around the current policy within which the first-order approximation remains valid:
+
+\(
+\begin{align}
+    &\max_{\theta} L_{\theta_\text{old}}(\theta) = \mathbb{E}_{(s,a) \sim \rho_{\theta_\text{old}}} \left[ \frac{\pi(a \mid s; \theta)}{\pi(a \mid s; \theta_\text{old})} A^{\theta_\text{old}}(s,a) \right] \label{eq:surrogate} \\
+    &\quad\quad \text{subject to } \mathbb{E}_{s \sim \rho_{\theta_\text{old}}} \left[ D_{KL} \left( \pi(\cdot \mid s; \theta_\text{old}) \Vert \pi(\cdot \mid s; \theta) \right) \right] \leq \epsilon \;, \nonumber
+\end{align}
+\)
+where $A^{\theta_\text{old}}$ is the /advantage function/ estimated using data from $\pi_{\theta_\text{old}}$, and the expectation in the constraint is over the state distribution $\rho_{\theta_\text{old}}$ induced by $\pi_{\theta_\text{old}}$.
+
+Beyond keeping updates within a region where the surrogate objective remains a reliable proxy for the true return, the trust region also improves the statistical efficiency of gradient estimates: when the new policy is close to the old policy, trajectories collected under the old policy yield low-variance estimates for updating the new policy.
+
+*With the intuition for Equation $\eqref{eq:surrogate}$ established, we now derive it starting from its use of the advantage function.*
+
+=== The Advantage Function
+
+Instead of directly maximizing the expected discounted return:
+
+\(
+\begin{equation}\label{eq:discounted-sum}
+     \eta(\pi) = \mathbb{E}_\pi \left[ \sum_{k=0}^{\infty} \gamma^k r_{k+1} \right] \;,
+\end{equation}
+\)
+
+TRPO evaluates policy improvement relative to a reference policy $\pi$ using the /advantage function/, defined as:
+
+\(
+\begin{equation}\label{eq:advantage}
+    A_\pi(s, a) = Q_\pi(s, a) - V_\pi(s) \;,
+\end{equation}
+\)
+which quantifies how much better an action is compared to the average (expected) value of the state. Using this formulation, the performance of a candidate policy $\pi'$ can be expressed as:
+
+\(
+\begin{equation}\label{eq:advantage-timesteps}
+     \eta(\pi') = \eta(\pi) + \mathbb{E}_{\pi'} \left[ \sum_{k=0}^{\infty} \gamma^k A_\pi(s_k,a_k) \right] \;.
+\end{equation}
+\)
+
+By using advantage values in place of raw $Q$-values (as in Equation $\eqref{eq:objective}$), TRPO reduces the variance of the policy gradient estimator while preserving its unbiasedness. Moreover, in practice, the advantage is often estimated using the TD-error:
+
+\(
+\begin{equation*}
+    A_\pi(s, a) \approx r + \gamma V_\pi(s') - V_\pi(s) \;,
+\end{equation*}
+\)
+which requires the [glossary.html critic] to learn only the state-value function $V_\pi(s)$ — a scalar-valued function over states — rather than a separate value for each action, as required by $Q_\pi(s, a)$. This is particularly important in environments with large or continuous action spaces (see the [deep-q-learning.html deep Q-learning note]).
+
+~~~
+*Proving the advantage-based expression for policy value*
+
+To prove the identity in Equation $\eqref{eq:advantage-timesteps}$, we begin by expanding the expectation of the sum of advantages under $\pi'$:
+
+\(
+\begin{align*}
+     \mathbb{E}_{\pi'} \left[ \sum_{t=0}^\infty \gamma^t A_\pi(s_t, a_t) \right]
+     &= \mathbb{E}_{\pi'} \left[ \sum_{t=0}^\infty \gamma^t \left( Q_\pi(s_t, a_t) - V_\pi(s_t) \right) \right] && \text{by Equation } \eqref{eq:advantage} \\
+     &= \mathbb{E}_{\pi'} \left[ \sum_{t=0}^\infty \gamma^t \left( (r_{t+1} + \gamma V_\pi(s_{t+1})) - V_\pi(s_t) \right) \right] && \text{by Bellman identity for } Q_\pi \\
+     &= \mathbb{E}_{\pi'} \left[ \sum_{t=0}^\infty \left( \gamma^t r_{t+1} + \gamma^{t+1} V_\pi(s_{t+1}) - \gamma^t V_\pi(s_t) \right) \right] \\
+     &= \mathbb{E}_{\pi'} \left[ \sum_{t=0}^\infty \gamma^t r_{t+1} \right] + \mathbb{E}_{\pi'} \left[ \sum_{t=0}^\infty \left( \gamma^{t+1} V_\pi(s_{t+1}) - \gamma^t V_\pi(s_t) \right) \right] \\
+     &= \eta(\pi') + \mathbb{E}_{\pi'} \left[ \sum_{t=0}^\infty \left( \gamma^{t+1} V_\pi(s_{t+1}) - \gamma^t V_\pi(s_t) \right) \right] && \text{by Equation } \eqref{eq:discounted-sum} \\
+     &= \eta(\pi') + \mathbb{E}_{\pi'} \left[ \sum_{k=1}^\infty \gamma^k V_\pi(s_k) - \sum_{t=0}^\infty \gamma^t V_\pi(s_t) \right] && \text{let } k=t+1 \text{ in first sum}\\
+     &= \eta(\pi') + \mathbb{E}_{\pi'} \left[ - \gamma^0 V_\pi(s_0) \right] && \text{telescoping sum cancels for } t\ge 1 \\
+     &= \eta(\pi') - \mathbb{E}_{\pi'} \left[ V_\pi(s_0) \right] \\
+     &= \eta(\pi') - \eta(\pi) \;,
+\end{align*}
+\)
+where the equality $\mathbb{E}_{\pi'} \left[ V_\pi(s_0) \right] = \eta(\pi)$ holds because $\eta(\pi)$ is defined as the expected value of starting state $s_0$ under policy $\pi$ (i.e., $\eta(\pi) = \mathbb{E}_{s_0 \sim p(s_0)}[V_\pi(s_0)]$) and the expectation $\mathbb{E}_{\pi'}$ averages over the same initial state distribution $p(s_0)$.
+
+This derivation shows that:
+
+\(
+\begin{equation*}
+    \mathbb{E}_{\pi'} \left[ \sum_{t=0}^\infty \gamma^t A_\pi(s_t, a_t) \right] = \eta(\pi') - \eta(\pi) \;.
+\end{equation*}
+\)
+
+Rearranging terms yields Equation $\eqref{eq:advantage-timesteps}$:
+
+\(
+\begin{equation*}
+    \eta(\pi') = \eta(\pi) + \mathbb{E}_{\pi'} \left[ \sum_{t=0}^\infty \gamma^t A_\pi(s_t, a_t) \right] \;,
+\end{equation*}
+\)
+thus completing the proof.
+~~~
+
+If $\rho_\pi(s)$ denotes the unnormalized discounted state visitation frequencies under policy $\pi$:
+
+\(
+\begin{equation*}
+    \rho_\pi(s) = \sum_{k=0}^{\infty} \gamma^k p(s_k = s \mid \pi) \;,
+\end{equation*}
+\)
+
+where $p(s_k = s \mid \pi)$ is the probability of being in state $s$ at time $k$, given from the initial state distribution and following policy $\pi$, then Equation $\eqref{eq:advantage-timesteps}$ can be rewritten as a sum over states:
+
+\(
+\begin{align}
+    \eta(\pi') &= \eta(\pi) + \mathbb{E}_{\pi'} \left[ \sum_{k=0}^{\infty} \gamma^k A_\pi(s_k, a_k) \right] \nonumber \\
+    &= \eta(\pi) + \sum_{k=0}^{\infty} \sum_s p(s_k = s \mid \pi') \sum_a \pi'(a \mid s) \gamma^k A_\pi(s, a) \nonumber \\
+    &= \eta(\pi) + \sum_s \sum_{k=0}^{\infty} \gamma^k p(s_k = s \mid \pi') \sum_a \pi'(a \mid s) A_\pi(s, a) \nonumber \\
+    &= \eta(\pi) + \sum_s \rho_{\pi'}(s) \sum_a \pi'(a \mid s) A_\pi(s, a) \;. \label{eq:advantage-states}
+\end{align}
+\)
+
+This state-based formulation reveals that any policy update $\pi \rightarrow \pi'$ that yields a non-negative expected advantage in every state — i.e., $\sum_a \pi'(a \mid s) A_\pi(s, a) \geq 0$ for all $s$ — is guaranteed to improve or preserve performance ($\eta(\pi') \ge \eta(\pi)$), because $\rho_{\pi'}(s) \ge 0$. If the expected advantage is strictly positive for at least one state $s$ with $\rho_{\pi'}(s) > 0$ (and non-negative for all others), then $\eta(\pi') > \eta(\pi)$. Conversely, if the expected advantage is zero everywhere, performance remains unchanged. If the expected advantage is negative in any state reachable under $\pi'$, overall improvement cannot be ensured.
+
+This guarantee serves as the advantage-based analog of the classic [policy-and-value-iteration-proofs.html policy iteration result]: if $\pi'(s) = \arg\max_a A_\pi(s, a)$ (making the expected advantage non-negative everywhere) and there exists at least one state-action pair with strictly positive advantage reachable by $\pi'$, then $\pi'$ improves upon $\pi$; otherwise, the policy has converged to the optimal solution. In practice, when using a function approximator such as a neural network, estimation errors typically produce negative advantage values in some states, even when the overall policy has improved. Consequently, no update rule can guarantee monotonic improvement. Instead, Equation $\eqref{eq:advantage-states}$ must be treated as an objective to be optimized.
+
+Direct optimization of Equation $\eqref{eq:advantage-states}$ is difficult due to the dependence of $\rho_{\pi'}(s)$ on the very policy we are trying to improve $\pi'$. Each change to $\pi'$ changes the state distribution, making the objective $\eta(\pi')$ a moving target. To obtain a tractable objective, $\rho_{\pi'}(s)$ is replaced with the fixed distribution $\rho_\pi(s)$, yielding the *local approximation*:
+
+\(
+\begin{equation}\label{eq:local-approx}
+     L_\pi(\pi') = \eta(\pi) + \sum_s \color{red}{\rho_\pi(s)} \sum_a \pi'(a \mid s) A_\pi(s, a) \;.
+\end{equation}
+\)
+
+=== Justifying the Approximation
+
+While the substitution $\rho_{\pi'}(s) \rightarrow \rho_\pi(s)$ ignores the effect of policy changes on the state distribution, it yields a valid first-order approximation. For a parameterized policy $\pi_\theta$, the local approximation $L_{\theta_0}(\theta)$ (Equation $\eqref{eq:local-approx}$) is a first-order approximation of the true objective $\eta(\theta)$ (Equation $\eqref{eq:advantage-states}$) around any reference parameter $\theta_0$. This follows from the equality of the function values ($L_{\theta_0}(\theta_0) = \eta(\theta_0)$) and their gradients ($\nabla L|{\theta_0} = \nabla \eta|{\theta_0}$). This equivalence can be shown by first rewriting the local approximation $L_{\theta_0}(\theta)$ using the normalized discounted state visitation distribution, $\bar{\rho}_{\theta_0}(s) = (1-\gamma)\rho_{\theta_0}(s)$:
+
+\(
+\begin{align}
+    L_{\theta_0}(\theta)
+    &= \eta(\theta_0) + \sum_s \frac{1}{1-\gamma} \bar{\rho}_{\theta_0}(s) \sum_a \pi(a \mid s; \theta) A^{\theta_0}(s, a) \nonumber \\
+    &= \eta(\theta_0) + \frac{1}{1-\gamma} \mathbb{E}_{s \sim \bar{\rho}_{\theta_0}} \left[ \sum_a \pi(a \mid s; \theta) A^{\theta_0}(s, a) \right] \nonumber \\
+    &= \eta(\theta_0) + \frac{1}{1-\gamma} \mathbb{E}_{s \sim \bar{\rho}_{\theta_0}} \left[ \mathbb{E}_{a \sim \pi_{\theta_0}(\cdot|s)} \left[ \frac{\pi(a \mid s; \theta)}{\pi(a \mid s; \theta_0)} A^{\theta_0}(s, a) \right] \right] \nonumber \\
+    &= \eta(\theta_0) + \frac{1}{1-\gamma} \mathbb{E}_{(s,a) \sim \bar{\rho}_{\theta_0}} \left[ \frac{\pi(a \mid s; \theta)}{\pi(a \mid s; \theta_0)} A^{\theta_0}(s, a) \right] \;. \label{eq:re-express-local-approx}
+\end{align}
+\)
+
+Here, the expectation is over the standard (normalized) data distribution. Differentiating this expression with respect to $\theta$ at $\theta_0$ yields:
+
+\(
+\begin{align*}
+    \nabla_\theta L_{\theta_0}(\theta)|_{\theta=\theta_0} &= \frac{1}{1-\gamma} \mathbb{E}_{(s,a) \sim \bar{\rho}_{\theta_0}} \left[ \nabla_\theta \log \pi(a \mid s; \theta)|_{\theta=\theta_0} A^{\theta_0}(s, a) \right] \\
+    &= \sum_s \frac{1}{1-\gamma} \bar{\rho}_{\theta_0}(s) \sum_a \nabla_\theta \pi(a \mid s; \theta)|_{\theta=\theta_0} A^{\theta_0}(s, a) \\
+    &= \sum_s \rho_{\theta_0}(s) \sum_a \nabla_\theta \pi(a \mid s; \theta)|_{\theta=\theta_0} A^{\theta_0}(s, a) \\
+    &= \nabla_\theta \eta(\theta)|_{\theta=\theta_0} \;.
+\end{align*}
+\)
+
+Because the gradients are equal, a small step that improves $L_{\theta_0}$ is guaranteed to improve $\eta$. It follows that the local approximation recovers the true objective when evaluated at $\theta = \theta_0$:
+
+\(
+\begin{align}
+    L_{\theta_0}(\theta_0) &= \eta(\theta_0) + \frac{1}{1-\gamma} \mathbb{E}_{(s,a) \sim \bar{\rho}_{\theta_0}} \left[ \frac{\pi(a \mid s; \theta_0)}{\pi(a \mid s; \theta_0)} A^{\theta_0}(s, a) \right] \nonumber \\
+    &= \eta(\theta_0) + \frac{1}{1-\gamma} \mathbb{E}_{(s,a) \sim \bar{\rho}_{\theta_0}} \left[ A^{\theta_0}(s, a) \right] \nonumber \\
+    &= \eta(\theta_0) + 0 \label{eq:0-adv} \\
+    &= \eta(\theta_0) \;, \nonumber
+\end{align}
+\)
+thus demonstrating zeroth-order equivalence.
+~~~
+*Two proofs for the validity of Equation $\eqref{eq:0-adv}$*
+
+Equation $\eqref{eq:0-adv}$ is true because $\mathbb{E}_{(s,a) \sim \rho_{\theta_0}} [A^{\theta_0}(s,a)] = \mathbb{E}_{\pi_{\theta_0}} [ \sum_{k=0}^\infty \gamma^k A^{\theta_0}(s_k, a_k) ] = \eta(\theta_0) - \eta(\theta_0) = 0$ by Equation $\eqref{eq:advantage-timesteps}$. More specifically, if we set the new policy $\pi'$ to be the same as the old policy $\pi$ (i.e., $\pi' = \pi = \pi_{\theta_0}$), the equation becomes:
+
+\(
+\begin{equation*}
+    \eta(\theta_0) = \eta(\theta_0) + \mathbb{E}_{\pi_{\theta_0}} \left[ \sum_{k=0}^{\infty} \gamma^k A^{\theta_0}(s_k,a_k) \right] \;.
+\end{equation*}
+\)
+
+For this equality to hold, the second term must be zero:
+
+\(
+\begin{equation*}
+    \mathbb{E}_{\pi_{\theta_0}} \left[ \sum_{k=0}^{\infty} \gamma^k A^{\theta_0}(s_k,a_k) \right] = 0 \;.
+\end{equation*}
+\)
+
+Alternatively, we can also show $\mathbb{E}_{(s,a) \sim \rho_{\theta_0}} [A^{\theta_0}(s,a)] = 0$ using the definition of the value functions and the state-action distribution $\rho_{\theta_0}(s,a) = \rho_{\theta_0}(s) \pi_{\theta_0}(a|s)$:
+
+\(
+\begin{align*}
+    \mathbb{E}_{(s,a) \sim \rho_{\theta_0}} \left[ A^{\theta_0}(s,a) \right]
+    &= \mathbb{E}_{(s,a) \sim \rho_{\theta_0}} \left[ Q^{\theta_0}(s,a) - V^{\theta_0}(s) \right] \\
+    &= \mathbb{E}_{s \sim \rho_{\theta_0}} \left[ \sum_a \pi_{\theta_0}(a|s) \left( Q^{\theta_0}(s,a) - V^{\theta_0}(s) \right) \right] \\
+    &= \mathbb{E}_{s \sim \rho_{\theta_0}} \left[ \left( \sum_a \pi_{\theta_0}(a|s) Q^{\theta_0}(s,a) \right) - \left( \sum_a \pi_{\theta_0}(a|s) V^{\theta_0}(s) \right) \right] \\
+    &= \mathbb{E}_{s \sim \rho_{\theta_0}} \left[ V^{\theta_0}(s) - V^{\theta_0}(s) \left( \sum_a \pi_{\theta_0}(a|s) \right) \right] && \text{since } V^{\theta_0}(s) = \sum_a \pi_{\theta_0}(a|s) Q^{\theta_0}(s,a)\\
+    &= \mathbb{E}_{s \sim \rho_{\theta_0}} \left[ V^{\theta_0}(s) - V^{\theta_0}(s) \times 1 \right] && \text{since } \sum_a \pi_{\theta_0}(a|s) = 1 \\
+    &= \mathbb{E}_{s \sim \rho_{\theta_0}} \left[ 0 \right] = 0 \;.
+\end{align*}
+\)
+~~~
+
+To complete the demonstration of first-order equivalence, it remains to show that $\nabla L|{\theta_0} = \nabla \eta|{\theta_0}$. This follows by differentiating both sides of Equation $\eqref{eq:re-express-local-approx}$:
+
+\(
+\begin{align*}
+    \left. \nabla_\theta L_{\theta_0}(\theta) \right|_{\theta = \theta_0}
+    &= \left. \nabla_\theta \left( \eta(\theta_0) + \mathbb{E}_{(s,a) \sim \rho_{\theta_0}} \left[ \frac{\pi(a \mid s; \theta)}{\pi(a \mid s; \theta_0)} A^{\theta_0}(s, a) \right] \right) \right|_{\theta = \theta_0} \\
+    &= \nabla_\theta \eta(\theta_0) + \mathbb{E}_{(s,a) \sim \rho_{\theta_0}} \left[ \left. \nabla_\theta \left( \frac{\pi(a \mid s; \theta)}{\pi(a \mid s; \theta_0)} \right) \right|_{\theta = \theta_0} A^{\theta_0}(s, a) \right] \\
+    &= 0 + \mathbb{E}_{(s,a) \sim \rho_{\theta_0}} \left[ \frac{\nabla_\theta \pi(a \mid s; \theta)|_{\theta = \theta_0}}{\pi(a \mid s; \theta_0)} A^{\theta_0}(s, a) \right] &&  \eta(\theta_0) \text{ is constant w.r.t. } \theta \\
+    &= \mathbb{E}_{(s,a) \sim \rho_{\theta_0}} \left[ \nabla_\theta \log \pi(a \mid s; \theta)|_{\theta = \theta_0} A^{\theta_0}(s, a) \right] && \text{by the log-derivative trick} \\
+    &= \left. \nabla_\theta \eta(\theta) \right|_{\theta = \theta_0} && \text{by the Policy Gradient Theorem} \;.
+\end{align*}
+\)
+
+Having established that $L_{\theta_0}(\theta)$ matches $\eta(\theta)$ at $\theta_0$ in both value and gradient, we conclude that $L_{\theta_0}$ is a first-order approximation to $\eta$ around $\theta_0$. Consequently, any sufficiently small step that improves $L_{\theta_0}$ will also improve $\eta$, to first order. This justifies $L_{\theta_0}$ as a principled surrogate objective, provided updates to $\theta$ remain within a small neighborhood of $\theta_0$.
+
+While this result does not specify how small steps must be, the [https://arxiv.org/pdf/1502.05477 TRPO paper] derives a lower bound on performance improvement that quantifies the potential error introduced by large updates:
+
+\(
+\begin{equation}\label{eq:improvement-bound}
+    \eta(\pi') \geq L_{\pi}(\pi') - C \max_s D_{KL} \left( \pi(\cdot \mid s) \,\Vert\, \pi'(\cdot \mid s) \right) \;,
+\end{equation}
+\)
+where $C = \frac{4 \epsilon \gamma}{(1 - \gamma)^2}$ is a penalty coefficient that depends on the maximum advantage magnitude $\epsilon = \max_{s, a} |A_\pi(s, a)|$.
+
+This bound motivates a [glossary.html policy iteration] scheme that guarantees non-decreasing performance:
+
+\(
+\begin{equation}\label{eq:policy-iteration}
+    \pi_{i+1} = \arg\max_\pi \, L_{\pi_i}(\pi) - C \max_s D_{\mathrm{KL}} \left( \pi_i(\cdot \mid s) \,\Vert\, \pi(\cdot \mid s) \right) \;.
+\end{equation}
+\)
+
+=== Trust Region Policy Optimization (TRPO)
+
+In practice, the policy iteration scheme defined by Equation $\eqref{eq:policy-iteration}$ is difficult to implement. The penalty term $C$ often results in overly conservative updates, and the maximization assumes exact evaluation over the entire state space. Trust Region Policy Optimization (TRPO) addresses these limitations by replacing the penalized objective with a constrained optimization problem, enforcing a /trust region constraint/ — a bound on the KL divergence between the new policy $\pi_\theta$ and the previous policy $\pi_{\theta_\text{old}}$:
+
+\(
+\begin{align*}
+    &\max_\theta L_{\theta_\text{old}}(\theta) \\
+    &\quad\quad \text{subject to } \; \max_s D_{KL} \left( \pi(\cdot \mid s; \theta_\text{old}) \Vert \pi(\cdot \mid s; \theta) \right) \leq \delta \; .
+\end{align*}
+\)
+
+This constraint ensures that the updated policy does not deviate too far from the current policy at any individual state. However, enforcing this maximum KL constraint is intractable in large or continuous state spaces. To make the optimization feasible, TRPO uses a heuristic approximation that replaces the maximum with an *average* KL divergence over states sampled according to the current policy's state distribution $\rho_{\theta_\text{old}}$:
+
+
+\(
+\begin{equation*}
+    \overline{D}_{\mathrm{KL}}^{\rho_{\theta_\text{old}}}(\theta_\text{old}, \theta) = \mathbb{E}_{s \sim \rho_{\theta_\text{old}}} \left[ D_{\mathrm{KL}} \left( \pi(\cdot \mid s; \theta_\text{old}) \,\Vert\, \pi(\cdot \mid s; \theta) \right) \right] \;.
+\end{equation*}
+\)
+
+Although replacing the theoretically-motivated maximum KL constraint with this average KL approximation lacks a formal justification, [https://arxiv.org/pdf/1502.05477 empirical evidence] shows this approach is highly effective in practice, stabilizing policy updates while allowing for efficient optimization.
+
+The practical TRPO optimization problem can now be written as maximizing the surrogate objective $L_{\theta_\text{old}}(\theta)$ subject to the average KL constraint:
+
+\(
+\begin{align*}
+    &\max_\theta L_{\theta_\text{old}}(\theta) = \max_\theta \left( \eta(\theta_\text{old}) + \sum_s \rho_{\theta_\text{old}}(s) \sum_a \pi(a \mid s; \theta) A^{\theta_\text{old}}(s, a) \right) \\
+    &\quad\quad \text{subject to} \quad \overline{D}_{\mathrm{KL}}^{\rho_{\theta_\text{old}}}(\theta_\text{old}, \theta) \leq \delta \;.
+\end{align*}
+\)
+
+Because $\eta(\theta_\text{old})$ is constant with respect to $\theta$, this is equivalent to:
+
+\(
+\begin{align}\label{eq:trpo-practical-problem}
+    &\max_\theta \sum_s \rho_{\theta_\text{old}}(s) \sum_a \pi(a \mid s; \theta) A^{\theta_\text{old}}(s, a) \\
+    &\quad\quad \text{subject to} \quad \overline{D}_{\mathrm{KL}}^{\rho_{\theta_\text{old}}}(\theta_\text{old}, \theta) \leq \delta \;. \nonumber
+\end{align}
+\)
+
+In this form, both the objective and constraint can be approximated using Monte Carlo sampling from trajectories generated by $\pi_{\theta_\text{old}}$. In particular, the theoretical expectation over the state-action distribution induced by $\rho_{\theta_\text{old}}$ is replaced with a sample average:
+
+\(
+\begin{align}
+    &\max_\theta \hat{\mathbb{E}}_{(s,a) \sim \pi_{\theta_\text{old}}}
+    \left[ \frac{\pi(a \mid s; \theta)}{\pi(a \mid s; \theta_\text{old})} A^{\theta_\text{old}}(s, a) \right] \label{eq:updated-trpo-optimization} \\
+    &\quad\quad \text{subject to} \quad \hat{\mathbb{E}}_{s \sim \pi_{\theta_\text{old}}} \left[ D_{\mathrm{KL}} \left( \pi(\cdot \mid s; \theta_\text{old}) \,\Vert\, \pi(\cdot \mid s; \theta) \right) \right] \leq \delta \;, \nonumber
+\end{align}
+\)
+where the equivalence between the objectives in Equations $\eqref{eq:trpo-practical-problem}$ and $\eqref{eq:updated-trpo-optimization}$ follows from Equation $\eqref{eq:advantage-states}$. *Notice that Equation $\eqref{eq:updated-trpo-optimization}$ is identical to Equation $\eqref{eq:surrogate}$, which was introduced based on intuition at the beginning of this note.*
+
+Note that in the [https://arxiv.org/pdf/1502.05477 TRPO paper (Equation 14)], the advantage function $A^{\theta_\text{old}}(s,a)$ is replaced with the Q-function $Q^{\theta_\text{old}}(s, a)$. This substitution only changes the objective value by a constant term ($\mathbb{E}_{s \sim \rho_{\theta_\text{old}}}[V^{\theta_\text{old}}(s)]$) which is independent of the optimization variable $\theta$, and thus does not affect the location of the optimum. While mathematically equivalent for finding the optimal $\theta$, using advantage estimates $A^{\theta_\text{old}}(s,a)$ is generally preferred in practice, as it empirically reduces the variance of the objective's sample estimate and its gradient, often leading to more stable learning.
+
+=== Updating the policy parameters $\theta$
+
+Directly optimizing the constraint in Equation $\eqref{eq:updated-trpo-optimization}$ is challenging because the KL divergence is a nonlinear function of the new policy parameters $\theta$. Enforcing this constraint using samples — for example, via a [constrained-mdps.html penalty or Lagrangian] — does not reliably ensure that updates remain within the trust region. TRPO thus approximates the objective $L$ via a first-order Taylor expansion and the KL constraint via a second-order expansion, both around the current policy parameters $\theta_\text{old}$:
+
+\(
+\begin{align}
+    L_{\theta_\text{old}}(\theta) &\approx \color{red}{L_{\theta_\text{old}}(\theta_\text{old})} + g^\top (\theta - \theta_\text{old}) \label{eq:trpo-approx-1} \\
+    \overline{D}_{KL}^{\rho_{\theta_\text{old}}} (\theta_\text{old},\theta) &\approx \color{red}{\overline{D}_{KL}^{\rho_{\theta_\text{old}}} (\theta_\text{old},\theta_\text{old})} + \color{blue}{\left(\nabla_\theta \overline{D}_{KL}^{\rho_{\theta_\text{old}}} (\theta_\text{old},\theta)\big|_{\theta=\theta_\text{old}}\right)}^\top (\theta - \theta_\text{old}) + \frac{1}{2} (\theta - \theta_\text{old})^\top H (\theta - \theta_\text{old}) \;, \label{eq:trpo-approx-2}
+\end{align}
+\)
+where
+
+\(
+\begin{align}
+    g &= \nabla_\theta L_{\theta_\text{old}}(\theta) \big|_{\theta=\theta_\text{old}} \nonumber \\
+    H &= \nabla_\theta^2 \overline{D}_{KL}^{\rho_{\theta_\text{old}}}(\theta_\text{old},\theta) \big|_{\theta=\theta_\text{old}} \;. \label{eq:hessian}
+\end{align}
+\)
+
+The scalar red terms in Equations $\eqref{eq:trpo-approx-1}$ and $\eqref{eq:trpo-approx-2}$ are constant with respect to $\theta$ and can be omitted from the optimization, and the blue linear KL term also vanishes because its coefficient is zero at $\theta = \theta_\text{old}$. In particular, the surrogate term $L_{\theta_\text{old}}(\theta_\text{old})$ depends only on $\theta_\text{old}$ and is independent of the optimization variable $\theta$, as shown in Equation $\eqref{eq:0-adv}$. The KL divergence constraint terms vanish at $\theta = \theta_\text{old}$: the KL divergence between two identical distributions is zero, and this point is the global minimum of the KL divergence with respect to $\theta$. At any minimum of a smooth function, the gradient must also be zero. However, a zero gradient does not imply that the function is flat. A function can be curved while still having zero slope at a minimum — for example, $f(x) = x^2$ satisfies $\nabla f(0) = 0$, even though it increases away from the minimum. Similarly, although the KL divergence is stationary at $\theta = \theta_\text{old}$, it remains /curved/ in all directions relative to $\theta$. This curvature is captured by the Hessian $H$, which quantifies the sensitivity of the KL divergence to small changes in the policy parameters.
+
+Substituting these approximations, the TRPO update reduces to the following constrained quadratic optimization problem:
+
+\(
+\begin{align}
+     &\max_\theta g^\top (\theta - \theta_\text{old}) \label{eq:opt-problem} \\
+     &\quad\quad \text{subject to } \frac{1}{2} (\theta - \theta_\text{old})^\top H (\theta - \theta_\text{old}) \leq \delta \; . \nonumber
+\end{align}
+\)
+
+The Taylor series approximation linearizes the objective around the current policy parameters $\theta_\text{old}$. Truncating the series at the first-order term transforms the original non-linear objective into a linear function, while a second-order expansion of the KL divergence yields a quadratic constraint. This combination—linear objective and quadratic constraint—defines a well-structured optimization problem that is significantly more tractable than the original. In particular, quadratic constraints are compatible with efficient optimization approaches such as the [conjugate-gradient-method.html conjugate gradient method], which scales to high-dimensional parameter spaces.
+
+~~~
+*Justifying the use of the Taylor series approximation*
+
+A Taylor series represents a function near a specific point $x_0$ as an infinite sum of terms derived from the function's derivatives evaluated at that point. This yields a polynomial approximation that closely matches the function's value within a neighborhood of $x_0$. Let $f(x)$ be a real-valued function that is infinitely differentiable at $x = x_0$. The Taylor series expansion is given by:
+
+\(
+\begin{align*}
+    f(x) &= f(x_0) + \frac{f'(x_0)}{1!} (x-x_0) + \frac{f''(x_0)}{2!} (x-x_0)^2 + \dots \\
+    &= \sum_{n=0}^\infty f^{(n)}(x_0) \frac{(x-x_0)^n}{n!} \;,
+\end{align*}
+\)
+where $f^{(n)}(x_0)$ is the $n^{th}$ derivative of $f(x)$ evaluated at $x=x_0$.
+
+Using the Taylor series introduces a second layer of approximation into TRPO: the surrogate objective $L_\pi(\theta')$ approximates the true objective $\eta(\pi')$, and the Taylor expansion further approximates the surrogate. As such, its use must be justified. As described earlier in this note, the first-order approximation of the policy gradient objective is highly sensitive to step size: large updates can cause catastrophic policy collapse, while small updates severely limit learning progress. Moreover, the appropriate step size varies across parameter space, and small changes in parameters do not guarantee small changes in policy behavior. Rather than adjusting the step size manually, TRPO selects the largest possible update *in policy space* — as measured by KL divergence — that maintains proximity to the current policy. This trust region constraint ensures that the new policy's /behavior/ does not deviate too much from the old policy's /behavior/, not just parameters. Because the update is constrained to remain near $\theta_\text{old}$, an accurate approximation of the constrained objective is only needed *locally*, near the current policy. Taylor polynomials are particularly well suited to this task — they approximate a function using only local derivative information, producing polynomial expressions that are much easier to optimize than the original non-linear forms.
+~~~
+
+The constrained optimization problem in Equation $\eqref{eq:opt-problem}$ can be solved analytically using [glossary.html Lagrangian duality]. The Lagrangian is formulated as:
+
+\(
+\begin{equation}\label{eq:lag}
+    \mathcal{L}(\theta, \lambda) = g^\top (\theta - \theta_\text{old})
+    - \lambda \left( \frac{1}{2} (\theta - \theta_\text{old})^\top H (\theta - \theta_\text{old}) - \delta \right) \;,
+\end{equation}
+\)
+where $\lambda \ge 0$ is the Lagrange multiplier enforcing the trust region constraint.
+
+To find the optimal $\theta$, we differentiate the Lagrangian with respect to $\theta$ (note that $\eta(\theta_\text{old})$ and $\lambda \delta$ are constants with respect to $\theta$):
+
+\(
+\begin{equation}\label{eq:dif-lag}
+    \frac{\partial \mathcal{L}}{\partial \theta} = g - \lambda H (\theta - \theta_\text{old}) \;.
+\end{equation}
+\)
+
+Setting the derivative to zero gives the stationary point condition:
+
+\(
+\begin{align}
+    0 &= g - \lambda H (\theta - \theta_\text{old}) \nonumber \\
+    \lambda H (\theta - \theta_\text{old}) &= g \;. \label{eq:stationary-condition}
+\end{align}
+\)
+
+Assuming $H$ is invertible and $\lambda > 0$ (which occurs if the constraint $\frac{1}{2} (\theta - \theta_\text{old})^\top H (\theta - \theta_\text{old}) \leq \delta$ is active at the solution), we can write:
+
+\(
+\begin{align}
+    \theta - \theta_\text{old} &= \frac{1}{\lambda} H^{-1} g \nonumber \\
+    \theta &= \theta_\text{old} + \frac{1}{\lambda} H^{-1} g \;. \label{eq:stationary-point}
+\end{align}
+\)
+
+The value of $\lambda$ is determined by the [https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions Karush-Kuhn-Tucker (KKT) conditions]. In particular, the condition of /complementary slackness/ requires:
+
+\(
+\begin{equation*}
+    \lambda \left( \frac{1}{2} (\theta - \theta_\text{old})^\top H (\theta - \theta_\text{old}) - \delta \right) = 0 \;.
+\end{equation*}
+\)
+
+This implies that if $\lambda > 0$, then:
+
+\(
+\begin{align*}
+    \frac{1}{2} (\theta - \theta_\text{old})^\top H (\theta - \theta_\text{old}) - \delta &= 0 \\
+    \frac{1}{2} (\theta - \theta_\text{old})^\top H (\theta - \theta_\text{old}) &= \delta \\
+    \frac{1}{2} \left( \frac{1}{\lambda} H^{-1} g \right)^\top H \left( \frac{1}{\lambda} H^{-1} g \right) &= \delta && \text{Substitution from Equation } \eqref{eq:stationary-point} \\
+    \frac{1}{2\lambda^2} (H^{-1} g)^\top H (H^{-1} g) &= \delta \\
+    \frac{1}{2\lambda^2} g^\top (H^{-1})^\top H H^{-1} g &= \delta \\
+    \frac{1}{2\lambda^2} g^\top H^{-1} g &= \delta && \text{Since } H=H^\top \implies H^{-1}=(H^{-1})^\top\\
+    g^\top H^{-1} g &= 2\lambda^2 \delta \\
+    \lambda^2 &= \frac{g^\top H^{-1} g}{2\delta} \\
+    \lambda &= \sqrt{ \frac{g^\top H^{-1} g}{2\delta} } && \text{Since } \lambda \ge 0 \;.
+\end{align*}
+\)
+
+Substituting this expression for $\lambda$ back into Equation $\eqref{eq:stationary-point}$ yields the final update rule for the optimal parameters $\theta^*$:
+
+\(
+\begin{align}
+    \theta^* &= \theta_\text{old} + \frac{1}{\lambda} H^{-1} g \nonumber \\
+    &= \theta_\text{old} + \sqrt{\frac{2\delta}{g^\top H^{-1} g}} H^{-1} g \;. \label{eq:param-update}
+\end{align}
+\)
+
+This closed-form solution gives the update that maximizes the linearized objective while satisfying the quadratic approximation of the KL divergence constraint.
+
+Intuitively, the vector $H^{-1}g$ defines the /natural gradient direction/: a curvature-aware update that adjusts the raw gradient $g$ based on the local geometry of the policy space, as captured by the KL divergence $H$. The update direction is $d = H^{-1}g$, and the full step is given by $s = \beta d$, where the step size $\beta = \sqrt{\frac{2\delta}{g^\top H^{-1} g}}$ is chosen so that $s$ satisfies the quadratic approximation of the KL divergence constraint: $\frac{1}{2} s^\top H s = \delta$. When the curvature $H$ is large — meaning small parameter changes produce large shifts in policy behavior — the inverse $H^{-1}$ shrinks the update. Conversely, when $H$ is small, $H^{-1}$ amplifies the step. In this way, curvature adaptively regulates the update size: limiting steps in sensitive regions while permitting larger changes where the policy is more stable.
+
+Because the update proposed in Equation $\eqref{eq:param-update}$ is based on Taylor approximations, the resulting $\theta^*$ may not exactly satisfy the *true* KL constraint $\overline{D}_{\mathrm{KL}}^{\rho_{\theta_\text{old}}}(\theta_\text{old}, \theta^*) \leq \delta$ or guarantee improvement in the *true* surrogate objective $L_{\theta_\text{old}}(\theta^*)$. Thus, TRPO performs a backtracking line search starting from the proposed step $s$ and reducing it until the conditions are met. The updates tested are:
+
+\(
+\begin{equation*}
+     \theta = \theta_\text{old} + \alpha^j \beta d \;,
+\end{equation*}
+\)
+where $\alpha \in (0,1)$ is a decay factor. The search finds the smallest non-negative integer $j$ such that the resulting policy $\pi_\theta$ satisfies the average KL constraint $\overline{D}_{\mathrm{KL}}^{\rho_{\theta_\text{old}}}(\theta_\text{old}, \theta) \leq \delta$ and yields an improvement (or non-decrease) in the surrogate objective $L_{\theta_\text{old}}(\theta) \ge L_{\theta_\text{old}}(\theta_\text{old})$ (often checked using the sample estimate $\hat{L}_{\theta_\text{old}}(\theta)$).
+
+~~~
+*TRPO and the Natural Policy Gradient*
+
+In standard [policy-gradients.html policy gradient methods], the policy parameters $\theta$ are updated in the direction that maximizes a first-order approximation of the expected return $J(\theta)$:
+
+\(
+\begin{equation*}
+    \theta \leftarrow \theta + \alpha \nabla_\theta J(\theta) \;.
+\end{equation*}
+\)
+
+As described earlier in this note, this update is computed in /parameter/ space, not /policy/ space, often causing inefficient or unstable learning — particularly when small changes in $\theta$ result in large changes in the policy's behavior. The /natural policy gradient/ modifies the update to account for the geometry of the *policy space*. It preconditions the gradient using the /Fisher Information Matrix/ (FIM), resulting in:
+
+\(
+\begin{equation}\label{eq:npg-update}
+    \theta \leftarrow \theta + \alpha \color{blue}{F^{-1} \nabla_\theta J(\theta)} \;,
+\end{equation}
+\)
+
+where the FIM $F$ is defined as:
+
+\(
+\begin{equation*}
+    F = \mathbb{E}_{\tau \sim \pi_\theta} \left[ \nabla_\theta \log \pi(a \mid s; \theta) \nabla_\theta \log \pi(a \mid s; \theta)^\top \right] \;.
+\end{equation*}
+\)
+
+This matrix captures local curvature information of the policy distribution with respect to the parameters. Intuitively, the natural gradient defines the direction of steepest ascent in the *distribution space* induced by the policy parameters, not just in the raw parameter space. It effectively rescales the gradient to move efficiently in directions that most influence policy behavior.
+
+In TRPO's update rule:
+
+\(
+\begin{equation*}
+    \theta^* = \theta_\text{old} + \color{red}{\sqrt{\frac{2\delta}{g^\top H^{-1} g}}} \color{blue}{H^{-1} g} \;,
+\end{equation*}
+\)
+the blue term corresponds exactly to the [https://proceedings.neurips.cc/paper_files/paper/2001/file/4b86abe48d358ecf194c56c69108433e-Paper.pdf Natural Policy Gradient] direction in Equation $\eqref{eq:npg-update}$, while the red term scales the update to approximately satisfy the trust region constraint.
+
+This connection becomes clearer by examining the relationship between the Hessian $H$ used in TRPO and the Fisher Information Matrix $F$ used in the natural gradient. As defined in Equation $\eqref{eq:hessian}$, $H$ is the Hessian of the average KL divergence between the old and new policies, evaluated at the old parameters:
+
+\(
+\begin{equation*}
+    H = \nabla_\theta^2 \overline{D}_{KL}^{\rho_{\theta_\text{old}}}(\theta_\text{old},\theta) \big|_{\theta=\theta_\text{old}} \;.
+\end{equation*}
+\)
+
+We now show that the Hessian of the *average* KL divergence $\overline{D}_{KL}^{\rho_{\theta_\text{old}}}(\theta_\text{old}, \theta)$, evaluated at $\theta = \theta_{\text{old}}$, is equal to the Fisher Information Matrix $F(\theta_{\text{old}})$ averaged over the state distribution $\rho_{\theta_\text{old}}$.
+
+We begin with the average KL divergence:
+
+\(
+\begin{equation*}
+    \overline{D}_{KL}^{\rho_{\theta_\text{old}}}(\theta_\text{old}, \theta) = \mathbb{E}_{s \sim \rho_{\theta_\text{old}}} \left[ D_{KL}(\pi(\cdot|s; \theta_\text{old}) \| \pi(\cdot|s; \theta)) \right] \;.
+\end{equation*}
+\)
+
+Expanding the inner KL divergence term yields:
+
+\(
+\begin{equation*}
+    D_{KL}(\pi(\cdot|s; \theta_\text{old}) \| \pi(\cdot|s; \theta)) = \mathbb{E}_{a \sim \pi_{\theta_\text{old}}(\cdot|s)} \left[ \log \pi(a|s; \theta_\text{old}) - \log \pi(a|s; \theta) \right] \;.
+\end{equation*}
+\)
+
+Since $\log \pi(a|s; \theta_\text{old})$ is constant with respect to $\theta$, the average KL becomes:
+
+\(
+\begin{align*}
+    \overline{D}_{KL}^{\rho_{\theta_\text{old}}}(\theta_\text{old}, \theta) &= \mathbb{E}_{s \sim \rho_{\theta_\text{old}}} \left[ - \mathbb{E}_{a \sim \pi_{\theta_\text{old}}(\cdot|s)} \left[ \log \pi(a|s; \theta) \right] \right] + \text{const} \\
+     &= - \mathbb{E}_{(s,a) \sim \rho_{\theta_\text{old}}} \left[ \log \pi(a|s; \theta) \right] + \text{const} \;,
+\end{align*}
+\)
+where $(s,a) \sim \rho_{\theta_\text{old}}$ denotes sampling $s \sim \rho_{\theta_\text{old}}$ then $a \sim \pi_{\theta_\text{old}}(\cdot|s)$.
+
+Taking the second derivative (Hessian) with respect to $\theta$ yields:
+
+\(
+\begin{equation}\label{eq:2nd-derivative}
+    \nabla^2_\theta \overline{D}_{KL}^{\rho_{\theta_\text{old}}}(\theta_\text{old}, \theta) = - \mathbb{E}_{(s,a) \sim \rho_{\theta_\text{old}}} \left[ \nabla^2_\theta \log \pi(a|s; \theta) \right] \;.
+\end{equation}
+\)
+
+There is a well-known identity in information theory stating that the Fisher Information Matrix $F(\theta)$ is equal to the negative expected Hessian of the log-likelihood, evaluated under the same probability distribution:
+
+\(
+\begin{equation}\label{eq:fim}
+    F(\theta) = \mathbb{E}_{s \sim \rho_\theta} \left[ \mathbb{E}_{a \sim \pi_\theta(\cdot|s)} \left[ -\nabla^2_\theta \log \pi(a|s; \theta) \right] \right] = \mathbb{E}_{(s,a) \sim \rho_\theta} \left[ -\nabla^2_\theta \log \pi(a|s; \theta) \right] \;.
+\end{equation}
+\)
+
+In TRPO, the Hessian in Equation $\eqref{eq:trpo-approx-2}$ is evaluated at $\theta = \theta_{\text{old}}$, making Equations $\eqref{eq:2nd-derivative}$ and $\eqref{eq:fim}$ equivalent. This reveals the direct connection between TRPO and the Natural Policy Gradient: TRPO effectively uses the natural gradient direction, scaled to satisfy a KL trust region constraint.
+
+Intuitively, the KL divergence measures the difference between the old and new policies. Its local curvature with respect to the parameters $\theta$ at $\theta_\text{old}$ is given by the Hessian $H$, which equals the FIM $F(\theta_\text{old})$. The FIM quantifies the sensitivity of the policy *distribution* to changes in parameters. From an information geometry perspective, it defines a local [glossary.html metric] over policy space — capturing the distance between policies in terms of their behavior (i.e., likelihood assignments), rather than simple Euclidean distance in parameter space. By constraining the average KL divergence, TRPO implicitly respects this geometric structure. The natural policy gradient direction, $d = F^{-1}g = H^{-1}g$, corresponds to the steepest ascent direction under this geometry. Both TRPO and natural gradient methods leverage curvature information ($H = F$) to scale updates in proportion to behavioral change, leading to stable and efficient learning.
+~~~
+
+=== Computing $H$
+
+Computing and storing the inverse of the Hessian matrix $H^{-1}$ is prohibitively expensive in practice. Even modest neural networks result in extremely high-dimensional parameter spaces. For example, consider a network with one input node, two hidden layers with two nodes each (plus biases), and one output node (plus bias). The total number of parameters is 13 (Layer 1: $1 \times 2$ weights $+$ 2 biases = 4; Layer 2: $2 \times 2$ weights $+$ 2 biases = 6; Layer 3: $2 \times 1$ weights $+$ 1 bias = 3). The full Hessian in this case is a $13 \times 13$ matrix with 169 elements:
+
+\(
+\begin{equation*}
+    H = \begin{bmatrix}
+        \frac{\partial^2 f}{\partial (w^{(1)}_{1,1})^2} & \frac{\partial^2 f}{\partial w^{(1)}_{1,1} \partial w^{(1)}_{2,1}} & \cdots & \frac{\partial^2 f}{\partial w^{(1)}_{1,1} \partial b^{(3)}_{1}} \\
+        \frac{\partial^2 f}{\partial w^{(1)}_{2,1} \partial w^{(1)}_{1,1}} & \frac{\partial^2 f}{\partial (w^{(1)}_{2,1})^2} & \cdots & \frac{\partial^2 f}{\partial w^{(1)}_{2,1} \partial b^{(3)}_{1}} \\
+        \vdots & \vdots & \ddots & \vdots \\
+        \frac{\partial^2 f}{\partial b^{(3)}_{1} \partial w^{(1)}_{1,1}} & \frac{\partial^2 f}{\partial b^{(3)}_{1} \partial w^{(1)}_{2,1}} & \cdots & \frac{\partial^2 f}{\partial (b^{(3)}_{1})^2}
+    \end{bmatrix}
+\end{equation*}
+\)
+
+In a more realistic (but still relatively small) network — for example, with 8 input nodes, two hidden layers of 100 units each (plus biases), and 2 output nodes (plus biases) — the total number of parameters is 11,202. The Hessian has over 125 million entries: $H \in \mathbb{R}^{11202 \times 11202}$. Forming, storing, and inverting such a matrix is computationally infeasible.
+
+To make optimization tractable, TRPO avoids explicitly computing $H^{-1}$. Instead, it uses a [conjugate-gradient-method.html conjugate gradient] method to *approximately solve the linear system* $Hx = g$ for the update direction $x \approx H^{-1}g$. The [pseudocode.html CG algorithm] iteratively finds an approximate solution $x_k$ without ever forming or storing the full matrix $\hat{H}_k$, requiring only the ability to compute matrix-vector products $\hat{H}_k v$ for arbitrary vectors $v$. This makes the computation feasible even in high-dimensional settings.
+
+~~~
+{}{img_left}{static/images/trpo/pseudocode.png}{TRPO pseudocode}{600px}
+~~~
+
+=== References
+
+: {[https://arxiv.org/pdf/1502.05477.pdf Trust Region Policy Optimization], International conference on machine
+learning (2015)} John Schulman, Sergey Levine, Philipp Moritz, Michael Jordan, and Pieter Abbeel
+
+: {[http://rail.eecs.berkeley.edu/deeprlcourse-fa17/f17docs/lecture_13_advanced_pg.pdf Advanced Policy Gradient Methods]
+(2017)} Joshua Achiam
+
+: {[https://spinningup.openai.com/en/latest/algorithms/trpo.html Trust Region Policy Optimization] (accessed 2025)} Open AI
+
+: {[https://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote07.html Gradient Descent and Beyond] (2018)} Kilian Weinberger
+
+: {[https://brilliant.org/wiki/taylor-series/ Taylor Series] (accessed 2025)} Andrew Ellinor, Rahil Sehgal, and Abha Vishwakarma
+
+: {[https://www.youtube.com/watch?v=KjWF8VIMGiY&ab_channel=PieterAbbeel TRPO and PPO (Foundations of Deep RL Series) \[video\]] (2022)} Pieter Abbeel

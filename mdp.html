@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Markov Decision Processes</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html" class="current">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Markov Decision Processes</h1>
+</div>
+<p><i>Revised June 11, 2024</i>
+</p>
+<p>Sequential decision making is a process in which an agent, given some information, makes a series of decisions, each producing an observable consequence that informs the next decision. The agent's goal is to optimize a performance metric over a specified time horizon. In reinforcement learning (RL), this process is formalized as the optimal control of an incompletely-known <i>Markov Decision Process</i> (MDP). An MDP can be represented as a collection of objects:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathcal{M} = \langle \mathcal{S},\mathcal{A},P,R,\gamma \rangle
+\end{equation*}
+\]
+</p><p>where \(\mathcal{S}\) is a set of states, \(\mathcal{A}\) is a set of actions, \(P\) is a transition probability function, \(R\) is a reward function, and \(\gamma\) is a discount factor.
+</p>
+<p>At each time step in which decisions are made \(t\), the agent has some information \(s_t \in \mathcal{S}\), called the <i>state</i>, about the environment in which it operates. Based on the information in \(s_t\), the agent selects an action \(a_t \in \mathcal{A}\). The environment receives action \(a_t\) after which it transitions to a new state \(s_{t+1} \in \mathcal{S}\) and provides feedback to the agent in the form of a reward \(r_{t+1} \in \mathbb{R}\).
+</p>
+<p>The probability that an agent transitions from a current state \(s\) to a new state \(s'\) after taking an action \(a\) is determined by the state transition probability function \(P(s, a, s&rsquo;) = \mathbb{P}[s_{t+1} = s&rsquo; \mid s_t = s, a_t = a]\). The probabilistic nature of this function reflects the inherent stochasticity of most systems, where outcomes are influenced by random factors or variables. Importantly, this stochasticity adheres to the <i>Markov property</i>, which asserts that the probability of transitioning to a specific state depends only on the current state and action, and not on any past states/actions \(\mathbb{P}[s_{t+1} | s_t, a_t, s_{t-1}, a_{t-1}, \dots] = \mathbb{P}[s_{t+1} | s_t, a_t]\).
+</p>
+<p>The agent's reward at each timestep is determined by the reward function \(R(s, a) = \mathbb{E}[r_{t+1} \mid s_t = s, a_t = a]\), which gives the expected immediate reward for taking action \(a\) in state \(s\).
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>Alternative reward model</b>
+</p>
+<p>In some problems, a reward may additionally be based on \(s'\). This is equivalent to the model described above. Let \(R(s,a,s&rsquo;)\) be the expected reward when action \(a\) is taken in \(s\) and the agent transitions to \(s'\). Then, we can obtain the model \(R(s, a) = \mathbb{E}[r_{t+1} \mid s_t = s, a_t = a]\) by defining:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    R(s,a) = \mathbb{E}[r_{t+1} \mid s_t = s, a_t = a] = \mathbb{E}_{s&rsquo; \sim P(s,a)} \left[ R(s,a,s&rsquo;) \right].
+\end{equation*}
+\]
+</p></div></div>
+<p>The decision-making process in an MDP continues iteratively until a terminal state is reached or a predefined maximum number of time steps has elapsed. These processes can either be <i>episodic</i> or <i>continuing</i>. Episodic tasks can last for an arbitrarily long duration but must eventually terminate, with timesteps \(t = 1, 2, \ldots, T-1\) (where \(T &lt; \infty\)), while continuing tasks do not terminate with timesteps \(t = 1, 2, \ldots\) extending indefinitely.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/mdp/mdp.png" alt="mdp" width="550px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<table id="caption">
+<tr class="r1"><td class="c1">A Markov decision process (MDP) is defined by the property that the current state \(s_t\) is sufficient (the Markov property), meaning the conditional distribution of the next state and reward depends only on \((s_t,a_t)\), i.e., \(\mathbb{P}(s_{t+1},r_{t+1}\mid s_t,a_t)\), with the policy specifying the distribution over actions. The agent's actions do not affect the fundamental rules or dynamics that dictate how states and rewards are generated by the environment but they do directly influence the specific outcomes and subsequent information the agent receives. Therefore, the agent cannot be myopic; it must account for and consider the long term consequences of its actions.
+</td></tr></table>
+<p>In an MDP, an agent's performance is measured by its cumulative reward, or <i>return</i>. Cumulative reward can be computed in several ways, such as by summing or averaging the rewards received at each timestep. In practice, however, we commonly measure return by applying a discount factor to future rewards, which is an asymptotic weighted sum of rewards:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:mdp-rewards}
+    G_t = r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + \dots = \sum_{k=0}^{\infty} \gamma^k r_{t+k+1} \;,
+\end{equation}
+\]
+</p><p>where \(\gamma \in [0,1]\) is the discount factor. The discount factor quantifies the present value of future rewards — a reward received \(k+1\) time steps in the future is valued at \(\gamma^k\) times its immediate value. Discounting is both natural and intuitive. It aligns with human tendencies to prefer immediate gratification (similar to how immediate financial gains are favored due to the time value of money). Moreover, future rewards carry greater uncertainty compared to immediate rewards. Mathematically, using a discount factor \(&lt;1\) prevents the possibility of infinite returns in cyclic or indefinitely long decision-making processes.
+</p>
+<p>Note that Equation \(\eqref{eq:mdp-rewards}\) assumes the MDP is continuing. When measuring returns in episodic tasks, where the process concludes after a finite number of timesteps, the formula for returns requires a slight modification:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:finite-mdp-rewards}
+    G_t = \sum_{k=0}^\color{red}{T-t-1} \gamma^k r_{t+k+1} \;,
+\end{equation}
+\]
+</p><p>where \(T\) is the finite horizon, or the episode's endpoint.
+</p>
+<p>Regardless of whether the task is episodic or continuing, the agent cannot be myopic. That is, it must consider both the short- and long-term consequences of its actions. By construction, both \(\eqref{eq:mdp-rewards}\) and \(\eqref{eq:finite-mdp-rewards}\) capture this tradeoff.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://www.davidsilver.uk/teaching/" target=&ldquo;blank&rdquo;>Markov Decision Processes</a>,
+Lectures on Reinforcement Learning (2015)</dt>
+<dd><p>David Silver
+</p></dd>
+</dl>
+<dl>
+<dt>Markov Decision Processes: Discrete Stochastic Dynamic Programming (1994)</dt>
+<dd><p>Martin L. Puterman
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://sites.ualberta.ca/~szepesva/rlbook.html" target=&ldquo;blank&rdquo;>Algorithms for Reinforcement Learning</a>,
+Synthesis Lectures on Artificial Intelligence and Machine Learning (2019)</dt>
+<dd><p>Csaba Szepesvari
+</p></dd>
+</dl>
+<dl>
+<dt><a href="http://incompleteideas.net/book/the-book-2nd.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction</a>
+(2018)</dt>
+<dd><p>Richard S. Sutton and Andrew G. Barto
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://ieor8100.github.io/rl/" target=&ldquo;blank&rdquo;>MDPs</a>,
+Reinforcement Learning (2019)</dt>
+<dd><p>Shipra Agrawal
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

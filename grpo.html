@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Group Relative Policy Optimization (GRPO)</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html" class="current">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Group Relative Policy Optimization (GRPO)</h1>
+</div>
+<p><i>Revised February 22, 2025</i>
+</p>
+<p><i>The <a href="ppo.html" target=&ldquo;blank&rdquo;>PPO note</a> is optional but recommended background reading.</i>
+</p>
+<p>Training large language models typically involves three stages: pre-training, supervised fine-tuning (SFT), and reinforcement learning from human feedback (RLHF). During pre-training, a <a href="transformer.html" target=&ldquo;blank&rdquo;>transformer</a> models the distribution of tokens over a vast corpus of text (e.g., internet data). SFT then refines the model using a curated dataset of high-quality human-written demonstrations. Finally, reinforcement learning (RL) aligns the model with human preferences.
+</p>
+<p>To optimize the model via RL, a reward model \(R\) is trained to evaluate model-generated responses. For text generation tasks, \(R\) is often learned using pairwise comparisons, where human labelers rank outputs for the same prompt. In other settings, human oversight is not required. In mathematical reasoning, for example, correctness alone determines rewards: matching the solution yields a high reward; otherwise, the reward is low. With \(R\) learned, the model is optimized via RL, with <a href="ppo.html" target=&ldquo;blank&rdquo;>Proximal Policy Optimization</a> (PPO) widely used for its stability and efficiency:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:ppo}
+    J_\text{PPO}(\theta) = \mathbb{E}_{q \sim P(Q), o \sim \pi_{\theta_\text{old}}} \left[ \frac{1}{|o|} \sum_{t=1}^{|o|} \min \left[ \frac{\pi(o_t \mid q, o_{&lt;t}; \theta)}{\pi(o_t \mid q, o_{&lt;t}; \theta_\text{old})} A_t, \text{clip} \left( \frac{\pi(o_t \mid q, o_{&lt;t}; \theta)}{\pi(o_t \mid q, o_{&lt;t}; \theta_\text{old})}, 1-\epsilon, 1+\epsilon \right) A_t \right] \right] \;,
+\end{equation}
+\]
+</p><p>where \(\theta\) are the current policy parameters, \(\theta_\text{old}\) are the previous policy parameters, \(q\) is a prompt drawn from the dataset \(P(Q)\), and \(o\) is an output sampled from the old policy \(\pi_{\theta_\text{old}}\). The clipping hyperparameter \(\epsilon\) stabilizes training (see the <a href="ppo.html" target=&ldquo;blank&rdquo;>PPO note</a> for details).
+</p>
+<h3>Advantage estimation</h3>
+<p>Like other <a href="actor-critic.html" target=&ldquo;blank&rdquo;>actor-critic</a> methods, PPO computes the advantage term in Equation \(\eqref{eq:ppo}\) using rewards \({r_{\geq t}}\) and a learned value function \(V_\psi\). However, training \(V_\psi\) in LLMs presents two challenges. First, the value function's large parameter space makes training computationally expensive and memory-intensive. Second, the mismatch between dense advantage estimates (required per-token) and sparse rewards (provided end-of-sequence) forces \(V_\psi\) to infer token-level values from limited feedback, destabilizing training. Group Relative Policy Optimization (GRPO) removes the value function and instead estimates advantages through group-based comparisons.
+</p>
+<h4>Group-based advantage estimation via Outcome Supervision RL</h4>
+<p>Under <i>outcome supervision RL</i>, the LLM generates a <i>group</i> of \(G\) outputs \(\{o_1, o_2, \dots, o_G\}\) for a prompt \(q\). Each output \(o_j\) is assigned a score, producing \(G\) rewards \(\mathbf{r} = \{R(q, o_1), R(q, o_2), \dots, R(q, o_G) \} = \{r_1, r_2, \dots, r_G \}\). These rewards are then normalized by subtracting the group mean and dividing by the standard deviation:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+	&amp;\hat{A}_i = \hat{r}_i = \frac{r_i - \mu}{\sigma} \;, \\
+	&amp;\text{where}  \quad \mu = \frac{1}{G} \sum_{j=1}^G r_j, \quad \sigma = \sqrt{\frac{1}{G} \sum_{j=1}^G \left(r_j - \mu\right)^2} \;.
+\end{align*}
+\]
+</p><p>This normalization ensures rewards are measured relative to other outputs rather than absolute values, eliminating the need for a separate value function and stabilizing the RL updates.
+</p>
+<h4>Group-based advantage estimation via Process Supervision RL</h4>
+<p>Under <i>process supervision RL</i>, the model receives partial rewards after each step (e.g., each line or chain-of-thought block) rather than waiting for an entire answer to generate. More formally, suppose the \(i\)-th answer consists of \(K_i\) steps, ending at token indices \(\{\text{index}^{(1)}_i, \dots, \text{index}^{(K_i)}_i\}\). The reward model assigns a score to each step, with these scores normalized across the group (similar to \(\mu\) and \(\sigma\) in outcome supervision). More formally, denote the normalized stepwise scores as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+	\hat{r}_{i,1}, \hat{r}_{i,2}, \ldots, \hat{r}_{i,K_i} \;,
+\end{equation*}
+\]
+</p><p>where each \(\hat{r}_{i,j}\) corresponds to the \(j\)-th step of answer \(i\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+	&amp;\hat{r}_{i,j} = \frac{r_{i,j} - \mu}{\sigma} \;, \\
+	&amp;\text{where} \quad \mu = \frac{1}{\sum_{a=1}^{G} K_a} \sum_{a=1}^{G} \sum_{b=1}^{K_a} r_{a,b}, \quad
+	\sigma = \sqrt{\frac{1}{\sum_{a=1}^{G} K_a} \sum_{a=1}^{G} \sum_{b=1}^{K_a} \left(r_{a,b} - \mu\right)^2}.
+\end{align*}
+\]
+</p><p>Then the advantage for a token \(o_{i,t}\) is the sum of the current and <b>all future</b> step-level rewards within the same answer:  
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+	A_{i,t} = \sum_{\text{index}^{(j)}_i \geq t} \hat{r}_{i,j} \;.
+\end{equation*}
+\]
+</p><h3>Updating the model</h3>
+<p>Using either advantage estimation method, the model parameters are updated to increase the likelihood of higher scores:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    J_\text{GRPO}(\theta) = \mathbb{E}_{q \sim P(Q), \{o\}_{i=1}^G \sim \pi_{\theta_\text{old}}} \left[ \frac{1}{G} \sum_{i=1}^G \frac{1}{|o_i|} \sum_{t=1}^{|o_i|} \left( \min \left[ \frac{\pi(o_{i,t} \mid q, o_{i, &lt;t}; \theta)}{\pi(o_{i,t} \mid q, o_{i, &lt;t}; \theta_\text{old})} \hat{A}_{i,t}, \text{clip} \left( \frac{\pi(o_{i,t} \mid q, o_{i, &lt;t}; \theta)}{\pi(o_{i,t} \mid q, o_{i, &lt;t}; \theta_\text{old})}, 1-\epsilon, 1+\epsilon \right) \hat{A}_{i,t} \right] \right) \right]\;.
+\end{equation*}
+\]
+</p><p>Note that in outcome supervision \(A_{i,t} = A_i\) because rewards are assigned only at the end of an answer.
+</p>
+<h3>KL divergence penalty</h3>
+<p>To prevent over-optimization of the reward model in LLMs (i.e., to prevent the model's responses from deviating too far from the initial pre-trained model), a per-token <a href="kl-divergence.html" target=&ldquo;blank&rdquo;>KL divergence</a> penalty is applied:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:kl-penalty}
+	r_t = R(q, o_{\leq t}; \psi) - \beta \log \frac{\pi(o_t \mid q, o_{&lt;t}; \theta)}{\pi(o_t \mid q, o_{&lt;t}; \theta_\text{ref})} \;,
+\end{equation}
+\]
+</p><p>where \(\pi_{\theta_\text{ref}}\) is a reference model, typically the initial SFT model, and \(\beta\) controls the KL divergence penalty strength.
+</p>
+<p>To simplify the advantage estimation \(\hat{A}\) and improve stability, GRPO shifts the KL divergence penalty from the reward function (Equation \(\eqref{eq:kl-penalty}\)) to the loss function:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    J_\text{GRPO}(\theta) = \mathbb{E}_{q \sim P(Q), \{o\}_{i=1}^G \sim \pi_{\theta_\text{old}}} \left[ \frac{1}{G} \sum_{i=1}^G \frac{1}{|o_i|} \sum_{t=1}^{|o_i|} \left( \min \left[ \frac{\pi(o_{i,t} \mid q, o_{i, &lt;t}; \theta)}{\pi(o_{i,t} \mid q, o_{i, &lt;t}; \theta_\text{old})} \hat{A}_{i,t}, \text{clip} \left( \frac{\pi(o_{i,t} \mid q, o_{i, &lt;t}; \theta)}{\pi(o_{i,t} \mid q, o_{i, &lt;t}; \theta_\text{old})}, 1-\epsilon, 1+\epsilon \right) \hat{A}_{i,t} \right] - \beta D_{KL} \left[ \pi_\theta || \pi_{\theta_\text{ref}} \right] \right) \right] \;,
+\end{equation*}
+\]
+</p><p>where KL divergence is estimated using:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+	D_{KL} \left[ \pi_\theta || \pi_{\theta_\text{ref}} \right] = \frac{\pi(o_{i,t} \mid q, o_{i, &lt;t}; \theta_\text{ref})}{\pi(o_{i,t} \mid q, o_{i, &lt;t}; \theta)} - \log \frac{\pi(o_{i,t} \mid q, o_{i, &lt;t}; \theta_\text{ref})}{\pi(o_{i,t} \mid q, o_{i, &lt;t}; \theta)} - 1 \;,
+\end{equation*}
+\]
+</p><p>which is an <a href="glossary.html" target=&ldquo;blank&rdquo;>unbiased estimator</a> that is guaranteed to be non-negative.
+</p>
+<h3>Iterative RL with GRPO</h3>
+<p>Even in mathematical reasoning tasks, where rewards primarily reflect correctness, the reward model can become stale as the policy evolves. Math problems often require scoring along a continuum, accounting for partial solutions and intermediate steps rather than binary correctness. As the policy model discovers new reasoning strategies or solution formats, the reward model's ability to assess both chain-of-thought processes and final expressions may degrade unless it is exposed to these emerging patterns. To prevent this mismatch, new answers are sampled from the latest policy model and stored in a <a href="glossary.html" target=&ldquo;blank&rdquo;>replay buffer</a>, which also retains a smaller fraction (10% in the <a href="https://arxiv.org/pdf/2402.03300" target=&ldquo;blank&rdquo;>original paper</a>) of past training data. The reward model is then updated using this buffer. The policy model is trained for \(M\) iterations with the updated reward model before the cycle repeats.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://arxiv.org/pdf/2402.03300" target=&ldquo;blank&rdquo;>DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models</a> (2024)</dt>
+<dd><p>Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Zhang, Mingchuan Zhang, Y.K. Li, Y. Wu,  and Daya Guo
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/2501.12948" target=&ldquo;blank&rdquo;>DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning</a> (2025)</dt>
+<dd><p>DeepSeek-AI
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

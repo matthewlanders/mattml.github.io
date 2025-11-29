@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Model-Free Control</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html" class="current">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Model-Free Control</h1>
+</div>
+<p><i>Revised November 2, 2024</i>
+</p>
+<p><i>The <a href="model-free-prediction.html" target=&ldquo;blank&rdquo;>Model-Free Prediction note</a> is optional but recommended background reading.</i>
+</p>
+<p><a href="model-free-prediction.html" target=&ldquo;blank&rdquo;>Model-free prediction</a> approaches such as Monte Carlo (MC) methods and Temporal Difference (TD) learning overcome a fundamental limitation of <a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>dynamic programming</a> algorithms like policy iteration and value iteration by estimating value functions without requiring complete knowledge of environmental dynamics. While prediction methods effectively estimate the value function \(V_\pi\) for an arbitrary policy \(\pi\), they do not directly learn the optimal value function \(V_*\). <i>Control methods</i> build upon prediction techniques to discover optimal value functions and policies.
+</p>
+<h3>SARSA</h3>
+<p>Prediction's theoretical principles extend naturally to control, as demonstrated by the mathematical parallel between <a href="model-free-prediction.html" target=&ldquo;blank&rdquo;>TD(0)</a> and SARSA (state-action-reward-state-action):
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \delta_{t} &amp;= r_{t+1} + \gamma Q(s_{t+1},a_{t+1}) - Q(s_t, a_t) \label{eq:sarsa_td_error} \\
+    Q(s_t, a_t) &amp;\gets Q(s_t, a_t) + \alpha \delta_{t} \;.  \nonumber
+\end{align}
+\]
+</p><p>Despite this similarity, there is an important distinction. Prediction methods estimate the state-value function \(V_\pi(s)\) by observing transitions <b>between states</b>. Control methods determine optimal policies by evaluating <b>transitions between state-action pairs</b>. Thus, while prediction focuses solely on state values, control methods must assess each action's value within each state to enable optimal action selection. This necessitates the estimation of the action-value function \(Q_\pi(s,a)\) (as in Equation \(\eqref{eq:sarsa_td_error}\)), which represents the expected return from taking action \(a\) in state \(s\) and following policy \(\pi\) thereafter.
+</p>
+<p>Because they estimate the value of state-action pairs, control methods introduce a fundamental complexity beyond that of prediction. While prediction methods use the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>state-value Bellman expectation equation</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:sa-value}
+    V_\pi(s) = \sum_{a \in \mathcal{A}} \pi(a \mid s) \left[ R(s,a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s,a,s&rsquo;) V_\pi (s^\prime) \right] \;,
+\end{equation}
+\]
+</p><p>to estimate state values across all possible actions (see the outer summation in Equation \(\eqref{eq:sa-value}\)), control methods focus on the value of a specific action, requiring an action-selection mechanism to guide decision-making. Selecting the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>greedy action</a> \(a^*\) in each state might seem like a natural approach. Until convergence, however, our current value function remains sub-optimal, and consequently, \(a^*\) only represents the best action relative to our current estimates. Therefore, to avoid prematurely settling on sub-optimal behaviors, the agent must explore by occasionally selecting actions that may appear inferior in the short term but could yield higher long-term rewards. Despite this need to explore, selecting the greedy action remains rational much of the time, as \(a^*\) represents the best action according to the agent's current knowledge. This fundamental tension between discovering new opportunities and leveraging known rewards is called the <i>exploration vs. exploitation tradeoff</i>. Various strategies manage this tradeoff, with the \(\epsilon\)-greedy approach being a simple yet effective method: given \(\epsilon \in [0,1]\), the agent selects a random action with probability \(\epsilon\) and the greedy action with probability \((1-\epsilon)\).
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/model-free-control/sarsa.png" alt="SARSA pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<h3>Q-learning</h3>
+<p>Q-learning is very similar to SARSA with an important, defining difference: SARSA is an <i>on-policy</i> algorithm while Q-learning is an <i>off-policy</i> algorithm. In on-policy learning the agent attempts to improve its <i>behavior policy</i> — the policy it uses to select actions. In off-policy learning, the agent seeks to improve a <i>target policy</i> — typically the optimal policy, as in Q-learning — which differs from its behavior policy. Notice that in Equation \(\eqref{eq:sarsa_td_error}\) SARSA calculates the <a href="glossary.html" target=&ldquo;blank&rdquo;>TD error</a> with respect to the action selected by the behavior policy, while in Equation \(\eqref{eq:q_learning_td_error}\) the TD error is calculated using the greedy action (NB the \(\max_{a&rsquo;}\) operator); i.e., selecting \(a'\) without exploration (equivalent to setting \(\epsilon=0\) ):
+</p>
+<p style="text-align:center">
+\[
+\begin{align}\label{eq:q_learning_td_error}
+    \delta_{t} &amp;= r_{t+1} +  \gamma \max_{a&rsquo;} Q(s_{t+1},a&rsquo;) - Q(s_t, a_t) &amp;&amp; &amp;&amp; \text{cf. } \eqref{eq:sarsa_td_error} \\
+    Q(s_t, a_t) &amp;\gets Q(s_t, a_t) + \alpha \delta_{t} \;. \nonumber
+\end{align}
+\]
+</p><p>This formulation enables Q-learning to approximate \(Q_*\) directly, while still selecting actions according to its behavior policy.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/model-free-control/q-learning.png" alt="Q-learning pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>SARSA and Q-learning also differ in how they handle action selection, reflecting their distinct approaches to <a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>policy evaluation and improvement</a>. SARSA, as an on-policy algorithm, updates its value estimates using the agent's actual trajectory, which requires temporal consistency in action selection. When the agent transitions to state \(s'\) and chooses action \(a'\) following its policy (e.g., \(\epsilon\)-greedy), SARSA commits to these assignments (\(s \gets s'\), \(a \gets a'\) on line 10) to ensure the updates reflect the true behavior under the current policy. Re-selecting actions at each state via \(\epsilon\)-greedy (such as done by Q-learning on line 5) would create hypothetical trajectories divorced from actual behavior, compromising SARSA's fundamental on-policy nature.
+</p>
+<p>Q-learning operates with greater independence by separating its update rule from the agent's selected actions. Instead of using the value of the actually chosen next action, Q-learning uses the maximum action-value at the next state, \(\max_{a&rsquo;} Q(s&rsquo;, a&rsquo;)\). This decoupling means each update to \(Q(s, a)\) estimates the expected return if the agent were to act greedily in all future states, independent of its current policy. As a result, on line 5 Q-learning can freely reselect actions without compromising convergence to the optimal policy, as its updates are anchored to ideal future returns rather than actual behavior.
+</p>
+<p>The effect of this difference is best illustrated by <a href="http://incompleteideas.net/book/ebook/node65.html" target=&ldquo;blank&rdquo;>Cliff Walking</a>, a canonical undiscounted, episodic task. The agent navigates a grid world with defined start \(s_0\) and goal \(s_G\) states by selecting from cardinal direction movements (up, down, left, right). All transitions incur a reward of -1, except for transitions into the designated &ldquo;Cliff&rdquo; region, which yield a reward of -100 and trigger an immediate reset to the start state.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/model-free-control/cliff_walking.png" alt="cliff walking results" width="800px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>The plot above demonstrates a significant behavioral divergence between SARSA and Q-learning when operating under \(\epsilon\)-greedy exploration (\(\epsilon\)=0.1). Q-learning converges to the optimal policy — traversing the path adjacent to the cliff — after an initial learning phase. However, this theoretically optimal policy is problematic in practice due to the persistent exploration mandated by \(\epsilon\)-greedy action selection, occasionally resulting in catastrophic falls. SARSA, by accounting for the effect of the random actions in its value estimation, develops a more conservative policy that favors a longer but safer route through the grid's upper region. This difference would ultimately vanish if \(\epsilon\) were annealed toward zero.
+</p>
+<h3>Convergence</h3>
+<p>Both SARSA and Q-learning adhere to the <a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>Generalized Policy Iteration (GPI)</a> framework, using <a href="model-free-prediction.html" target=&ldquo;blank&rdquo;>TD learning</a> for policy evaluation and \(\epsilon\)-greedy action selection for improvement. Under conditions common in stochastic approximation theory, Q-learning converges to an optimal policy and action-value function, provided that each state–action pair is visited infinitely often and:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \sum_{n=1}^\infty \alpha_n &amp;= \infty \;, &amp;&amp;
+    \sum_{n=1}^\infty \alpha^2_n &lt; \infty \;,
+\end{align*}
+\]
+</p><p>where the first condition ensures steps remain sufficiently large to overcome initial conditions and random fluctuations, allowing meaningful value estimate adjustments if, for example, the initial estimate is far from the true value. The second condition ensures convergence by gradually reducing step sizes until updates effectively cease; without this, persistent random fluctuations would prevent stabilization to an optimal value.
+</p>
+<p>For on-policy methods like SARSA, which rely on a single policy for both exploration and improvement, these conditions alone do not guarantee convergence to an optimal policy. With constant \(\epsilon\), SARSA converges to a near-optimal policy that continues to explore. However, SARSA converges to the optimal policy with probability 1 when the policy becomes greedy in the limit (e.g., if \(\epsilon = 1/t\)).
+</p>
+<h3>The Difference Between SARSA and Q-learning When \(\epsilon=0\)</h3>
+<p>When \(\epsilon = 0\) and both methods use a greedy policy, SARSA and Q-learning use the same update target, since SARSA’s next action \(a_{t+1}\) is \(\arg\max_{a&rsquo;} Q(s_{t+1},a&rsquo;)\). Given the same sequence of transitions, they perform identical updates. Meaningful behavioral differences between SARSA and Q-learning arise when the behavior policy is stochastic (e.g., \(\epsilon &gt; 0\)).
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="http://incompleteideas.net/book/the-book-2nd.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction</a> (2018)</dt>
+<dd><p>Richard S. Sutton and Andrew G. Barto
+</p></dd>
+</dl>
+<dl>
+<dt>Artificial Intelligence: A Modern Approach, 4th edition (2020)</dt>
+<dd><p>Stuart Russell and Peter Norvig
+</p></dd>
+</dl>
+<dl>
+<dt><a href="http://incompleteideas.net/book/first/the-book.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction</a> (1998)</dt>
+<dd><p>Richard S. Sutton and Andrew G. Barto
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.davidsilver.uk/teaching/" target=&ldquo;blank&rdquo;>Model-Free Control</a>, Lectures on Reinforcement Learning (2015)</dt>
+<dd><p>David Silver
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

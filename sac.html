@@ -1,0 +1,432 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Soft Actor-Critic (SAC)</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html" class="current">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Soft Actor-Critic (SAC)</h1>
+</div>
+<p><i>Revised February 6, 2025</i>
+</p>
+<p><i>The <a href="policy-gradients.html" target=&ldquo;blank&rdquo;>Policy Gradients</a> and <a href="reparameterization-trick.html" target=&ldquo;blank&rdquo;>Reparameterization Trick</a> notes are optional but recommended background reading.</i>
+</p>
+<p>While <a href="ddpg.html" target=&ldquo;blank&rdquo;>deep deterministic policy gradient (DDPG)</a> mitigates the sample inefficiency inherent in <a href="glossary.html" target=&ldquo;blank&rdquo;>on-policy</a> RL, the interaction between its deterministic actor and Q-function often makes the algorithm challenging to stabilize and sensitive to hyperparameter tuning. Soft Actor-Critic (SAC) addresses these issues by combining off-policy training and a stochastic actor, yielding a more stable and scalable alternative to DDPG.
+</p>
+<p>SAC learns a stochastic policy that maximizes both the expected return and <i>entropy</i>, a measure of the policy's randomness. Entropy captures the average &ldquo;information&rdquo;, &ldquo;surprise&rdquo;, or &ldquo;uncertainty&rdquo; in the possible outcomes of a random variable:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:entropy}
+    \mathcal{H}(P) = \mathbb{E}_{x \sim P} [-\log P(x)] \;,
+\end{equation}
+\]
+</p><p>where \(x\) is a random variable governed by the probability mass or density function \(P\).
+</p>
+<p>The maximum entropy objective is defined as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:sac-objective}
+    \pi^* = \arg \max_\pi \sum_{t=0}^\infty \mathbb{E}_{(s_t, a_t) \sim \rho_{\pi_\theta}} \left[ \gamma^t \left( R(s_t, a_t) + \alpha \mathcal{H} \left( \pi(\cdot \mid s_t) \right) \right) \right] \;,
+\end{equation}
+\]
+</p><p>where \(\rho_{\pi_\theta}\) is the distribution of state-action pairs induced by the policy \(\pi_\theta\), and \(\alpha\) is a <i>temperature</i> parameter that controls the trade-off between maximizing reward and encouraging higher entropy.
+</p>
+<p>This objective offers two notable advantages. First, the temperature parameter \(\alpha\) governs the balance between reward maximization and entropy, directly influencing the <a href="glossary.html" target=&ldquo;blank&rdquo;>exploration-exploitation trade-off</a>. By explicitly including entropy in Equation \(\eqref{eq:sac-objective}\), the policy is encouraged to explore more diverse actions, accelerating learning and reducing the risk of premature convergence to a local optimum. Meanwhile, the reward-maximizing component ensures that clearly suboptimal behaviors are eliminated. Second, maximum entropy policies naturally capture multiple near-optimal strategies. When multiple actions yield similar returns, the policy distributes probability mass across those actions, enabling diverse and adaptable decision-making.
+</p>
+<h3>Soft Policy Iteration</h3>
+<p>SAC employs the <a href="glossary.html" target=&ldquo;blank&rdquo;>generalized policy iteration</a> (GPI) framework to approximate an optimal policy. The policy evaluation step estimates the <i>soft Q-function</i> through the iterative application of a modified Bellman operator:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathcal{T}_\pi \left( Q(s_t, a_t) \right) = R(s_t, a_t) + \gamma \mathbb{E}_{s_{t+1} \sim P} \left[ V(s_{t+1}) \right] \;,
+\end{equation*}
+\]
+</p><p>where \(P\) is the <a href="mdp.html" target=&ldquo;blank&rdquo;>state transition probability function</a>.
+</p>
+<p>This operator is referred to as <i>modified</i> because \(V\) is the <i>soft state value function</i>, defined as:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    V_\pi(s_t) &amp;= \mathbb{E}_{s_t \sim P, a_t \sim \pi} \left[ \sum_{k=0}^\infty \gamma^k \left( R(s_t,a_t) + \alpha \mathcal{H} \left( \pi(\cdot \mid s_t) \right) \right) \mid s_0 = s \right] \label{eq:soft-value-function} \\
+    &amp;= \mathbb{E}_{a_t \sim \pi} \left[ Q_\pi(s_t, a_t) + \alpha \mathcal{H} \left( \pi(a_t \mid s_t) \right) \right] \nonumber \\
+    &amp;= \mathbb{E}_{a_t \sim \pi} \left[ Q_\pi(s_t, a_t) - \alpha \log \pi(a_t \mid s_t) \right] &amp;&amp; \text{by Equation } \eqref{eq:entropy} \;. \label{eq:state-value-entropy}
+\end{align}
+\]
+</p><p>The <i>soft action-value function</i> (or soft Q-function) can similarly be defined by including an entropy bonus for every timestep except the first (while the exclusion of the entropy bonus at the first timestep is common, it is not strictly required; some implementations may include this term starting at \(t=0\)):
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    Q_\pi(s_t, a_t) &amp;= \mathbb{E} \left[ \sum_{k=0}^\infty \gamma^k R(s_{t+k}, a_{t+k}) + \alpha \sum_{k=1}^\infty \gamma^k \mathcal{H} \left( \pi(\cdot \mid s_{t+k}) \right) \Bigg| s_t, a_t \right] \nonumber \\
+    &amp;= \mathbb{E}_{s_{t+1} \sim P} \left[ R(s_t,a_t) + \gamma V_\pi(s_{t+1}) \right] &amp;&amp; \text{by Equation } \eqref{eq:soft-value-function} \nonumber \\
+    &amp;= \mathbb{E}_{s_{t+1} \sim P, a_{t+1} \sim \pi} \left[ R(s_t,a_t) + \gamma \left( Q_\pi(s_{t+1}, a_{t+1}) - \alpha \log \pi(a_{t+1} \mid s_{t+1}) \right) \right]  &amp;&amp; \text{by Equation } \eqref{eq:state-value-entropy} \;. \label{eq:soft-Q}
+    \end{align}
+\]
+</p><p>The policy improvement step updates the policy toward the exponential of the soft Q-function. To maintain computational tractability — meaning the ability to evaluate and optimize the policy efficiently — the improved policy is constrained to a subset \(\Pi\) of parameterized distributions (e.g., Gaussians) via projection. Among possible projections, <a href="kl-divergence.html" target=&ldquo;blank&rdquo;>Kullback-Leibler (KL) divergence</a> is appealing as it offers a well-defined optimization objective with favorable computational properties that often yield a closed-form or efficient solution.
+</p>
+<p>Formally, the policy improvement step is given by:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:sac-PI}
+    \pi_\text{new} = \arg \min_{\pi&rsquo; \in \Pi} D_{KL} \left( \pi&rsquo;(\cdot \mid s_t) \Bigg|\Bigg|
+    \frac{\exp \left(\frac{1}{\alpha} Q_{\pi_\text{old}}(s_t, \cdot) \right)}{Z_{\pi_\text{old}}(s_t)} \right) \;,
+\end{equation}
+\]
+</p><p>where \(Z_{\pi_\text{old}}(s_t)\) is the <a href="https://en.wikipedia.org/wiki/Partition_function_(mathematics)" target=&ldquo;blank&rdquo;>partition function</a>, a normalizing constant ensuring that the exponential distribution integrates to 1 over all possible actions:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    Z_{\pi_\text{old}}(s_t) = \int \exp \left(\frac{1}{\alpha} Q_{\pi_\text{old}}(s_t, a) \right) \, da \;.
+\end{equation*}
+\]
+</p><p>While computing the partition function is generally intractable, it does not affect the gradient with respect to the new policy during optimization and can thus be omitted in practice.
+</p>
+<p>Intuitively, we seek the policy \(\pi'\) that closely approximates the distribution obtained by normalizing the exponentiated \(Q\)-function (note that exponentiating the Q-function magnifies the differences between Q-values, ensuring actions with higher Q-values receive higher probabilities while still assigning non-zero probabilities to other actions). This update guarantees that \(Q_{\pi_\text{new}}(s_t, a_t) \geq Q_{\pi_\text{old}}(s_t, a_t) \; \forall (s_t, a_t) \in \mathcal{S} \times \mathcal{A}\). For a formal proof, refer to  <a href="https://arxiv.org/pdf/1801.01290.pdf" target=&ldquo;blank&rdquo;>Appendix B.2 in the original paper</a>.
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>KL Divergence as a Projection</b>
+</p>
+<p>KL divergence is not a true projection in the geometric sense. Instead, it is the optimization criterion for <i>information projection</i>, which maps a probability distribution onto a constrained set of distributions, analogous to geometric projection onto a subspace. Intuitively, treating KL divergence as a measure of dissimilarity, the information projection of some target distribution \(q\) onto \(\Pi\) is the distribution \(\pi_\text{new} \in \Pi\) that minimizes KL divergence from \(q\). Formally, the information projection \(\pi_\text{new}\) is defined as:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \pi_\text{new} = \arg \min_{\pi&rsquo; \in \Pi} D_{KL} (\pi&rsquo; || q) &amp;&amp; \text{cf. Equation } \eqref{eq:sac-PI} \;.
+\end{align*}
+\]
+</p></div></div>
+<h3>Soft Actor-Critic (SAC)</h3>
+<p>As with any GPI-based algorithm, Soft Policy Iteration alternates between policy evaluation and policy improvement, iteratively refining the policy until convergence to the optimal policy within \(\Pi\). However, fully evaluating and improving the policy until convergence at each iteration is computationally prohibitive. Moreover, this approach is only feasible in tabular settings. Extending it to complex, continuous domains requires approximating the Q-function.
+</p>
+<p>Soft Actor-Critic (SAC) approximates soft policy iteration using a parameterized soft Q-function \(Q(s, a; \theta)\) and a stochastic policy \(\pi(a \mid s; \psi)\) both modeled with neural networks. The soft Q-function is trained to approximate the expected return, while the policy is modeled as a  distribution, such as a Gaussian with its mean and covariance parameterized by the policy network.
+</p>
+<h4>Updating the Soft Q-function</h4>
+<p>The soft Q-function is trained by minimizing the soft Bellman error:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    J_Q(\theta) &amp;= \mathbb{E}_{(s_t, a_t) \sim \mathcal{D}} \left[ \frac{1}{2} \left( Q(s_t, a_t; \theta) - \left( R(s_t, a_t) + \gamma \left[ V(s_{t+1}) \right] \right) \right)^2 \right] \\
+
+    &amp;= \mathbb{E}_{(s_t, a_t) \sim \mathcal{D}} \left[ \frac{1}{2} \left( Q(s_t, a_t; \theta) - \left( R(s_t, a_t) + \gamma \mathbb{E}_{a_{t+1} \sim \pi_\psi} \left[ Q(s_{t+1}, a_{t+1}; \theta^-) - \alpha \log \pi(a_{t+1} \mid s_{t+1}; \psi) \right] \right) \right)^2 \right]
+    &amp;&amp; \text{by Equation } \eqref{eq:state-value-entropy} \;,
+\end{align*}
+\]
+</p><p>where \(\mathcal{D}\) is the <a href="glossary.html" target=&ldquo;blank&rdquo;>replay buffer</a>, and \(\theta^-\) are the parameters of a <a href="glossary.html" target=&ldquo;blank&rdquo;>target network</a>, used to stabilize training.
+</p>
+<p>The gradient of this objective is:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}\label{eq:critic-loss}
+    \nabla J_Q(\theta) = \nabla_\theta Q(s_t, a_t; \theta) \left[ Q(s_t, a_t; \theta) - \left( R(s_t, a_t)
+    + \gamma \left( Q(s_{t+1}, a_{t+1}; \theta^-) - \alpha \log \pi(a_{t+1} \mid s_{t+1}; \psi) \right) \right) \right]
+    &amp;&amp; \text{by the chain rule.}
+\end{align}
+\]
+</p><h4>Updating the Policy</h4>
+<p>The policy parameters are optimized via gradient descent to minimize the expected KL divergence defined in Equation \(\eqref{eq:sac-PI}\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    J_\pi(\psi) &amp;= D_{KL} \left( \pi(\cdot \mid s_t; \psi) \, \middle\| \,
+    \frac{\exp \left( \frac{1}{\alpha} Q(s_t, \cdot; \theta) \right)}{Z_{\pi_\text{old}}(s_t)} \right) \nonumber \\
+
+    &amp;= \mathbb{E}_{s_t \sim \mathcal{D}} \left[ \mathbb{E}_{a_t \sim \pi_\psi} \left[ \log \frac{\pi(a_t \mid s_t; \psi) Z_{\pi_\text{old}}(s_t)}
+    {\exp \left( \frac{1}{\alpha} Q(s_t, a_t; \theta) \right)} \right] \right]
+    &amp;&amp; \text{by the definition of KL divergence (see the KL divergence note)} \nonumber \\
+
+    &amp;= \mathbb{E}_{s_t \sim \mathcal{D}} \left[ \mathbb{E}_{a_t \sim \pi_\psi} \left[ \log \frac{\pi(a_t \mid s_t; \psi)}
+    {\exp \left( \frac{1}{\alpha} Q(s_t, a_t; \theta) \right)} \right] \right]
+    &amp;&amp; \text{ignoring } Z \text{ because it does not contribute to the gradient wrt } \psi \nonumber \\
+
+    &amp;= \mathbb{E}_{s_t \sim \mathcal{D}} \left[ \mathbb{E}_{a_t \sim \pi_\psi} \left[ \log \pi(a_t \mid s_t; \psi) - \log \exp \left( \frac{1}{\alpha} Q(s_t, a_t; \theta) \right) \right] \right] \nonumber \\
+    &amp;= \mathbb{E}_{s_t \sim \mathcal{D}} \left[ \mathbb{E}_{a_t \sim \pi_\psi} \left[ \alpha \log \pi(a_t \mid s_t; \psi) - Q(s_t, a_t; \theta) \right] \right] \label{eq:sac-policy-objective}
+\end{align}
+\]
+</p><p>Computing the gradient of the objective \(\nabla_\psi J_\pi(\psi)\) is challenging because \(\psi\) parameterizes the distribution over which the expectation is taken (see the <a href="reparameterization-trick.html" target=&ldquo;blank&rdquo;>reparameterization trick</a> note for a detailed explanation). Thus, SAC applies the <a href="reparameterization-trick.html" target=&ldquo;blank&rdquo;>reparameterization trick</a>, reformulating stochastic action sampling as a deterministic function of the policy parameters \(\psi\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    a_t = f(\epsilon_t, s_t; \psi) \;,
+\end{equation*}
+\]
+</p><p>where \(\epsilon_t\) is a noise vector sampled from a fixed distribution (e.g., a spherical Gaussian). This reformulation expresses sampling from \(\pi(\cdot \mid s; \psi)\) as a deterministic function of \(s\), \(\psi\), and \(\epsilon\), which is <b>independent</b> of \(\psi\), making gradient estimation tractable:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:action-definition}
+    a_t = f(\epsilon_t, s_t; \psi) = \mu(s_t; \psi) + \sigma(s_t; \psi) \, \epsilon_t
+\end{equation}
+\]
+</p><p>where \(\epsilon \sim \mathcal{N}(0, 1)\), \(\mu(s; \psi)\) is the mean predicted by the policy network for state \(s\), and \(\sigma(s; \psi)\) is the corresponding standard deviation.
+</p>
+<p>Applying the reparameterization trick, the policy objective (Equation \(\eqref{eq:sac-policy-objective}\)) can be rewritten as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    J_\pi(\psi) = \mathbb{E}_{s_t \sim \mathcal{D}, \epsilon_t \sim \mathcal{N}} \left[ \alpha \log \pi_\psi \left(f(\epsilon_t, s_t; \psi) \mid s_t \right) - Q(s_t, f(\epsilon_t, s_t; \psi); \theta) \right] \;.
+\end{equation*}
+\]
+</p><p>The gradient of this objective is approximated as:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \nabla_\psi J_\pi(\psi)
+    &amp;= \nabla_\psi \left( \alpha \log \pi_\psi\left(f(\epsilon_t, s_t; \psi) \mid s_t \right) - Q\left(s_t, f(\epsilon_t, s_t; \psi); \theta\right) \right) \nonumber \\
+
+    &amp;= \alpha \nabla_\psi \log \pi_\psi\left(f(\epsilon_t, s_t; \psi) \mid s_t\right) - \nabla_\psi Q\left(s_t, f(\epsilon_t, s_t; \psi); \theta\right) \label{eq:policy-update-1} \\
+
+    &amp;= \alpha \underbrace{\left. \nabla_\psi \log \pi_\psi\left(a \mid s_t\right) \right|_{a = f(\epsilon_t, s_t; \psi)}}_{\text{Explicit Policy Gradient}}
+    + \alpha \underbrace{\nabla_{f(\epsilon_t, s_t; \psi)} \log \pi_\psi\left(f(\epsilon_t, s_t; \psi) \mid s_t\right) \cdot \nabla_\psi f(\epsilon_t, s_t; \psi)}_{\text{Implicit Policy Gradient (through } f \text{)}} \nonumber \\
+    &amp;\quad\quad- \underbrace{\nabla_{f(\epsilon_t, s_t; \psi)} Q\left(s_t, f(\epsilon_t, s_t; \psi); \theta\right) \cdot \nabla_\psi f(\epsilon_t, s_t; \psi)}_{\text{Critic Gradient (through } f \text{)}} \label{eq:policy-update-2} \\
+
+    &amp;= \alpha \left. \nabla_\psi \log \pi_\psi\left(a \mid s_t\right) \right|_{a = f(\epsilon_t, s_t; \psi)} + \alpha \nabla_{a_t} \log \pi_\psi(a_t \mid s_t) \cdot \nabla_\psi f(\epsilon_t, s_t; \psi)
+    - \nabla_{a_t} Q(s_t, a_t; \theta) \cdot \nabla_\psi f(\epsilon_t, s_t; \psi) \label{eq:policy-update-3} \\
+
+    &amp;= \alpha \left. \nabla_\psi \log \pi_\psi\left(a \mid s_t\right) \right|_{a = f(\epsilon_t, s_t; \psi)} + \left( \alpha \nabla_{a_t} \log \pi_\psi(a_t \mid s_t) - \nabla_{a_t} Q(s_t, a_t; \theta) \right) \cdot \nabla_\psi f(\epsilon_t, s_t; \psi) \nonumber
+\end{align}
+\]
+</p><p>The first term in Equation \(\eqref{eq:policy-update-2}\) captures the direct dependence of the log policy on the policy parameters (action held fixed), the second term arises from decomposing the first term in Equation \(\eqref{eq:policy-update-1}\) via the chain rule, while the third term arises from decomposing the second term in Equation \(\eqref{eq:policy-update-1}\). The &ldquo;implicit policy gradient&rdquo; refers to the indirect effect of \(\psi\) on the policy's log-probability \(\log \pi_\psi\) <b>through the action</b> \(f(\epsilon_t, s_t; \psi)\). Since \(f\) depends on \(\psi\), changes in \(\psi\) affect the action, which in turn influences \(\log \pi_\psi\). Similarly, the gradient through \(Q\) and \(f\) captures the indirect effect of \(\psi\) on the Q-function \(Q(s_t, f(\epsilon_t, s_t; \psi); \theta)\) <b>via the action</b> \(f(\epsilon_t, s_t; \psi)\). More specifically, the Q-function \(Q(s_t, f; \theta)\) depends on \(f\), and \(f\) depends on \(\psi\). Because \(Q\) is parameterized by \(\theta\) and has no direct dependence on \(\psi\), the only way \(\psi\) influences \(Q\) is via \(f\). Thus, the gradient propagates from \(Q\) (as a function of \(f\)) through \(f\) (as a function of \(\psi\)). Intuitively, the critic \(Q(s_t, a; \theta)\) evaluates the action \(a = f(\epsilon_t, s_t; \psi)\). Modifying \(\psi\) alters \(f\), thereby changing the Q-value. This gradient informs how to adjust \(\psi\) to <b></b>maximize the Q-value of the selected action<b></b> \(f(\epsilon_t, s_t; \psi)\). Finally, in Equation \(\eqref{eq:policy-update-3}\), we replace \(f(\epsilon_t, s_t; \psi)\) with the sampled action \(a_t\) using Equation \(\eqref{eq:action-definition}\).
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/sac/sac-no-automated-entropy.png" alt="soft actor-critic without automated entropy" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<h3>Automated Entropy Adjustment</h3>
+<p>Selecting the optimal temperature parameter \(\alpha\) is nontrivial. If \(\alpha\) is too large, the policy approaches a uniform distribution, failing to exploit the reward signal and degrading performance. If \(\alpha\) is too small, the policy initially learns quickly but may become overly deterministic, leading to premature convergence to a suboptimal solution due to insufficient exploration. Moreover, entropy's influence varies unpredictably across tasks and throughout training as the policy improves. Thus, SAC automates temperature selection by reformulating the maximum entropy reinforcement learning objective as a constrained optimization problem in which entropy is treated as a constraint:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    &amp;\max_{\pi_0:T} \mathbb{E}_{\rho_\pi} \left[ \sum_{t=0}^T \gamma^t R(s_t,a_t) \right] \label{eq:aea-objective} \\
+    &amp;\text{s.t. } \mathbb{E}_{(s_t,a_t) \sim \rho_\pi}\left[ -\log \pi_t(a_t \mid s_t) \right] \geq \mathcal{H}_0 \; \forall t \;, \nonumber
+\end{align}
+\]
+</p><p>where \(\rho_\pi\) is the trajectory distribution induced by policy \(\pi\) and \(\mathcal{H}_0\) is a hyperparameter specifying the minimum expected entropy. A maximum entropy constraint is unnecessary because, in <a href="glossary.html" target=&ldquo;blank&rdquo;>fully observable MDPs</a>, the optimal policy (absent entropy constraints) is deterministic (zero entropy). This guarantees that the agent implicitly seeks to minimize entropy by maximizing reward. Entropy does not collapse to zero only due to the explicit constraint \(\mathcal{H}_0\) in Equation \(\eqref{eq:aea-objective}\).
+</p>
+<p>We can reformulate Equation \(\eqref{eq:aea-objective}\) by introducing a penalty term \(\alpha\), leading to the Lagrangian formulation:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:lagrangian}
+    \mathcal{L}(\pi, \alpha) = \mathbb{E}_{\rho_\pi} \left[ \sum_{t=0}^T \gamma^t R(s_t,a_t) \right] + \sum_{t=0}^T \alpha_t \left( \mathbb{E}_{(s_t, a_t) \sim \rho_\pi}[-\log \pi_t(a_t \mid s_t)] - \mathcal{H}_0 \right) \;.
+\end{equation}
+\]
+</p><p>Intuitively, the Lagrangian \(\mathcal{L}(\pi, \alpha)\) transforms the original constrained problem into an unconstrained optimization problem by penalizing violations of the entropy constraint. Each Lagrange multiplier \(\alpha_t \geq 0\) regulates the trade-off between maximizing the expected reward \(\mathbb{E}[R(s_t,a_t)]\) and satisfying the entropy condition \(\mathbb{E}[-\log \pi_t] \geq \mathcal{H}_0\). Specifically, the term \(\alpha_t \cdot \mathbb{E}[-\log \pi_t]\) penalizes entropy <b>below</b> \(\mathcal{H}_0\). If \(\alpha_t\) is sufficiently large, the penalty ensures compliance with the entropy constraint by preventing excessive deviation below \(\mathcal{H}_0\). More explicitly, the Lagrangian incorporates terms of the form:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \alpha_t \left( \underbrace{\mathbb{E}[-\log \pi_t]}_{\text{Actual entropy}} - \mathcal{H}_0 \right) \;.
+\end{equation*}
+\]
+</p><p>If the policy's entropy is <b>too low</b> (i.e., \(\mathbb{E}[-\log \pi_t] &lt; \mathcal{H}_0\)), the term \((\text{Actual entropy} - \mathcal{H}_0)\) becomes <b>negative</b>. When \(\alpha_t\) is large, this negative value is scaled by \(\alpha_t\), imposing a large penalty on the reward. To mitigate this penalty, the policy must increase its entropy to at least \(\mathcal{H}_0\). Conversely, if the policy's entropy <b>meets or exceeds</b> \(\mathcal{H}_0\), the term \((\text{Actual entropy} - \mathcal{H}_0)\) is <b>non-negative</b>, contributing positively to the reward. In this case, the reward maximization objective will naturally reduce entropy. In this way, Equation \(\eqref{eq:lagrangian}\) &ldquo;relaxes&rdquo; the original constrained optimization problem (Equation \(\eqref{eq:aea-objective}\)) by incorporating the constraint into the objective function, with \(\alpha_t\) dynamically adjusting its enforcement. Lagrangian relaxation is further discussed in the <a href="constrained-mdps.html" target=&ldquo;blank&rdquo;>CMDPs note</a>.
+</p>
+<p>Rewriting Equation \(\eqref{eq:lagrangian}\) yields the <i>primal</i>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \max_\pi \min_{\alpha \geq 0} \mathbb{E}_{\rho_\pi} \left[ \sum_{t=0}^T \gamma^t \left( R(s_t,a_t) - \alpha_t \log \pi(a_t \mid s_t) \right) \right] - \sum_{t=0}^T \gamma^t \alpha_t \mathcal{H}_0 \;.
+\end{equation*}
+\]
+</p><p>This formulation seeks policies \(\pi\) that maximize reward while minimizing constraint violations (since violations are progressively penalized by \(\alpha\)).
+</p>
+<p>The Lagrangian <i>dual</i> is often preferred to the primal (as detailed in the <a href="constrained-mdps.html" target=&ldquo;blank&rdquo;>CMDPs note</a>). The dual of Equation \(\eqref{eq:lagrangian}\) is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:dual}
+    \min_{\alpha_t \geq 0} \max_{\pi} \mathbb{E}_{\rho\pi} \left[ \sum_{t=0}^T \gamma^t \left( R(s_t,a_t) - \alpha_t \log \pi_t(a_t \mid s_t) \right) \right] - \sum_{t=0}^T \gamma^t \alpha_t \mathcal{H}_0\;.
+\end{equation}
+\]
+</p><p>The dual problem reverses the order of optimization, prioritizing the tuning of \(\alpha\) to minimally enforce the entropy constraints while maximizing the expected reward.
+</p>
+<p>We can solve the dual using a <a href="glossary.html" target=&ldquo;blank&rdquo;>dynamic programming</a>-like procedure. Consider the maximization objective in Equation \(\eqref{eq:aea-objective}\), temporarily ignoring the constraint. The optimization follows a <b></b>backward induction<b></b> approach: starting at the final time step \(t=T\), we optimize the objective, then proceed iteratively to \(t=T-1\), \(t=T-2\), and so forth until \(t=0\). This recursive structure can be written as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:recursive}
+    \max_{\pi_0} \left( \mathbb{E}\left[ R(s_0, a_0) \right]+ \max_{\pi_1} \gamma \left(\mathbb{E}[\dots] + \max_{\pi_T} \mathbb{E}[R(s_T, a_T)] \right) \right) \;,
+\end{equation}
+\]
+</p><p>subject to the entropy constraint.
+</p>
+<p>Then, using the dual formulation (Equation \(\eqref{eq:dual}\)), we express the constrained objective at the final time step as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \max_{\pi_T} \mathbb{E}_{(s_T, a_T) \sim \rho_{\pi}} \left[ R(s_T, a_T) \right] = \min_{\alpha_T \geq 0} \max_{\pi_T}
+    \mathbb{E} \left[ R(s_T, a_T) - \alpha_T \log \pi(a_T \mid s_T) \right] - \alpha_T \mathcal{H}_0 \;.
+\end{equation*}
+\]
+</p><p>The optimal policy and corresponding optimal dual variable \(\alpha\) for timestep \(T\) are:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \pi_T^* &amp;= \arg\max_{\pi_T} \mathbb{E}_{(s_T, a_T) \sim \rho_\pi} \left[ R(s_T, a_T) - \alpha_T \log \pi(a_T \mid s_T) \right] - \alpha_T \mathcal{H}_0 \label{eq:optimal-policy} \\
+    \alpha_T^* &amp;= \arg\min_{\alpha_T \geq 0} \mathbb{E}_{(s_T, a_T) \sim \rho_{\pi^*}} \left[ -\alpha_T \log \pi_T^*(a_T \mid s_T; \alpha_T) - \alpha_T \mathcal{H}_0 \right] \;. \label{eq:optimal-dual}
+\end{align}
+\]
+</p><p>Using these results, we can recursively define the optimal expected returns at the penultimate timestep \(T-1\) (for notational simplicity assume \(\gamma=1\)):
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    &amp;\min_{\alpha_{T-1} \geq 0} \max_{\pi_{T-1}} \left( \mathbb{E} \left[ R(s_{T-1}, a_{T-1}) + \gamma V_T^*(s_T) \right] - \alpha_{T-1} \mathcal{H}_0 - \alpha_{T-1} \mathbb{E}[\log \pi_{T-1}(a_{T-1} \mid s_{T-1})] \right) &amp;&amp; \text{by Equation } \eqref{eq:dual} \\
+
+    &amp;= \min_{\alpha_{T-1} \geq 0} \max_{\pi_{T-1}} \Big( \mathbb{E} \left[ R(s_{T-1}, a_{T-1})
+    + \gamma \left( Q_T^*(s_T, a_T) - \alpha_T^* \log \pi_T^*(a_T \mid s_T) \right) \right] \\
+    &amp;\quad\quad - \alpha_{T-1} \mathcal{H}_0 - \alpha_{T-1} \mathbb{E}[\log \pi_{T-1}(a_{T-1} \mid s_{T-1})] \Big) &amp;&amp; \text{by Equation } \eqref{eq:state-value-entropy} \\
+
+    &amp;= \min_{\alpha_{T-1} \geq 0} \max_{\pi_{T-1}} \Big( \mathbb{E} \left[ Q_{T-1}^*(s_{T-1}, a_{T-1}) \right]
+    - \alpha_{T-1} \mathcal{H}_0 - \alpha_{T-1} \mathbb{E}[\log \pi_{T-1}(a_{T-1} \mid s_{T-1})] \Big) &amp;&amp; \text{by Equation } \eqref{eq:soft-Q} \\
+
+    &amp;= \min_{\alpha_{T-1} \geq 0} \max_{\pi_{T-1}} \Big( \mathbb{E} \left[ Q_{T-1}^*(s_{T-1}, a_{T-1})
+      - \alpha_{T-1} \log \pi_{T-1}(a_{T-1} \mid s_{T-1}) \right] - \alpha_{T-1} \mathcal{H}_0 \Big) \;.
+\end{align*}
+\]
+</p><p>As in Equations \(\eqref{eq:optimal-policy}\) and \(\eqref{eq:optimal-dual}\), the optimal policy and dual variable at time step \(T-1\) are:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \pi_{T-1}^* &amp;= \arg\max_{\pi_{T-1}} \mathbb{E}_{(s_{T-1}, a_{T-1}) \sim \rho_{\pi_{T-1}}} \left[ Q_{T-1}^*(s_{T-1}, a_{T-1}) - \alpha_{T-1} \log \pi_{T-1}(a_{T-1} \mid s_{T-1}) \right] - \alpha_{T-1} \mathcal{H}_0 \nonumber \\
+    \alpha_{T-1}^* &amp;= \arg\min_{\alpha_{T-1} \geq 0} \mathbb{E}_{(s_{T-1}, a_{T-1}) \sim \rho_{\pi_{T-1}^*}} \left[ - \alpha_{T-1} \log \pi_{T-1}^*(a_{T-1} \mid s_{T-1}; \alpha_{T-1}) - \alpha_{T-1} \mathcal{H}_0 \right]
+    \;. \label{eq:T-1-optimal-dual}
+\end{align}
+\]
+</p><p>Equation \(\eqref{eq:T-1-optimal-dual}\) can generalize as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \alpha_t^* = \arg\min_{\alpha_t \geq 0} \mathbb{E}_{(s_t, a_t) \sim \rho_{\pi^*}} [- \alpha_t \log \pi_t^*(a_t \mid s_t; \alpha_t) - \alpha_t \mathcal{H}_0] \;,
+\end{equation*}
+\]
+</p><p>thus defining the automated entropy objective.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/sac/sac-with-automated-entropy.png" alt="soft actor-critic with automated entropy" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<h3>Practical Implementation</h3>
+<p>To mitigate <a href="glossary.html" target=&ldquo;blank&rdquo;>overestimation bias</a>, SAC uses two independently trained soft Q-functions parameterized by \(\theta_1\) and \(\theta_2\), each optimized using \(J_Q(\theta_i)\). The minimum of the two serves as the target for the stochastic gradient in Equations \(\eqref{eq:critic-loss}\) and \(\eqref{eq:sac-policy-objective}\). This technique is inspired by <a href="td3.html" target=&ldquo;blank&rdquo;>TD3</a>.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/sac/sac.png" alt="soft actor-critic pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<h3>References</h3>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1801.01290.pdf" target=&ldquo;blank&rdquo;>Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with
+a Stochastic Actor</a>, International conference on machine learning (2018)</dt>
+<dd><p>Tuomas Haarnoja, Aurick Zhou, Pieter Abbeel,
+and Sergey Levine
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1812.05905.pdf" target=&ldquo;blank&rdquo;>Soft Actor-Critic Algorithms and Applications</a> (2019)</dt>
+<dd><p>Tuomas Haarnoja,
+Aurick Zhou, Kristian Hartikainen, George Tucker, Sehoon Ha, Jie Tan, Vikash Kumar, Henry Zhu, Abhishek Gupta, Pieter
+Abbeel, and Sergey Levine
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://spinningup.openai.com/en/latest/algorithms/sac.html" target=&ldquo;blank&rdquo;>Soft Actor-Critic</a> (2020)</dt>
+<dd><p>Open AI
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://lilianweng.github.io/posts/2018-04-08-policy-gradient/" target=&ldquo;blank&rdquo;>Policy Gradient Algorithms</a> (2018)</dt>
+<dd><p>Lilian Weng
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

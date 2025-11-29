@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Dynamic Programming for Solving MDPs</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html" class="current">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Dynamic Programming for Solving MDPs</h1>
+</div>
+<p><i>Revised October 15, 2024</i>
+</p>
+<p><i>The <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>value functions and policies note</a> is optional but recommended background reading.</i>
+</p>
+<p><i>Dynamic programming</i> (DP) is a method for solving complex problems by decomposing them into simpler subproblems. A problem is suitable for DP if it exhibits <a href="glossary.html" target=&ldquo;blank&rdquo;>optimal substructure</a>, where the optimal solution can be constructed from the solutions of its subproblems, and <a href="glossary.html" target=&ldquo;blank&rdquo;>overlapping subproblems</a>, where the same subproblem recurs and is solved multiple times, often through recursion. In RL, the Bellman optimality equations provide this structure, enabling the determination of the optimal value function.
+</p>
+<h3>Policy Iteration</h3>
+<p>Policy Iteration identifies an optimal policy by iteratively evaluating and improving an initial arbitrary policy. The algorithm proceeds as follows: initialize a policy \(\pi_0\) and assign arbitrary values to \(V(s)\) for all states \(s \in \mathcal{S}\). In each iteration \(k &gt; 0\), evaluate the current policy \(\pi_k\) for all \(s \in \mathcal{S}\) using the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>state-value Bellman expectation equation</a>, yielding \(V_{\pi_k}\). From \(V_{\pi_k}\), derive an improved policy \(\pi_{k+1}\) as the greedy policy with respect to \(V_{\pi_k}\). This process is represented as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \pi_0 \xrightarrow{\text{evaluation}} V_{\pi_0} \xrightarrow{\text{improvement}} \pi_1
+    \xrightarrow{\text{evaluation}} V_{\pi_1} \xrightarrow{\text{improvement}} \pi_2
+    \xrightarrow{\text{evaluation}} \dots \xrightarrow{\text{improvement}} \pi_* \xrightarrow{\text{evaluation}} V_* \; .
+\end{equation*}
+\]
+</p><p>In the &ldquo;evaluation&rdquo; step, the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>state-value Bellman expectation equation</a> is used to assess the current policy. In the &ldquo;improvement&rdquo; step, a new policy is defined as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \pi_{k+1}(s) \gets \text{argmax}_{a} \left( R(s, a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) V_{\pi_k}(s&rsquo;) \right) \;.
+\end{equation*}
+\]
+</p><table class="imgtable"><tr><td>
+<img src="static/images/dp-for-mdps/policy_iteration.png" alt="Policy Iteration pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<h3>Value Iteration</h3>
+<p>Policy Iteration requires a policy evaluation step in each iteration (see line 2 of the pseudocode). Policy evaluation itself is an iterative process, often necessitating multiple passes through the state set (as outlined in lines 2-9 above). <i>Value Iteration</i>, by contrast, ceases policy evaluation after a single pass through the state set.
+</p>
+<p>From the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>state-value Bellman optimality equation</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:sv_opt_bellman}
+    V_* (s) = \max_{a} \left( R(s,a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s,a,s&rsquo;) V_* (s&rsquo;) \right) \;,
+\end{equation}
+\]
+</p><p>we observe that, given the solution for \(V_*(s&rsquo;)\), determining \(V_*(s)\) becomes trivial. Thus, by first assigning values to the terminal states, we can work backwards to compute the optimal value for all preceding states. This principle underpins Value Iteration.
+</p>
+<p>Starting from terminal states and working backwards is straightforward in acyclic MDPs. However, in cyclic MDPs, a challenge arises. As expressed in the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>state-value Bellman expectation equation</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:sv_bellman}
+    V_\pi (s) = \sum_{a \in \mathcal{A}} \pi(a \mid s) \left( R(s,a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s,a,s&rsquo;) V_\pi (s&rsquo;) \right) \;,
+\end{equation}
+\]
+</p><p>to determine the value of any state, we must know the values of all possible subsequent states. Since the values of non-terminal states are not known a priori, we cannot directly use this equation to compute state values. Without knowledge of \(V_*(s&rsquo;)\), we cannot work backwards from terminal states to compute \(V_*(s)\).
+</p>
+<p>This issue is easily resolved by initializing arbitrary values for non-terminal states and iterating through the state set until convergence. Specifically, we update the value function by iterating over all states and computing each state's value using the greedy action with respect to the current value function:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    V(s) \gets \max_{a} \left( R(s,a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s,a,s&rsquo;) V(s&rsquo;) \right) \;,
+\end{equation*}
+\]
+</p><p>until convergence. In effect, we transform the Bellman optimality Equation \(\eqref{eq:sv_opt_bellman}\) into an iterative update rule.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/dp-for-mdps/value_iteration.png" alt="Value Iteration pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>Policy Iteration and Value Iteration both operate on a key principle: they update the estimated value of a current state based on the estimated values of future states (see line 6 in the Value Iteration pseudocode, for example). This concept, known as <i><a href="glossary.html" target=&ldquo;blank&rdquo;>bootstrapping</a></i>, is fundamental to many RL algorithms.
+</p>
+<h3>Generalized Policy Iteration</h3>
+<p>Policy Iteration and Value Iteration address two fundamental subproblems: policy evaluation, which estimates \(V_\pi\), and policy improvement, which generates a new policy \(\pi'\) by making the current policy \(\pi\) greedy with respect to \(V_\pi\). In Policy Iteration, this distinction is explicit. In Value Iteration, it is less obvious. However, it becomes clearer when recognizing that Value Iteration is a special case of Policy Iteration, characterized by a single policy evaluation step followed immediately by policy improvement. Indeed, most reinforcement learning methods depend on the sequential application of policy evaluation and policy improvement.
+</p>
+<p>By definition, any change in a policy \(\pi\) influences the actions chosen in a state \(s\). According to Equation \(\eqref{eq:sv_bellman}\), modifying \(\pi\) also affects the value of state \(s\). Since the value of a state \(V(s)\) is defined as the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>discounted sum of future rewards</a>, changing the state's value impacts the values of other states. Therefore, adjusting \(\pi\) changes the entire value function \(V\). As \(V\) updates, the best actions change as a consequence, meaning the policy must be modified. This cycle of updating the policy and its corresponding value function is known as <i>generalized Policy Iteration</i> (GPI).
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/dp-for-mdps/gpi.png" alt="Generalized Policy Iteration" width="350px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<table id="caption">
+<tr class="r1"><td class="c1">Image from <a href="http://incompleteideas.net/book/the-book-2nd.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction</a> (2018) Richard S. Sutton and Andrew G. Barto
+</td></tr></table>
+<p>Once the two processes stabilize — when \(V_\pi\) is consistent with \(\pi\), and \(\pi\) is greedy with respect to \(V_\pi\), satisfying the Bellman optimality equation — the policy and value function are jointly optimal.
+</p>
+<h3>Proofs</h3>
+<p>Both Policy and Value Iteration are guaranteed to converge to the optimal policy. The intuition for Policy Iteration is as follows: since \(\pi_{k+1}\) is strictly better than \(\pi_k\) (unless converged), each policy is unique. In a finite MDP, where \(|\mathcal{S}| &lt; \infty\) and \(|\mathcal{A}| &lt; \infty\), convergence is guaranteed after at most \(|\mathcal{A}|^{|\mathcal{S}|}\) iterations. This figure represents the total number of possible policies, each corresponding to a unique assignment of actions across all states. Since Policy Iteration improves the policy in each step, and no policy is revisited, it must converge at or before all possible policies have been evaluated. At convergence, \(\pi_{k+1} = \pi_k\), meaning \(\pi_{k+1}\) is not an improvement over \(\pi_{k}\) indicating \(\pi_{k}\) is a greedy policy, selecting actions that maximize expected rewards. Therefore,
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    V_{\pi_k} = \max_{a} \left[ R(s,a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s,a,s&rsquo;) V_{\pi_k} (s&rsquo;) \right] \;,
+\end{equation*}
+\]
+</p><p>which satisfies the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Bellman optimality equation</a>. A more formal proof is given in the <a href="policy-and-value-iteration-proofs.html" target=&ldquo;blank&rdquo;>DP proofs note</a>.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://www.davidsilver.uk/teaching/" target=&ldquo;blank&rdquo;>Planning by Dynamic Programming</a>,
+Lectures on Reinforcement Learning (2015)</dt>
+<dd><p>David Silver
+</p></dd>
+</dl>
+<dl>
+<dt><a href="http://incompleteideas.net/book/the-book-2nd.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction</a>
+(2018)</dt>
+<dd><p>Richard S. Sutton and Andrew G. Barto
+</p></dd>
+</dl>
+<dl>
+<dt>Introduction to Algorithms, Third Edition (2009)</dt>
+<dd><p>Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and Clifford Stein
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://sites.ualberta.ca/~szepesva/rlbook.html" target=&ldquo;blank&rdquo;>Algorithms for Reinforcement Learning</a>,
+Synthesis Lectures on Artificial Intelligence and Machine Learning (2019)</dt>
+<dd><p>Csaba Szepesvari
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://yuanz.web.illinois.edu/teaching/IE498fa19/lec_16.pdf" target=&ldquo;blank&rdquo;>Value Iteration, Policy Iteration and
+Policy Gradient</a>, Online Learning and Decision Making, (2019)</dt>
+<dd><p>Yuan Zhou
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://people.eecs.berkeley.edu/~pabbeel/cs287-fa12/" target=&ldquo;blank&rdquo;>Markov Decision Processes and Exact Solution Methods</a>,
+UC Berkeley CS287 Advanced Robotics (2012)</dt>
+<dd><p>Pieter Abbeel
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.fi.muni.cz/~xivora/files/Chapter4_Dynamic_Programming.pdf" target=&ldquo;blank&rdquo;>Dynamic Programming</a> (2021)</dt>
+<dd><p>Adam Ivora
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

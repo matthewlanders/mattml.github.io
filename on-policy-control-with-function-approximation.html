@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>On-Policy Control with Function Approximation</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html" class="current">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>On-Policy Control with Function Approximation</h1>
+</div>
+<p><i>Revised November 4, 2024</i>
+</p>
+<p><i>The <a href="model-free-control.html" target=&ldquo;blank&rdquo;>Model-Free Control note</a> is optional but recommended background reading.</i>
+</p>
+<p>Control with function approximation requires distinct treatment of on-policy and off-policy approaches, as tabular methods extend more naturally to the on-policy domain. This note focuses exclusively on on-policy methods, where despite parallels with tabular control, theoretical distinctions arise. Most notably, while episodic tasks allow for straightforward generalization of tabular methods, continuing tasks require a fundamental reexamination of discounting's role in defining optimal policies.
+</p>
+<h3>Episodic Tasks</h3>
+<p>In <a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>prediction with function approximation</a>, we use <a href="backpropagation.html" target=&ldquo;blank&rdquo;>stochastic gradient descent</a> (SGD) to find the weight vector \(\theta\) that minimizes mean squared error between the approximate state-value function \(\hat{V}(\theta)\) and the true state-value function \(V_\pi\). This approach extends naturally to episodic control with function approximation, with one key distinction: since control methods <a href="model-free-control.html" target=&ldquo;blank&rdquo;>evaluate state-action pairs</a>, the update target includes the state-action value function \(Q_\pi(s_t,a_t)\). It thus follows that the SGD update for episodic control closely resembles the prediction update, only replacing \(\hat{V}(\theta)\) with \(\hat{Q}(\theta)\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \theta_{t+1} = \theta_t + \alpha \left[ r_{t+1} + \gamma \hat{Q}(s_{t+1}, a_{t+1}; \theta_t) - \hat{Q}(s_t, a_t; \theta_t) \right] \nabla \hat{Q}(s_t, a_t; \theta_t) \;.
+\end{equation*}
+\]
+</p><p>To estimate the optimal action-value function \(Q_*\), we can reuse our <a href="model-free-control.html" target=&ldquo;blank&rdquo;>tabular algorithms</a> with small modifications. In semi-gradient SARSA, for example, we determine the greedy action \(a_{t+1}^* = \text{arg}\max_{a} \hat{Q}(s_{t+1}, a; \theta_t)\) by evaluating \(\hat{Q}(s_{t+1}, a; \theta_t)\) for all possible actions \(a\) in state \(s_{t+1}\), followed by \(\epsilon\)-greedy action selection for policy improvement:
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/control-with-approx/semi-gradient_sarsa.png" alt="semi-gradient sarsa pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>This approach, while effective, necessitates discrete and manageable action spaces due to the exhaustive evaluation of actions in \(s_{t+1}\). For continuous or large discrete action spaces, more sophisticated techniques are necessary.
+</p>
+<h3>Continuing Tasks</h3>
+<p>In continuing tasks with function approximation, returns are defined in terms of average rewards rather than the typical discounted rewards.
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    R(\pi) &amp;= \lim_{H \rightarrow \infty} \frac{1}{H} \sum_{t=1}^H \mathbb{E} \left[ r_t \mid s_0, a_{0:t-1} \sim \pi \right] \label{eq:ar1} \\
+    &amp;= \lim_{t \rightarrow \infty} \mathbb{E} \left[ r_t \mid s_0, a_{0:t-1} \sim \pi \right] \label{eq:ar2} \\
+    &amp;= \sum_s \mu_\pi(s) \sum_a \pi(a \mid s) R(s,a) \;, \label{eq:ar3}
+\end{align}
+\]
+</p><p>where \(H\) is the horizon length, \(\mu_\pi(s)\) is the <a href="glossary.html" target=&ldquo;blank&rdquo;>on-policy distribution</a>, and the expectations are computed given the initial state \(s_0\) and the sequence of actions \(a_{0:t-1} = a_0, a_1, \dots, a_{t-1}\) generated by policy \(\pi\).
+</p>
+<p>The equivalence of Equation \(\eqref{eq:ar2}\) and Equation \(\eqref{eq:ar3}\) holds when the MDP is <a href="glossary.html" target=&ldquo;blank&rdquo;>ergodic</a>, meaning a <a href="glossary.html" target=&ldquo;blank&rdquo;>steady-state distribution</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:ss-dist}
+   \sum_s \mu_\pi(s) \sum_a \pi(a \mid s) P(s&rsquo; \mid s,a) = \mu_\pi(s&rsquo;) \;,
+\end{equation}
+\]
+</p><p>exists and is independent of \(s_0\). In an ergodic MDP, the influence of the initial state and early actions diminishes over time. Thus, in the long run, the likelihood of being in any given state depends only on the policy \(\pi\) and the MDP's transition dynamics. This characteristic ensures that the average reward formulation accurately captures the expected behavior of the system as the horizon tends towards infinity.
+</p>
+<p>When using average rewards, we redefine returns in terms of the <i>differential return</i>, which represents the cumulative difference between individual rewards and the average reward:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    G_t &amp;= r_{t+1} - R(\pi) + r_{t+2} - R(\pi) + \cdots \\
+    &amp;= \sum_{k=0}^\infty \left( r_{t+k+1} - R(\pi) \right) \;.
+\end{align*}
+\]
+</p><p>Although this formulation differs from <a href="mdp.html" target=&ldquo;blank&rdquo;>discounted returns</a>, the Bellman equations retain their structure, with only minor adjustments: the discount factor \(\gamma\) is eliminated, and raw rewards are replaced by their deviation from the true average reward. For instance, the <a href="glossary.html" target=&ldquo;blank&rdquo;>action-value Bellman expectation equation</a> and <a href="glossary.html" target=&ldquo;blank&rdquo;>action-value Bellman optimality equation</a> function now takes the form:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    Q_\pi(s, a) = R(s, a) - R(\pi) + \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;) \left( \sum_{a&rsquo; \in \mathcal{A}} \pi(a&rsquo; \mid s&rsquo;) Q_\pi(s&rsquo;, a&rsquo;) \right) \\
+    \;.
+\end{equation*}
+\]
+</p><p>and
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    Q_*(s, a) = R(s, a) - \max_\pi R(\pi) + \sum_{s&rsquo; \in \mathcal{S}} P(s, a, s&rsquo;)  \max_{a&rsquo;} Q_*(s&rsquo;, a&rsquo;) \;,
+\end{equation*}
+\]
+</p><p>respectively.
+</p>
+<p>This change is also reflected in the <a href="model-free-prediction.html" target=&ldquo;blank&rdquo;>TD error</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:differential-td}
+    \delta_t = r_{t+1} - \hat{R}_t(\pi) + \hat{Q}(s_{t+1}, a_{t+1}; \theta_t) - \hat{Q}(s_t, a_t; \theta_t) \;,
+\end{equation}
+\]
+</p><p>where \(\hat{R}_t(\pi)\) is the estimated average reward \(R(\pi)\) at time \(t\).
+</p>
+<p>In the average reward setting, we can retain the structure of our semi-gradient SARSA algorithm by simply substituting the standard TD error with the differential version:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \theta_{t+1} = \theta_t + \alpha \delta_t \nabla \hat{Q}(s_t, a_t; \theta_t) \;,
+\end{equation*}
+\]
+</p><p>with \(\delta_t\) given by Equation \(\eqref{eq:differential-td}\).
+</p>
+<p>Discounted rewards are replaced by average rewards in this setting because continuing tasks lack a definitive &ldquo;beginning&rdquo; or &ldquo;end&rdquo;; they are infinite, with no terminal states to define fixed reference points. As a result, agent performance can only be evaluated through the temporal sequences of rewards and actions, naturally leading to the averaging approach formalized in Equation \(\eqref{eq:ar1}\). While discounting can technically be applied to the average reward, the average of discounted rewards is strictly proportional to the non-discounted average reward \(R(\pi)/(1 - \gamma)\). This proportionality can be demonstrated as follows:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    J(\pi) &amp;= \sum_s \mu_\pi(s) V_\pi^\gamma(s) &amp;&amp; \text{where } V_\pi^\gamma \text{ is the discounted value function} \\
+    &amp;= \sum_s \mu_\pi(s) \sum_a \pi(a \mid s) \left[ R(s, a) + \gamma \sum_{s&rsquo;} P(s&rsquo; \mid s, a) V_\pi^\gamma(s&rsquo;) \right] &amp;&amp; \text{Bellman equation} \\
+    &amp;= \sum_s \mu_\pi(s) \sum_a \pi(a \mid s) R(s, a) + \gamma \sum_s \mu_\pi(s) \sum_a \pi(a \mid s) \sum_{s&rsquo;} P(s&rsquo; \mid s, a) V_\pi^\gamma(s&rsquo;) &amp;&amp; \text{distributing terms} \\
+    &amp;= R(\pi) + \gamma \sum_{s&rsquo;} V_\pi^\gamma(s&rsquo;) \sum_s \mu_\pi(s) \sum_a \pi(a \mid s) P(s&rsquo; \mid s, a) &amp;&amp; \text{by Equation \eqref{eq:ar3}} \\
+    &amp;= R(\pi) + \gamma \sum_{s&rsquo;} V_\pi^\gamma(s&rsquo;) \mu_\pi(s&rsquo;) &amp;&amp; \text{by Equation } \eqref{eq:ss-dist} \\
+    &amp;= R(\pi) + \gamma J(\pi)  &amp;&amp; \text{by definition of } J(\pi) \;.
+\end{align*}
+\]
+</p><p>From here, we solve for \(J(\pi)\) algebraically:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    J(\pi) &amp;= R(\pi) + \gamma J(\pi) \\
+    J(\pi) - \gamma J(\pi) &amp;= R(\pi) \\
+    (1 - \gamma) J(\pi) &amp;= R(\pi) \\
+    J(\pi) &amp;= \frac{1}{1 - \gamma} R(\pi) \;.
+\end{align*}
+\]
+</p><p>Thus, for any \(\gamma \in [0,1)\), the relative ranking of policies under the average discounted formulation is identical to that under the average-reward formulation, since the objectives differ only by a scaling factor.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="http://incompleteideas.net/book/the-book-2nd.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction</a> (2018)</dt>
+<dd><p>Richard S. Sutton and Andrew G. Barto
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://proceedings.neurips.cc/paper/2007/file/0f840be9b8db4d3fbd5ba2ce59211f55-Paper.pdf" target=&ldquo;blank&rdquo;>Reinforcement Learning in Continuous Action Spaces through Sequential Monte Carlo Methods</a> (2007)</dt>
+<dd><p>Alessandro Lazaric, Marcello Restelli, and Andrea Bonarini
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.esann.org/sites/default/files/proceedings/legacy/es2014-175.pdf" target=&ldquo;blank&rdquo;>Application of Newton's Method to action selection in continuous state-and action-space reinforcement learning</a> (2014)</dt>
+<dd><p>Barry D. Nichols and Dimitris C. Dracopoulos
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://core.ac.uk/download/pdf/42491095.pdf" target=&ldquo;blank&rdquo;>A comparison of action selection methods for implicit policy method reinforcement learning in continuous action-space</a> (2016)</dt>
+<dd><p>Barry D. Nichols
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

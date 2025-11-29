@@ -1,0 +1,179 @@
+# jemdoc: menu{MENU}{reparameterization-trick.html}
+= The Reparameterization Trick
+
+/Revised January 29, 2025/
+
+Consider a generic expectation $\mathbb{E}_{z \sim p}[f(z; \theta)]$, where $p$ is a density function. The gradient of this expectation with respect to $\theta$ can be computed as:
+
+\(
+\begin{align}
+     \nabla_\theta \mathbb{E}_{z \sim p}[f(z; \theta)] &= \nabla_\theta \left[ \int_z p(z) f(z; \theta) \, dz \right] \nonumber \\
+     &= \int_z p(z) \nabla_\theta f(z; \theta) \, dz && \text{by linearity of integration} \nonumber \\
+     &= \mathbb{E}_{z \sim p} \left[\nabla_\theta f(z; \theta) \right] \;. \label{eq:independent-density}
+\end{align}
+\)
+
+Thus demonstrating that the gradient of the expectation is equivalent to the expectation of the gradient when the density $p$ is independent of $\theta$. However, if $p$ is parameterized by $\theta$, the computation becomes more involved:
+
+\(
+\begin{align}
+     \nabla_\theta \mathbb{E}_{z \sim p_\theta}[f(z; \theta)] &= \nabla_\theta \left[ \int_z p(z; \theta) f(z; \theta) \, dz \right] \label{eq:reparameterization-1} \\
+     &= \int_z \nabla_\theta \left[ p(z; \theta) f(z; \theta) \right] \, dz \nonumber \\
+     &= \color{red}{\int_z f(z; \theta) \nabla_\theta p(z; \theta) \, dz} + \color{blue}{\int_z p(z; \theta) \nabla_\theta f(z; \theta) \, dz} && \text{by the product rule} \label{eq:reparameterization-2} \\
+\end{align}
+\)
+
+In practice, directly computing the integrals in Equation $\eqref{eq:reparameterization-2}$ is often intractable, particularly in high-dimensional settings. Instead, these integrals are typically re-expressed as expectations, which can be approximated via Monte Carlo methods. This reformulation is straightforward for the blue term, as it naturally takes the form of an expectation:
+
+\(
+\begin{align}
+    \int_z p(z; \theta) \nabla_\theta f(z; \theta) \, dz &= \mathbb{E}_{z \sim p_\theta} \left[\nabla_\theta f(z; \theta) \right] \label{eq:blue-expectation} \\
+    &\approx \frac{1}{N} \sum_{i=1}^N \nabla_\theta f(z_i; \theta) \nonumber \;,
+\end{align}
+\)
+where $z_i \sim p_\theta$ and $\nabla_\theta f(z; \theta) = \left[ \frac{\partial f(z; \theta)}{\partial \theta_1}, \frac{\partial f(z; \theta)}{\partial \theta_2}, \dots, \frac{\partial f(z; \theta)}{\partial \theta_d} \right]^\top$. This Monte Carlo approximation provides an [glossary.html unbiased] estimate of the gradient, making it practical for stochastic optimization methods such as [backpropagation.html gradient descent].
+
+To estimate the red term in Equation $\eqref{eq:reparameterization-2}$, we could similarly sample $z_i \sim p_\theta$, compute $f(z_i; \theta)\nabla_\theta p(z_i; \theta)$, and take the average over $i = 1, \dots, N$:
+
+\(
+\begin{equation}\label{eq:naive-estimate}
+    \frac{1}{N} \sum_{i=1}^N f(z_i; \theta) \nabla_\theta p(z_i; \theta) \;.
+\end{equation}
+\)
+
+While seemingly intuitive, this approach is biased. For an estimator to be unbiased, its expectation must equal the true value of the parameter being estimated (in this case, the red term in Equation $\eqref{eq:reparameterization-2}$). However, evaluating the expectation of Equation $\eqref{eq:naive-estimate}$ gives:
+
+\(
+\begin{equation*}
+    \mathbb{E} \left[\frac{1}{N} \sum_{i=1}^N f(z_i; \theta) \nabla_\theta p(z_i; \theta)\right]
+    = \int \color{green}{p(z; \theta)} f(z; \theta) \nabla_\theta p(z; \theta) \,dz
+    \; \neq \color{red}{\int f(z; \theta) \nabla_\theta p(z; \theta) \,dz} \;.
+\end{equation*}
+\)
+
+This expression introduces an *extra* factor of $p(z; \theta)$ (highlighted in green) in the integrand. Consequently, the naive sample-average in Equation $\eqref{eq:naive-estimate}$ is actually an unbiased estimator of:
+
+\(
+\begin{equation*}
+    \int p(z; \theta) f(z; \theta) \nabla_\theta p(z; \theta) \, dz \;.
+\end{equation*}
+\)
+
+~~~
+*From where does the extra factor of $p(z; \theta)$ come?*
+
+The expected value of an estimator $\phi$ (some function of $z$) with respect to the probability distribution $p(z; \theta)$ is defined as:
+
+\(
+\begin{equation}\label{eq:expectation-definition}
+    \mathbb{E}_{z \sim p_\theta} \left[ \phi(z) \right] = \int \underbrace{p(z; \theta)}_{\text{pdf}}
+    \; \underbrace{\phi(z)}_{\text{integrand}} \, dz \;.
+\end{equation}
+\)
+
+Here, the probability density function $p(z; \theta)$ determines how different values of $z$ contribute to the integral, effectively acting as a *weighting* function, while the function $\phi(z)$ is the quantity being integrated over $z$. The product $p(z; \theta) \phi(z)$ under the integral *defines* the expected value of $\phi(z)$ when $z$ is sampled from $p_\theta$. When approximating this expectation via sampling, the density term $p(z; \theta)$ does not appear in the sum as random draws from $p_\theta$ inherently account for the weighting — values of $z$ with higher probability density occur more frequently in the sample (it is by this definition that the $p(z; \theta)$ disappears in Equation $\eqref{eq:blue-expectation}$).
+
+This concept also provides the intuition behind [importance-sampling.html importance sampling] where we estimate the value of an integral with respect to the probability distribution $p_\theta$, but samples are drawn from a different distribution $b$. To account for the discrepancy between $b$ and $p_\theta$, we introduce a weighting term:
+
+\(
+\begin{equation*}
+    \int \phi(z) p(z; \theta) \, dz = \int \phi(z) \frac{p(z; \theta)}{b(z)} b(z) \, dz
+    = \mathbb{E}_{z \sim b} \left[ \frac{p(z; \theta)}{b(z)} \phi(z) \right] \;.
+\end{equation*}
+\)
+~~~
+
+By the definition of an expectation (Equation $\eqref{eq:expectation-definition}$), obtaining an unbiased estimator of the red term in Equation $\eqref{eq:reparameterization-2}$ requires an integrand of the form "$p(z; \theta) \times$ something". The [policy-gradients.html log-derivative trick] enables precisely this reformulation:
+
+\(
+\begin{align*}
+    \int f(z;\theta)\,\nabla_\theta p(z; \theta)\,dz &= \int f(z;\theta)\,p(z; \theta)\,\nabla_\theta \log p(z; \theta) \,dz
+    && \text{by the log-derivative trick} \\
+
+
+    &= \mathbb{E}_{z \sim p_\theta} \left[ f(z;\theta) \nabla_\theta \log p(z; \theta) \right] \\
+    &\approx \frac{1}{N} \sum_{i=1}^N f(z_i;\theta) \nabla_\theta \log p(z_i; \theta) \;.
+\end{align*}
+\)
+
+This estimator involves the term $f(z; \theta) \nabla_\theta \log p(z; \theta)$. Notably, $\nabla_\theta \log p(z; \theta)$ can be large or exhibit significant fluctuations — particularly in high-dimensional parameter spaces — leading to *high variance* in the estimator.
+
+=== The Reparameterization Trick
+
+The reparameterization trick reduces variance by expressing the random variable $z \sim p_\theta$ as a deterministic function $g$ of $\theta$ and an auxiliary random variable $\epsilon$ drawn from a *distribution independent of $\theta$*:
+
+\(
+\begin{align*}
+    \epsilon &\sim p(\epsilon) \;, \\
+    z &= g(\epsilon; \theta) \; .
+\end{align*}
+\)
+
+That is, rather than sampling $z$ directly from the $\theta$-dependent distribution $p_\theta$, we instead sample $\epsilon$ from a *fixed* distribution $p(\epsilon)$ (independent of $\theta$) and define $z$ as a transformation of $\epsilon$ and $\theta$. For example, if $z$ is drawn from a Gaussian distribution with mean $\mu(\theta)$ and standard deviation $\sigma(\theta)$, we can reparameterize it as:
+
+\(
+\begin{equation*}
+    z = g(\epsilon; \theta) = \mu(\theta) + \sigma(\theta) \epsilon \;,
+\end{equation*}
+\)
+where $\epsilon \sim \mathcal{N}(0, 1)$.
+
+After reparameterizing $z$ as $g(\epsilon; \theta)$, the expectation is reformulated:
+
+\(
+\begin{equation*}
+    \mathbb{E}_{z \sim p_\theta}[f(z; \theta)] = \mathbb{E}_{\epsilon \sim p(\epsilon)}[f(g(\epsilon; \theta);\theta)] \;.
+\end{equation*}
+\)
+
+This transformation allows the gradient with respect to $\theta$ to be computed directly:
+
+\(
+\begin{align}
+    \nabla_\theta \mathbb{E}_{z \sim p_\theta}[f(z; \theta)] &= \nabla_\theta \mathbb{E}_{\epsilon \sim p(\epsilon)} \left[f \left(g(\epsilon; \theta);\theta \right) \right] \nonumber \\
+    &= \mathbb{E}_{\epsilon \sim p(\epsilon)} \left[\nabla_\theta \left( f \left(g(\epsilon; \theta) ;\theta \right) \right) \right] \label{eq:expectation-of-gradient} \\
+    &= \mathbb{E}_{\epsilon \sim p(\epsilon)} \left[\nabla_z f(z; \theta)\big|_{z=g} \cdot \nabla_\theta g(\epsilon; \theta) + \frac{\partial f(z; \theta)}{\partial \theta} \right] \nonumber \;.
+\end{align}
+\)
+
+=== Summarizing the Benefits of the Reparameterization Trick
+
+In Equation $\eqref{eq:reparameterization-1}$, the gradient operator $\nabla_\theta$ influences both the function $f(z; \theta)$ and the distribution $p(z; \theta)$ from which $z$ is sampled. This dual dependence prevents the gradient from being moved inside the expectation, as it is generally *not* true that the /gradient of the expectation/:
+
+\(
+\begin{equation*}
+    \nabla_\theta \mathbb{E}_{z \sim p_\theta}[f(z; \theta)]
+\end{equation*}
+\)
+
+is equal to the /expectation of the gradient/:
+
+\(
+\begin{equation*}
+    \mathbb{E}_{z \sim p_\theta}[\nabla_\theta f(z; \theta)] \;.
+\end{equation*}
+\)
+
+The gradient of the expectation accounts for how variations in $\theta$ affect both $f(z; \theta)$ *and* the distribution $p(z; \theta)$, while the expectation of the gradient captures only the direct dependence of $f(z; \theta)$ on $\theta$, ignoring its effect on $p(z; \theta)$.
+
+Thus, to correctly compute $\nabla_\theta \mathbb{E}_{z \sim p_\theta}[f(z; \theta)]$, we must account for the dependence of $p(z; \theta)$ on $\theta$. This can be achieved using the log-derivative trick, which states:
+
+\(
+\begin{equation*}
+    \nabla_\theta \mathbb{E}_{z \sim p_\theta}[f(z; \theta)] = \mathbb{E}_{z \sim p_\theta}[f(z; \theta) \nabla_\theta \log p(z; \theta) + \nabla_\theta f(z;\theta)] \;.
+\end{equation*}
+\)
+
+While the term $\nabla_\theta \log p(z; \theta)$ captures how variations in $\theta$ influence the distribution $p(z; \theta)$, this estimator often exhibits high variance, which can make optimization inefficient.
+
+The reparameterization trick replaces the randomness induced by the model parameters $\theta$ with an external source of randomness $\epsilon$. Since $\epsilon$ is independent of $\theta$, the gradient operator $\nabla_\theta$ no longer affects the distribution $p(\epsilon)$. Consequently, we can move the gradient inside the expectation in Equation $\eqref{eq:expectation-of-gradient}$ (as in Equation $\eqref{eq:independent-density}$), which enables direct computation of $\nabla_\theta f(g(\epsilon; \theta);\theta)$ via backpropagation.
+
+In effect, the reparameterization trick eliminates the need for the derivation that produced the red term in Equation $\eqref{eq:reparameterization-2}$. Consequently, it avoids the reliance on the log-derivative trick and its inherently high-variance gradient estimates.
+
+=== References
+
+: {[https://gregorygundersen.com/blog/2018/04/29/reparameterization/ The Reparameterization Trick] (2018)} Gregory Gundersen
+
+: {[https://arxiv.org/pdf/1812.05905.pdf Soft Actor-Critic Algorithms and Applications] (2019)} Tuomas Haarnoja,
+Aurick Zhou, Kristian Hartikainen, George Tucker, Sehoon Ha, Jie Tan, Vikash Kumar, Henry Zhu, Abhishek Gupta, Pieter
+Abbeel, and Sergey Levine

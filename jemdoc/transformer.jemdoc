@@ -1,0 +1,648 @@
+# jemdoc: menu{MENU}{transformer.html}
+= Transformer
+
+/Revised March 6, 2025/
+
+/The [backpropagation.html Backpropagation note] is optional but recommended background reading./
+
+A Transformer is a deep neural network architecture that uses an attention mechanism to model long-range dependencies in parallel across a sequence. It comprises four fundamental components: input embedding, attention, feed-forward network (MLP), and positional encoding. This note examines each element independently before detailing how they interact. While the description focuses on language applications — where Transformers are most intuitive and widely used — the concepts generalize to other modalities.
+
+=== Input Embeddings
+
+Neural networks operate on continuous-valued vectors rather than raw text. Therefore, natural language inputs are mapped from a vocabulary $\mathcal{V}$ to a corresponding embedding vector $\mathbf{e} \in \mathbb{R}^d$. Here, /vocabulary/ does not strictly refer to full words as found in a dictionary. Instead, words are often decomposed into smaller sub-word units or symbols, called /tokens/. Tokenization reduces vocabulary size and improves generalization by sharing sub-word units across words (e.g., /unhappy/ $\rightarrow$ /un/ + /happy/). Similar tokenization principles apply to non-textual inputs. For images, input data is divided into fixed-size patches (e.g., 16×16 pixels), while audio inputs are typically transformed into spectrogram representations and segmented into waveform chunks.
+
+The input embedding vectors can be conceptualized as coordinates in a high-dimensional space, where semantically related words lie near one another. During training, the model learns an embedding space in which certain directions encode linguistic relationships. While most directions lack clear interpretation, some correspond to features such as gender or verb tense. This geometry permits linear operations on embeddings to approximate linguistic transformations. For instance, subtracting the embedding for /man/ from /king/ isolates a royalty-related direction. Adding this difference to the embedding for /woman/ yields a vector close to /queen/:
+
+\(
+\begin{equation*}
+  \mathbf{e}_{\text{king}} - \mathbf{e}_{\text{man}} + \mathbf{e}_{\text{woman}} \approx \mathbf{e}_{\text{queen}} \;.
+\end{equation*}
+\)
+
+Although the embedding space exhibits analogical structure, each vector is fixed and does not vary with context. A single embedding is used for each word, regardless of surrounding text, and therefore cannot disambiguate polysemous words such as /right/ which can indicate a direction (/take a right turn/), specify timing (/right before/), or express correctness (/the answer is right/). The Transformer's attention mechanism refines token representations based on their linguistic environment, producing dynamic, context-sensitive representations.
+
+=== Attention
+
+The attention block modifies each token embedding $\mathbf{e} \in \mathbb{R}^{d}$ to reflect contextual dependencies. Intuitively, it formulates questions about the token sequence and encodes the answers within the token embeddings. For instance, an attention block may ask "/Is there an adjective directly preceding a noun?/". Each token asks this question of every other token, represented by a /query vector/ $\mathbf{q} \in \mathbb{R}^{d_k}$. Each query vector forms a row in the /query matrix/ $\mathbf{Q} \in \mathbb{R}^{L \times d_k}$, where $L$ denotes the sequence length (or /context size/), the number of tokens the Transformer processes at once.
+
+The query vectors $\mathbf{q}$ are computed by multiplying the /query weight matrix/ $\mathbf{W}_Q \in \mathbb{R}^{d \times d_k}$ and the embeddings $\mathbf{E} \in \mathbb{R}^{L \times d}$:
+
+\(
+\begin{equation*}
+	\mathbf{Q} = \mathbf{E} \mathbf{W}_Q \;,
+\end{equation*}
+\)
+where each row $\mathbf{e}_i \in \mathbb{R}^{d}$ of $\mathbf{E}$ is the embedding of the $i^{th}$ token. The matrix $\mathbf{W}_Q$ defines a single learned linear transformation that projects embeddings into the query space.
+
+Importantly, queries are not fixed semantic rules but learned weight patterns that generalize across diverse linguistic structures. While the "/Is there an adjective directly preceding a noun?/" query example illustrates the mechanism conceptually, the actual interaction between the query matrix and embeddings is more nuanced. The same query matrix that identifies adjective-noun relationships may encode different contextual qualities when applied to other parts of speech, for instance. By learning the parameters in $\mathbf{W}_Q$ during training, the model gradually refines the queries it generates in such a way that may not be easily interpretable, enabling it to extract increasingly relevant and complex contextual relationships between tokens.
+
+The token embeddings $\mathbf{E}$ are simultaneously multiplied by a /key weight matrix/ $\mathbf{W}_K \in \mathbb{R}^{d \times d_k}$, producing a set of vectors called /keys/ $\mathbf{k} \in \mathbb{R}^{d_k}$, which are organized into the key matrix $\mathbf{K} \in \mathbb{R}^{L \times d_k}$. Conceptually, keys provide the answers to queries. Like the query weight matrix, $\mathbf{W}_K$ is randomly initialized and learned during training.
+
+Using our "/Is there an adjective directly preceding a noun?/" query as an example, consider the phrase /"The tallest building in NYC"/ where the query vector for /building/ is computed as:
+
+\(
+\begin{equation*}
+	\mathbf{q}_3 = \mathbf{e}_3 \mathbf{W}_Q \;,
+\end{equation*}
+\)
+
+and the key vector for /tallest/ as:
+
+\(
+\begin{equation*}
+	\mathbf{k}_2 = \mathbf{e}_2 \mathbf{W}_K \;.
+\end{equation*}
+\)
+
+If the query $\mathbf{q}_3$ is closely aligned with the key $\mathbf{k}_2$, the model infers that /tallest/ is an adjective directly preceding /building/. The alignment between a query and key vector is measured by their dot product. Geometrically, this reflects how much the vectors point in the same direction: a large positive value indicates strong alignment, a near-zero value suggests little or no relationship (as the vectors are nearly perpendicular), and a negative value implies dissimilarity. Since /tallest/ is an adjective directly preceding /building/, we expect $\mathbf{q}_3 \cdot \mathbf{k}_2$ to be relatively large and positive, meaning the embedding for /building/ *attends* to the embedding for /tallest/. In contrast, the key vector for /the/ and the query vector for /building/ might produce a small or negative dot product, indicating that these words are unrelated in the context of this "/Is there an adjective directly preceding a noun?/" query.
+
+The dot product is computed for all query-key pairs across the $L$ tokens, with the results organized into a /score matrix/ $\mathbf{S} \in \mathbb{R}^{L \times L}$. In this matrix, rows correspond to queries, columns correspond to keys, and each entry — or /attention score/ — represents the relevance of a key to a query. The values in $\mathbf{S}$ range from $-\infty$ to $\infty$, providing a raw measure of how much each token should contribute to updating the meaning of every other token. However, these raw scores — called /logits/ — are not directly useful. Instead, the attention logits are transformed into a probability distribution using /softmax/, which normalizes them (summing to 1), making them interpretable as relative importance and stabilizing training by preventing extreme values:
+
+\(
+\begin{equation*}
+	a_{ij} = \frac{\exp(s_{ij} / \sqrt{d_k})}{\sum_{j'=1}^{L} \exp(s_{ij'} / \sqrt{d_k})} \;.
+\end{equation*}
+\)
+
+Here, $\sqrt{d_k}$ acts as a normalization factor, scaling the dot product to prevent it from growing excessively with increasing $d_k$. After applying softmax, each row forms a probability distribution over the input tokens, meaning $a_{ij}$ represents how much attention the token in position $i$ (query) should attend to the token in position $j$ (key) based on their computed relevance.
+
+The attention mechanism for all key-query pairs can be expressed compactly as:
+
+\(
+\begin{equation}\label{eq:attention}
+	\mathbf{A} = \text{softmax} \left(\frac{\mathbf{Q} {\mathbf{K}}^\top}{\sqrt{d_k}} \right) \;,
+\end{equation}
+\)
+where $\mathbf{A} \in \mathbb{R}^{L \times L}$ is the /attention matrix/ (or the /attention pattern/). Note that the quadratic growth of $\mathbf{A}$ with respect to $L$ makes processing long token sequences computationally expensive, limiting a model's ability to retain and reference earlier context in a conversation.
+
+~~~
+*The softmax function*
+
+The softmax function transforms an arbitrary set of numbers into a probability distribution, ensuring that the largest values are mapped closer to 1 and the smallest values closer to 0. Given a vector of logits, $\mathbf{x} = [x_1, x_2, \dots, x_N]^\top$, softmax operates by exponentiating each element to make all values positive and then normalizing them by their sum, which guarantees that all outputs lie between 0 and 1 and sum to 1:
+
+\(
+\begin{equation*}
+	p_i = \frac{\exp(x_i / \tau)}{\sum_{n=1}^N \exp(x_n / \tau)}, \quad \forall i \in \{1, 2, \dots, N\} \;,
+\end{equation*}
+\)
+where $\exp$ denotes the natural exponential function ($\exp(x) = e^x$) and $\tau$ is the temperature parameter that controls the sharpness of the distribution. When $\tau$ is large, the output distribution becomes more uniform as smaller logits receive more weight. When $\tau$ is small, the largest values dominate, pushing probabilities closer to 0 or 1 thereby making the distribution more peaked.
+~~~
+
+To improve training efficiency, attention is computed over all tokens simultaneously. For example, when training a Transformer to predict the next word, given the input "/The tallest building in NYC/", the model predicts the word following /the/, /tallest/, /building/, /in/, and /NYC/ — not just /NYC/ as it would during inference. Effectively, this turns one training example into multiple prediction tasks.
+
+To prevent the next-token-prediction model from attending to future tokens and thus accessing information it would not have during inference, later tokens are masked by setting their logits to $-\infty$ before softmax, forcing them to zero after normalization:
+
+\(
+\begin{array}{r@{}c}
+    &\hspace{5.7em}
+    \overbrace{
+      \begin{array}{@{}ccccc@{}}
+         \text{the} & \text{tallest} & \text{building} & \text{in} & \text{NYC}
+      \end{array}
+  }^{\Large \text{key vectors}} \\
+   \text{query vectors} &
+   \left\{
+     \begin{array}{@{}ccc@{\hspace{10em}}cc@{}}
+      \text{the}      & a_{11} & \hspace{0.6em} \color{red}{a_{12}} & \hspace{1.8em} \color{red}{a_{13}} & \hspace{1em} \color{red}{a_{14}} & \hspace{0.2em} \color{red}{a_{15}} \\
+      \text{tallest}  & a_{21} & \hspace{0.6em} a_{22}              & \hspace{1.8em} \color{red}{a_{23}} & \hspace{1em} \color{red}{a_{24}} & \hspace{0.2em} \color{red}{a_{25}} \\
+      \text{building} & a_{31} & \hspace{0.6em} a_{32}              & \hspace{1.8em} a_{33}              & \hspace{1em} \color{red}{a_{34}} & \hspace{0.2em} \color{red}{a_{35}} \\
+      \text{in}       & a_{41} & \hspace{0.6em} a_{42}              & \hspace{1.8em} a_{43}              & \hspace{1em} a_{44}              & \hspace{0.2em} \color{red}{a_{45}} \\
+      \text{NYC}      & a_{51} & \hspace{0.6em} a_{52}              & \hspace{1.8em} a_{53}              & \hspace{1em} a_{54}              & \hspace{0.2em} a_{55}
+     \end{array}
+   \right.
+\end{array}
+\)
+
+Zeroing the red values after softmax would break the probability distribution, as the row would no longer sum to one.
+
+Masking is used in tasks requiring /self-attention/, where a model learns relationships within a single input sequence. In /cross-attention/, a model attends to relationships between two different sequences. For example, in a translation task, keys come from the source language and queries from the target language, allowing the attention pattern to determine word correspondences. Because cross-attention lacks a notion of later tokens influencing earlier ones, masking is unnecessary, but the mechanism is otherwise identical to self-attention.
+
+==== Updating Embeddings
+
+Having computed attention scores, the token embeddings $\mathbf{E}$ must be updated to reflect the influence of other tokens. For example, given our "/Is there an adjective directly preceding a noun?/" query and the input "/The tallest building in NYC/", information from /tallest/ should adjust the embedding for /building/ to better encode the concept of a /tallest building/ rather than just a /building/. This update is performed using a third matrix, the /value matrix/ $\mathbf{V} \in \mathbb{R}^{L \times d_v}$:
+
+\(
+\begin{equation*}
+  \mathbf{O} = \mathbf{A} \mathbf{V} = \text{softmax}\left( \frac{\mathbf{Q} {\mathbf{K}}^\top}{\sqrt{d_k}} \right)\mathbf{V}  \;.
+\end{equation*}
+\)
+
+Each row $\mathbf{v}_i \in \mathbb{R}^{d_v}$ in $\mathbf{V}$ represents the value vector (context-independent features) of the $i$th token, holding raw information that will be selectively combined with other tokens based on attention scores. Each row $\mathbf{a}_i$ in $\mathbf{A}$ acts as a set of mixing weights, determining how much information a token draws from the value vectors of all other tokens. Consequently, each output vector $\mathbf{o}_i \in \mathbb{R}^{d_v}$ in $\mathbf{O} \in \mathbb{R}^{L \times d_v}$ (typically, $d_v = d$ to preserve the embedding dimensionality, ensuring compatibility with the subsequent transformations described below) is a weighted sum of the value vectors, where the weights are given by the attention matrix $\mathbf{A}$. Intuitively, each token refines its representation by incorporating information from the tokens to which it attends. For example, consider the (simplified) output matrix for the "/Is there an adjective directly preceding a noun?/" query:
+
+\(
+\begin{array}{r@{}c}
+    &\hspace{2.5em}
+    \overbrace{
+	    \begin{array}{@{}ccccc@{}}
+	       \text{the} & \text{tallest} & \text{building} & \text{in} & \text{NYC}
+	    \end{array}
+	 }^{\Large \text{value vectors}} \\
+   \text{attention vectors}
+   & \left\{
+     \begin{array}{@{}ccc@{\hspace{10em}}cc@{}}
+       \text{the} 	   & \color{grey}{-} & \hspace{0.5em} \color{grey}{-} & \hspace{1.7em} \color{grey}{-} & \hspace{1.4em} \color{grey}{-} & \hspace{0.8em} \color{grey}{-} \\
+       \text{tallest}  & \color{grey}{-} & \hspace{0.5em} \color{grey}{-} & \hspace{1.7em} \color{grey}{-} & \hspace{1.4em} \color{grey}{-} & \hspace{0.8em} \color{grey}{-} \\
+       \text{building} & 0 				 & \hspace{0.5em} 1 \cdot \mathbf{v}_2 & \hspace{1.7em} 0 		   & \hspace{1.4em} 0 			    & \hspace{0.8em} 0 \\
+       \text{in} 	   & \color{grey}{-} & \hspace{0.5em} \color{grey}{-} & \hspace{1.7em} \color{grey}{-} & \hspace{1.4em} \color{grey}{-} & \hspace{0.8em} \color{grey}{-} \\
+       \text{NYC} 	   & \color{grey}{-} & \hspace{0.5em} \color{grey}{-} & \hspace{1.7em} \color{grey}{-} & \hspace{1.4em} \color{grey}{-} & \hspace{0.8em} \color{grey}{-} \\
+     \end{array}
+     \right. \quad = \mathbf{O}
+\end{array}
+\)
+
+In this oversimplified example, /building/ attends only to /tallest/, meaning its output $\mathbf{o}_3$ is fully determined by /tallest/'s value vector $\mathbf{v}_2$. That is, the attention pattern for /building/ assigns all weight to /tallest/ ($a_{3,2} = 1$), so the value vectors for /the/, /in/, and /NYC/ contribute nothing ($a_{3,1} = a_{3,3} = a_{3,4} = a_{3,5} = 0$). This ensures that the updated embedding for /building/ prioritizes /tallest/ over words that are either non-adjectives preceding it or any words that follow. Conceptually, this results in a more refined vector encoding a *contextually enriched* meaning — something closer to the embedding for /One World Trade Center/, the tallest building in NYC.
+
+The update computation is performed for all embeddings, applying this same weighted sum across all rows:
+
+\(
+\begin{array}{r@{}c}
+    &\hspace{0em}
+    \overbrace{
+	    \begin{array}{@{}ccccc@{}}
+	       \text{the} & \hspace{2.2em} \text{tallest} & \hspace{1em} \text{building} & \hspace{1.8em} \text{in} & \hspace{2.5em} \text{NYC}
+	    \end{array}
+	}^{\Large \text{value vectors}} \\
+   \text{attention vectors} &
+   \left\{
+     \begin{array}{@{}c@{}}
+       \text{the}      & a_{11} \mathbf{v}_1 &+& a_{12} \mathbf{v}_2 &+& a_{13} \mathbf{v}_3 &+& a_{14} \mathbf{v}_4 &+& a_{15} \mathbf{v}_5 = \mathbf{o}_1 \\
+       \text{tallest}  & a_{21} \mathbf{v}_1 &+& a_{22} \mathbf{v}_2 &+& a_{23} \mathbf{v}_3 &+& a_{24} \mathbf{v}_4 &+& a_{25} \mathbf{v}_5 = \mathbf{o}_2 \\
+       \text{building} & a_{31} \mathbf{v}_1 &+& a_{32} \mathbf{v}_2 &+& a_{33} \mathbf{v}_3 &+& a_{34} \mathbf{v}_4 &+& a_{35} \mathbf{v}_5 = \mathbf{o}_3 \\
+       \text{in}       & a_{41} \mathbf{v}_1 &+& a_{42} \mathbf{v}_2 &+& a_{43} \mathbf{v}_3 &+& a_{44} \mathbf{v}_4 &+& a_{45} \mathbf{v}_5 = \mathbf{o}_4 \\
+       \text{NYC}      & a_{51} \mathbf{v}_1 &+& a_{52} \mathbf{v}_2 &+& a_{53} \mathbf{v}_3 &+& a_{54} \mathbf{v}_4 &+& a_{55} \mathbf{v}_5 = \mathbf{o}_5
+     \end{array}
+   \right. \quad = \mathbf{O}
+\end{array}
+\)
+
+Here, $\mathbf{v}_1$ is the value vector corresponding to /The/ (i.e., the first row in $\mathbf{V}$), for example. Expressed another way:
+
+\(
+\mathbf{O} =
+\begin{array}{c}
+  \text{attention weights} \\
+  \begin{bmatrix}
+    a_{11} & a_{12} & \cdots & a_{1L} \\
+    a_{21} & a_{22} & \cdots & a_{2L} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    a_{L1} & a_{L2} & \cdots & a_{LL}
+  \end{bmatrix}
+\end{array}
+\cdot
+\begin{array}{c}
+  \text{value vectors} \\
+  \begin{bmatrix}
+    \mathbf{v}_1 \\
+    \mathbf{v}_2 \\
+    \vdots \\
+    \mathbf{v}_L
+  \end{bmatrix}
+\end{array}
+\)
+
+This results in a sequence of updates $\mathbf{O}$, which are added to the original word embeddings $\mathbf{E}$ to produce a /residual connection/:
+
+\(
+\begin{equation*}
+	\mathbf{E} = \mathbf{E} + \mathbf{O} \;.
+\end{equation*}
+\)
+
+In summary, attention relies on three distinct matrices — the query matrix $\mathbf{Q} \in \mathbb{R}^{L \times d_k}$, the key matrix $\mathbf{K} \in \mathbb{R}^{L \times d_k}$, and the value matrix $\mathbf{V} \in \mathbb{R}^{L \times d_v}$ — each derived from the token embeddings and parameterized by learnable weight matrices:
+
+\(
+\begin{equation*}
+  \mathbf{Q} = \mathbf{E} \mathbf{W}_Q, \quad \mathbf{K} = \mathbf{E} \mathbf{W}_K, \quad \mathbf{V} = \mathbf{E} \mathbf{W}_V \;,
+\end{equation*}
+\)
+where $\mathbf{W}_Q \in \mathbb{R}^{d \times d_k}$, $\mathbf{W}_K \in \mathbb{R}^{d \times d_k}$, and $\mathbf{W}_V \in \mathbb{R}^{d \times d_v}$ project the embeddings $\mathbf{E}$ into the query, key, and value spaces, respectively.
+
+~~~
+*Residual connections*
+
+In /residual/ (or /skip/) connections, a copy of the input is added to the output of a transformation. That is, the embedding update is given by
+
+\(
+\begin{equation*}
+  \mathbf{E} = \mathbf{E} + \mathbf{O} \;,
+\end{equation*}
+\)
+which is then passed to the next Transformer component instead of just the output $\mathbf{O}$. These residual connections help maintain smooth gradients, improving the effectiveness of [backpropagation.html backpropagation].
+
+Conceptually, attention can be thought of as a filter. Since tokens typically depend on only a small subset of surrounding tokens, a well-functioning attention mechanism produces $\mathbf{O}$ with many near-zero values. Consequently, small input changes may have little effect on the output, potentially creating flat regions in the gradient landscape — even when the model is not at a local minimum — making optimization inefficient. Residual connections mitigate vanishing gradients in deep networks by ensuring a direct pathway for gradients to flow backward through layers, even when intermediate transformations (like attention) have near-zero outputs. These connections also allow each token to retain aspects of its original representation while integrating contextual information, preventing excessive distortion from surrounding words.
+~~~
+
+==== Multi-Head Attention
+
+Our illustrative query example "/Is there an adjective directly preceding a noun?/", demonstrated the mechanism by which embeddings are modified. Asking a single query, however, is insufficient — there are many ways that words can influence the meaning of others. For example, in "/The book on the table/", /on/ clarifies the spatial relationship between /book/ and /table/. Similarly, context shifts the meaning of /Washington/ in "/Washington gave an inspiring speech./" and "/Washington is experiencing heavy snowfall this winter./" To capture these nuances, additional queries are needed (it should be emphasized again that, in practice, the true behavior of these mappings is complex and not easily interpretable — there likely is not a discrete "/adjective directly preceding noun/" map, for example — but this remains a useful conceptualization).
+
+/Multi-head attention/ extends standard attention by using multiple, independent sets of keys, queries, and values, allowing different heads to capture distinct relationships in the input. Instead of a single attention computation, the model projects embeddings into multiple subspaces, processes them separately, and concatenates the results. These heads operate in parallel for efficiency, each with its own learned weight matrices for key, query, and value transformations. For each head $i$, these matrices are given by:
+
+\(
+\begin{equation*}
+  \mathbf{W}_K^i, \mathbf{W}_Q^i \in \mathbb{R}^{d \times (d_k/h)}, \quad \mathbf{W}_V^i \in \mathbb{R}^{d \times (d_v/h)} \;,
+\end{equation*}
+\)
+where $h$ is the number of attention heads. Each head computes its respective key, query, and value projections as:
+
+\(
+\begin{equation*}
+  \mathbf{K}^i = \mathbf{E} \mathbf{W}_K^i, \quad
+  \mathbf{Q}^i = \mathbf{E} \mathbf{W}_Q^i, \quad
+  \mathbf{V}^i = \mathbf{E} \mathbf{W}_V^i \;.
+\end{equation*}
+\)
+
+Each head $i$ learns its own projections using weight matrices of shape $d \times d_k/h$ and $d \times d_v/h$, allowing it to operate on a lower-dimensional representation. Theoretically, multi-head attention could instead be implemented with $d_k$ and $d_v$, giving each head a full projection space, but this would significantly increase computational cost. By distributing the dimensions across multiple heads, the total number of parameters remains unchanged while enabling efficient computation. More specifically, the query-key multiplication scales as $O(L^2 d_k)$ and applying the attention scores to the value vectors adds another $O(L^2 d_v)$, so the total cost is $O(L^2 d_k + L^2 d_v)$. If each head operated on full-dimensional key, query, and value vectors, the per-head cost would remain $O(L^2 d_k + L^2 d_v)$, leading to a total cost of $O(hL^2 d_k + hL^2 d_v)$. Instead, since each head operates on a lower-dimensional subspace ($d_k/h$ and $d_v/h$ per head), the per-head cost reduces to $O(\frac{L^2 d_k}{h}) + O(\frac{L^2 d_v}{h})$. Since there are $h$ heads, the total cost sums to $O(L^2 d_k + L^2 d_v)$, maintaining overall efficiency while enabling greater parallelization.
+
+Beyond computational efficiency, this structure improves representational diversity by allowing each head to specialize in different types of dependencies or relationships within the input sequence. If every head operated on full-dimensional key, query, and value vectors, they might redundantly learn similar features rather than capturing distinct relationships. In practice, splitting the dimension among heads (plus their separate learned transformations) helps diversify each head's focus, improving expressiveness.
+
+Each head computes attention scores $\mathbf{A}^i \in \mathbb{R}^{L \times L}$ using the scaled dot-product attention formula Equation $\eqref{eq:attention}$ with $\sqrt{(d_k/h)}$ replacing $\sqrt{d_k}$ in the denominator as, here, $d_k$ and $d_v$ denote the total key/value dims across all heads; each head uses $d_k/h$ and $d_v/h$. These scores are then applied to the value matrix $\mathbf{V}^i \in \mathbb{R}^{L \times d_v/h}$, producing an output per head of shape $\mathbf{O}^i \in \mathbb{R}^{L \times d_v/h}$:
+
+\(
+\begin{equation*}
+  \mathbf{O}^i = \mathbf{A}^i \mathbf{V}^i \;.
+\end{equation*}
+\)
+
+Concatenating these outputs from all $h$ heads produces a matrix of shape $\mathbb{R}^{L \times d_v}$ (since $h \times d_v/h = d_v$). This concatenated matrix is then multiplied by the /output projection matrix/ $\mathbf{W}_O \in \mathbb{R}^{d_v \times d}$ (note that this shape ensures the output matches the input embedding dimension, which is critical for residual connections). This multiplication yields the final multi-head attention output:
+
+\(
+\begin{equation*}
+  \mathbf{O} = \text{concat} \left( \mathbf{O}^1, \mathbf{O}^2, \dots, \mathbf{O}^h \right) \mathbf{W}_O \;.
+\end{equation*}
+\)
+
+Intuitively, the output projection matrix $\mathbf{W}_O$ integrates information across attention heads by learning to reweight and merge their contributions, ensuring that the diverse features captured by each head form a cohesive representation. Without it, the outputs would remain independent, potentially limiting the model's expressiveness.
+
+=== Feed-Forward Network (Multi-Layer Perceptron)
+
+Recall that a Transformer adjusts a token's high-dimensional embedding to reflect its context-dependent meaning. Attention aggregates token representations through weighted sums, mixing information across tokens but without applying deep, nonlinear transformations. The multi-layer perceptron (MLP), by contrast, applies nonlinear activation functions (typically GELU or ReLU) across multiple layers. This enables complex transformations, allowing the model to refine token representations beyond weighted sums and capture more intricate patterns.
+
+Mathematically, given a token embedding $\mathbf{e}$, a two-layer MLP applies an affine transformation followed by a non-linear activation function:
+
+\(
+\begin{equation*}
+	\text{MLP}(\mathbf{e}) = \mathbf{W}_2 \sigma(\mathbf{W}_1 \mathbf{e} + \mathbf{b}_1) + \mathbf{b}_2 \;,
+\end{equation*}
+\)
+where $\mathbf{W}_1, \mathbf{W}_2$ are weight matrices, $\mathbf{b}_1, \mathbf{b}_2$ are bias vectors, and $\sigma$ is a non-linear activation function.
+
+Consider the input phrase "/Albert Einstein studies/" where the model should predict /physics/. Assume that one direction in the high-dimensional embedding space encodes the semantic meaning /first name: Albert/, another encodes /last name: Einstein/, and a third represents the concept of /physics/. Because "/Albert Einstein/" spans two tokens, we further assume that the attention block has successfully passed information from the /Albert/ embedding to the /Einstein/ embedding, allowing the latter to encode both names. The attention block's output for each token in "/Albert Einstein studies/" is passed into the MLP. Unlike attention, which allows tokens to exchange information, the MLP processes each input vector independently — operations occur in parallel without interactions across tokens. The MLP’s operation can thus be understood by considering a single, representative token. Here, we focus on the representation for "/Albert Einstein/".
+
+In the first linear layer, the /Albert Einstein/ vector is multiplied by a weight matrix $\mathbf{W}_1 \in \mathbb{R}^{d_{\text{hidden}} \times d}$. Conceptually, each row in this matrix extracts a specific feature from the embedding — for example, one row might correspond to the presumed "/first name: Albert/" direction in the embedding space, while others capture different semantic attributes. The number of rows in $\mathbf{W}_1$ determines how many features (or "questions") are being asked of the input vector, with $d_\text{hidden} > d$ to increase model capacity. Next, a bias term $\mathbf{b}_1 \in \mathbb{R}^{d_{\text{hidden}}}$ is added to the resultant vector. While harder to interpret, the bias can be thought of as an adjustment mechanism that shifts the output values, influencing when and how strongly neurons activate.
+
+These operations, however, amount to a linear transformation, which cannot alone model complex, non-linear decision boundaries. As a result, if the output $\mathbf{h}_1 = \mathbf{W}_1 \mathbf{e} + \mathbf{b}_1$ is high for /Albert Einstein/, it will likely be high for /Einstein Bagels/, despite these being conceptually unrelated. Ideally, the model should produce a binary distinction — an explicit "yes" or "no" response for the full name /Albert Einstein/. Thus, $h$ is passed through a non-linear activation function (e.g., GELU or ReLU). In an oversimplified, idealized setting, the output would be 1 for /Albert Einstein/ and 0 otherwise (Note that non-linear activations, such as ReLU and GELU, allow the model to learn thresholded responses, where only sufficiently strong signals propagate to the next layer. In so doing, they produce continuous — not binary — outputs. However, this remains a conceptually useful example.). Assuming two hidden layers, the next layer of the network produces an output of the same size as the input embedding vectors. At this step, the same linear transformation is applied:
+
+\(
+\begin{equation*}
+  \mathbf{h}_2 = \mathbf{W}_2 \sigma(\mathbf{h}_1) + \mathbf{b}_2 \;.
+\end{equation*}
+\)
+
+However, in this case, it is more useful to interpret the parameter matrix in terms of columns rather than rows. More specifically, vector-matrix multiplication can be conceptualized as column-wise scaling, where each column of the matrix is scaled by the corresponding element of the input vector:
+
+\(
+\mathbf{W} \sigma(\mathbf{h}) =
+   \begin{bmatrix}
+        w_{00} & w_{01} & w_{02} \\
+        w_{10} & w_{11} & w_{12} \\
+        w_{20} & w_{21} & w_{22}
+   \end{bmatrix}
+   \begin{bmatrix}
+        \sigma(h_0) \\
+        \sigma(h_1) \\
+        \sigma(h_2)
+   \end{bmatrix}
+   = \sigma(h_0) \mathbf{w}_0 + \sigma(h_1) \mathbf{w}_1 + \sigma(h_2) \mathbf{w}_2 \;,
+\)
+where each $\mathbf{w}_i$ is a column vector.
+
+It is useful to think about the operation in terms of columns, as they share the same dimension as the embedding space and can thus be interpreted as directions within that space. For example, if the model learns that the first column $\mathbf{w}_0$ represents the /physics/ direction, then when its corresponding activation $h_0$ is positive, the output is pushed in the direction defined by $\mathbf{w}_0$. If $h_0 \leq 0$, this concept does not contribute to the final result. Importantly, this first column does not have to represent only /physics/ — it can also encode other relevant concepts the model associates with the full name /Albert Einstein/, such as /Nobel Prize/ and /general relativity/.
+
+Finally, the network output is added to the input vector to create residual connections:
+
+\(
+\begin{equation*}
+  \mathbf{e} = \mathbf{e} + \mathbf{W}_2 \sigma(\mathbf{W}_1 \mathbf{e} + \mathbf{b}_1) + \mathbf{b}_2 \;.
+\end{equation*}
+\)
+
+Note that these are all *[backpropagation.html standard]* MLP operations; the Transformer does not introduce a fundamentally new approach in the MLP.
+
+=== Positional Encoder
+
+Unlike recurrent neural networks, which capture word order by processing a sentence sequentially, neither the attention mechanism nor the feed-forward network inherently encode positional information. Instead, the Transformer accounts for token order by modifying each token embedding $\mathbf{e}_i$ with a vector $\mathbf{p}_i \in \mathbb{R}^{d}$, generated by a /positional encoder/ $\mathbf{P} \in \mathbb{R}^{L \times d}$:
+
+\(
+\begin{equation}\label{eq:positional-encoder}
+  \mathbf{e}_i = \mathbf{e}_i + \mathbf{p}_i \;.
+\end{equation}
+\)
+
+The positional encoder assigns a unique position-dependent representation to each token using a series of sine and cosine functions. Each function contributes to encoding positional information along different dimensions of the embedding space $d$. Token positions are indexed by $i \in {0,\dots,L-1}$, and embedding dimensions are indexed by $j \in {0,\dots,d-1}$. For example, the phrase “/The tallest building in NYC/” has $L = 5$ tokens, indexed as $i = 0, 1, 2, 3, 4$. Suppose the embedding dimension is $d = 8$.
+
+*N.B. The actual positional encoding is 8-dimensional, but, for clarity, we visualize only the first 4 dimensions ($j = 0, 1, 2, 3$). To improve readability, plotted and reported values use token indices $i = 0, 25, 50, 75, 100$ instead of $i = 0, 1, 2, 3, 4$. However, the following explanation retains the original indexing of $i = {0, 1, 2, 3, 4}$. To reproduce these figures or calculations, use $i = 0, 25, 50, 75, 100$ — using $i = 0,1,2,3,4$ will not produce the plotted sine/cosine curves.*
+
+~~~
+{}{img_left}{static/images/transformer/positional-encoding.png}{positional-encoding}{400px}
+~~~
+
+Each token's positional encoding vector $\mathbf{p}_i \in \mathbb{R}^8$ is partially (as we only consider the first 4 of 8 values) represented by the y-values of these plotted sine and cosine curves. Restricting to the first four dimensions ($j = 0, 1, 2, 3$), the positional encodings for each token in the sequence are:
+
+\(
+\begin{aligned}
+  \mathbf{p}_0 &= \left[0, 1, 0, 1 \right]^\top \quad &&\text{(The)} \\
+  \mathbf{p}_1 &= \left[-0.13, 0.99, 0.60, -0.80 \right]^\top \quad &&\text{(tallest)} \\
+  \mathbf{p}_2 &= \left[-0.26, 0.96, -0.96, 0.28 \right]^\top \quad &&\text{(building)} \\
+  \mathbf{p}_3 &= \left[-0.39, 0.92, 0.94, 0.35 \right]^\top \quad &&\text{(in)} \\
+  \mathbf{p}_4 &= \left[-0.51, 0.86, -0.54, -0.84 \right]^\top \quad &&\text{(NYC)}
+\end{aligned}
+\)
+
+More formally, for each token index $i \in {0,\dots,L-1}$ and embedding dimension $j \in {0,\dots,d-1}$, the positional encoding is defined as:
+
+\(
+\begin{equation*}
+  \mathbf{P}[i,j] =
+  \begin{cases}
+    \sin\bigl(i \,\omega_k \bigr), & \text{if } j = 2k,\\
+    \cos\bigl(i \,\omega_k \bigr), & \text{if } j = 2k+1,
+  \end{cases}
+  \quad\text{where}\quad \omega_k \;=\; \frac{1}{\,10000^{\frac{2k}{d}}}\,.
+\end{equation*}
+\)
+
+Here, $k = \lfloor j/2 \rfloor$, meaning each frequency $\omega_k$ is shared by two adjacent dimensions. For example, the first two dimensions ($j=0,1$) use $\omega_0$, the next two ($j=2,3$) use $\omega_1$, and so on.
+
+For the phrase "/The tallest building in NYC/", the first four coordinates of each $\mathbf{p}_i$ are computed as:
+
+\(
+\begin{align*}
+   \mathbf{p}_0
+   &= \bigl[\sin(0\cdot \omega_0), \cos(0\cdot \omega_0), \sin(0\cdot \omega_1), \cos(0\cdot \omega_1)\bigr]^\top
+   \approx \left[0, 1, 0, 1 \right]^\top \\
+
+   \mathbf{p}_1
+   &= \bigl[\sin(1\cdot \omega_0), \cos(1\cdot \omega_0), \sin(1\cdot \omega_1), \cos(1\cdot \omega_1)\bigr]^\top
+   \approx \left[-0.13, 0.99, 0.60, -0.80 \right]^\top \\
+
+   \mathbf{p}_2
+   &= \bigl[\sin(2\cdot \omega_0), \cos(2\cdot \omega_0), \sin(2\cdot \omega_1), \cos(2\cdot \omega_1)\bigr]^\top
+   \approx\left[-0.26, 0.96, -0.96, 0.28 \right]^\top \\
+
+   \mathbf{p}_3
+   &= \bigl[\sin(3\cdot \omega_0), \cos(3\cdot \omega_0), \sin(3\cdot \omega_1), \cos(3\cdot \omega_1)\bigr]^\top
+   \approx \left[-0.39, 0.92, 0.94, 0.35 \right]^\top \\
+
+   \mathbf{p}_4
+   &= \bigl[\sin(4\cdot \omega_0), \cos(4\cdot \omega_0), \sin(4\cdot \omega_1), \cos(4\cdot \omega_1)\bigr]^\top
+   \approx \left[-0.51, 0.86, -0.54, -0.84 \right]^\top \;,
+\end{align*}
+\)
+where
+
+\(
+\begin{equation*}
+  \omega_0 = 1,
+  \quad \omega_1 = \frac{1}{\,10000^{2 \times 1/8}} \,.
+\end{equation*}
+\)
+
+Each token's positional encoding is constructed using sine and cosine functions whose phases increase linearly with the token's index. This means that the encoding for any token $i$ is a smoothly varying function of $i$. Because the encodings are sinusoidal with shared frequencies, relative offsets $\Delta$ can be recovered via simple linear operations (e.g., inner products), allowing attention to reason about relative positions — if every token's position is shifted by the same amount, the relative phase differences between tokens remain unchanged. Consider two tokens at positions $i$ and $i+\Delta$. In each dimension $j$, the encoding is given by either $\sin(i\,\omega_k)$ or $\cos(i\,\omega_k)$, where $k=\lfloor j/2 \rfloor$. For both tokens, the frequency $\omega_k$ is the same. Thus, the difference in their encodings is governed by the phase difference $\Delta \cdot \omega_k$. This property enables the model to infer the relative distance $\Delta$ directly from the encoded values. This Fourier-like representation makes it easier for the model’s attention mechanism to compute similarities and differences between token positions, even for positions that were not seen during training.
+
+This approach, known as /sinusoidal positional encoding/, is one of several methods for encoding positional information, but it has several important advantages. First, it produces a unique encoding for each position in a sequence. Second, the relative difference between encodings is consistent across sentence lengths, preserving positional relationships. Additionally, it generalizes to sequences longer than those seen during training. Next, the encoding values are naturally bounded, reducing the risk of instability during training. Finally, the encodings are fully deterministic — each position always maps to the same encoding.
+
+Intuitively, adding $\mathbf{p}_i$ to $\mathbf{e}_i$ in Equation $\eqref{eq:positional-encoder}$ allows the model to capture the notion of /directly preceding/ in our example query "/Is there an adjective directly preceding a noun?/". Without positional encoding, attention would only evaluate "/How much attention should be paid to 'tallest' given 'building'?/" However, positional encoding introduces three additional relationships: "/How much attention should be paid to 'tallest' given the position of 'building'?/", "/How much attention should be paid to 'building' given the position of 'tallest'?/", and "/How much attention should be paid to the position of 'tallest' given the position of 'building'?/". By encoding positional relationships directly in the embeddings, the model ensures that attention respects word order, distinguishing cases where an adjective is directly before a noun from cases where it is elsewhere in the sentence, for example.
+
+=== Model Architecture
+
+There are multiple ways to structure the interactions between the input embeddings, attention blocks, MLPs, and positional encoder. The [https://arxiv.org/pdf/1706.03762 original Transformer paper] introduced an encoder-decoder architecture, but other configurations have since gained popularity, including encoder-only models (e.g., BERT) and decoder-only models (e.g., GPT), along with many Transformer [https://lilianweng.github.io/posts/2023-01-27-the-transformer-family-v2/ variants]. Here, we focus on the original encoder-decoder architecture.
+
+In the /encoder-decoder/ architecture, the encoder processes an input sequence of $L$ tokens, each mapped to an *input embedding* of length $d$ (often denoted $d_\text{model}$), forming the embedding matrix $\mathbf{E} \in \mathbb{R}^{L \times d}$. *Positional encoding* $\mathbf{P} \in \mathbb{R}^{L \times d}$ is then added to incorporate word order:
+
+\(
+\begin{equation*}
+  \mathbf{E} = \mathbf{E} + \mathbf{P} \;.
+\end{equation*}
+\)
+
+These embeddings are then passed through an encoder block comprising a stack of $n$ encoders ($n=6$ in the original paper). Each encoder contains a multi-head self-*attention* layer (*without masking*) followed by a fully connected *feed-forward network* (FFN). To stabilize training, layer normalization is applied to enforce a mean of zero and a standard deviation of one. In the [https://arxiv.org/pdf/1706.03762 original paper], normalization follows each sub-layer, a technique known as /post-norm/:
+
+\(
+\begin{align*}
+  \mathbf{E}' &= \text{LayerNorm} \left(\mathbf{E} + \text{Attention}(\mathbf{E}) \right) \\
+  \mathbf{E}'' &= \text{LayerNorm} \left(\mathbf{E}' + \text{FFN}(\mathbf{E}') \right) \;.
+\end{align*}
+\)
+
+However, modern Transformer implementations often apply normalization /before/ each sub-layer (/pre-norm/), which improves stability in very deep networks:
+
+\(
+\begin{align*}
+  \mathbf{E}' &= \mathbf{E} + \text{Attention}(\text{LayerNorm}(\mathbf{E})) \\
+  \mathbf{E}'' &= \mathbf{E}' + \text{FFN}(\text{LayerNorm}(\mathbf{E}')) \;.
+\end{align*}
+\)
+
+The FFN is a /point-wise/ (or /position-wise/) fully connected network, meaning the same transformation is applied independently to each token. While self-attention mixes token representations, the FFN operates on each token's hidden representation separately. Mathematically:
+
+\(
+\begin{equation*}
+  \text{FFN}(\mathbf{e}_i) = \mathbf{W}_2 \cdot \sigma(\mathbf{W}_1 \mathbf{e}_i + \mathbf{b}_1)  + \mathbf{b}_2 \;,
+\end{equation*}
+\)
+where $\mathbf{W}_1, \mathbf{W}_2, \mathbf{b}_1, \mathbf{b}_2$ are shared across all positions $i$. The output is then normalized and passed to the next encoder, repeating this process $n$ times. The final encoder's output is used in the decoder.
+
+The decoder comprises a stack of $n$ decoders, each containing the same components as the encoder but with an additional *cross-attention* block between the (*masked*) self-attention layer and the feed-forward network. In the cross-attention block, the key ($K$) and value ($V$) matrices are computed from the encoder's output, while the query ($Q$) matrix is computed from the decoder's masked self-attention output (after LayerNorm and residual connection). This structure is the same across all decoder layers, regardless of their position in the stack.
+
+During training, the decoder's input is the ground-truth target sequence shifted one position to the right, ensuring that each token is predicted based only on the tokens that came before it. For example, if the encoder processes the sentence "/The tallest building in NYC is One World Trade Center./", the decoder receives "/\[START\] The tallest building in NYC is One World Trade/" as input, where /\[START\]/ is a special token indicating the beginning of the sequence. This prevents the decoder from seeing the correct next word during training while allowing it to generate tokens /autoregressively/, meaning each token is predicted based only on previous tokens rather than future tokens.
+
+Note that shifting serves a different purpose than masking. While masking prevents the decoder from /attending/ to future tokens, shifting ensures that, during training, each token is predicted in the same way it will be during inference — based only on the tokens that have already been generated. Without shifting, the decoder would be given access to the correct next token as part of its input, making prediction trivial and preventing the model from learning to generate sequences autoregressively.
+
+ After the final FFN, the decoder outputs a matrix of continuous values $\mathbf{H} \in \mathbb{R}^{L \times d}$, where $L$ is the sequence length and $d$ is the hidden dimension. Each row $\mathbf{h}_i \in \mathbb{R}^{d}$ represents the output embedding for the $i$th token. This matrix is used to make a token prediction by applying a final linear projection $\mathbf{W} \in \mathbb{R}^{d \times |\mathcal{V}|}$, where $|\mathcal{V}|$ is the vocabulary size. The result is a logits matrix:
+
+\(
+\begin{equation*}
+  \mathbf{Z} = \mathbf{H} \mathbf{W} + \mathbf{b} \in \mathbb{R}^{L \times |\mathcal{V}|} \;,
+\end{equation*}
+\)
+where each row $\mathbf{z}_i \in \mathbb{R}^{|\mathcal{V}|}$ contains unnormalized scores for all possible tokens at position $i$ in the sequence. Softmax (with temperature) is then applied row-wise to $\mathbf{Z}$, converting each $\mathbf{z}_i$ into a probability distribution over the vocabulary.
+
+This process occurs independently for each position in the sequence. In other words, each row in $\mathbf{Z}$ corresponds to a separate prediction task, where the model estimates the probability distribution of the next token at that position. For example, given the input "/The tallest building in NYC/", the Transformer computes a probability distribution $\mathbf{f}_1$ for the next token after /The/, then $\mathbf{f}_2$ for the next token after /tallest/, then $\mathbf{f}_3$ for /building/, and so on, where
+
+\(
+\begin{equation*}
+  \mathbf{f}_i = \text{softmax}(\mathbf{z}_i) \;.
+\end{equation*}
+\)
+
+The Transformer is trained by minimizing the cross-entropy loss, which measures the divergence between the predicted probability distribution $\mathbf{f}_i$ and the true one-hot distribution $\mathbf{y}_i$ for each token position $i$:
+
+\(
+\begin{equation*}
+  \mathcal{L} = -\sum_{i=1}^L \sum_{j=1}^{|\mathcal{V}|} y_{i,j} \log f_{i,j} \;.
+\end{equation*}
+\)
+
+=== Notation List
+
+\(
+\begin{array}{lll}
+\textbf{Symbol} & \textbf{Dimensions} & \textbf{Meaning} \\
+
+L & - &
+\begin{array}{l}
+\text{Sequence or context length (number of tokens)}
+\end{array} \\[6pt]
+
+d & - &
+\begin{array}{l}
+\text{Model (embedding) dimension / size of each token's embedding}
+\end{array} \\[6pt]
+
+d_k & - &
+\begin{array}{l}
+\text{Dimension of query/key vectors}
+\end{array} \\[6pt]
+
+d_v & - &
+\begin{array}{l}
+\text{Dimension of value vectors}
+\end{array} \\[6pt]
+
+\tau & - &
+\begin{array}{l}
+\text{Temperature parameter used during token sampling}
+\end{array} \\[6pt]
+
+h & - &
+\begin{array}{l}
+\text{Number of parallel attention heads}
+\end{array} \\[6pt]
+
+|\mathcal{V}| & - &
+\begin{array}{l}
+\text{Vocabulary size}
+\end{array} \\[6pt]
+
+n & - &
+\begin{array}{l}
+\text{Number of stacked encoder/decoder layers}
+\end{array} \\[6pt]
+
+\mathbf{e}_i & \mathbb{R}^{d} &
+\begin{array}{l}
+\text{Embedding of the }i^\text{th}\text{ token (row of }\mathbf{E}\text{)}
+\end{array} \\[6pt]
+
+\mathbf{E} & \mathbb{R}^{L \times d} &
+\begin{array}{l}
+\text{Matrix of input token embeddings (one row per token)}
+\end{array} \\[6pt]
+
+\mathbf{p}_i & \mathbb{R}^{d} &
+\begin{array}{l}
+\text{Positional encoding for the }i^\text{th}\text{ token (row of }\mathbf{P}\text{)}
+\end{array} \\[6pt]
+
+\mathbf{P} & \mathbb{R}^{L \times d} &
+\begin{array}{l}
+\text{Matrix of positional encodings}
+\end{array} \\[6pt]
+
+\mathbf{Q} & \mathbb{R}^{L \times d_k} &
+\begin{array}{l}
+\text{Query matrix (each row is a query vector for one token)}
+\end{array} \\[6pt]
+
+\mathbf{K} & \mathbb{R}^{L \times d_k} &
+\begin{array}{l}
+\text{Key matrix (each row is a key vector for one token)}
+\end{array} \\[6pt]
+
+\mathbf{V} & \mathbb{R}^{L \times d_v} &
+\begin{array}{l}
+\text{Value matrix (each row is a value vector for one token)}
+\end{array} \\[6pt]
+
+\mathbf{W}_Q & \mathbb{R}^{d \times d_k} &
+\begin{array}{l}
+\text{Weight matrix projecting embeddings into query space}
+\end{array} \\[6pt]
+
+\mathbf{W}_K & \mathbb{R}^{d \times d_k} &
+\begin{array}{l}
+\text{Weight matrix projecting embeddings into key space}
+\end{array} \\[6pt]
+
+\mathbf{W}_V & \mathbb{R}^{d \times d_v} &
+\begin{array}{l}
+\text{Weight matrix projecting embeddings into value space}
+\end{array} \\[6pt]
+
+\mathbf{S} & \mathbb{R}^{L \times L} &
+\begin{array}{l}
+\text{Raw attention score (logit) matrix, where } s_{ij} = \mathbf{q}_i \cdot \mathbf{k}_j
+\end{array} \\[6pt]
+
+\mathbf{A} & \mathbb{R}^{L \times L} &
+\begin{array}{l}
+\text{Attention matrix after softmax, where rows sum to 1}
+\end{array} \\[6pt]
+
+\mathbf{O} & \mathbb{R}^{L \times d_v} \text{ or } \mathbb{R}^{L \times d} &
+\begin{array}{l}
+\text{Output of attention; dimension depends on single-head vs multi-head}\\
+\text{(concatenated and projected to size } d\text{ if multi-head).}
+\end{array} \\[6pt]
+
+\mathbf{W}_O & \mathbb{R}^{d_v \times d} &
+\begin{array}{l}\\
+\text{Output projection matrix that merges attention heads} \\
+\text{(note if, as is typical, } d_v = d \text{ then } \mathbf{W}_O \in \mathbb{R}^{d \times d} \text{)}
+\end{array} \\[6pt]
+
+\mathbf{z}_i & \mathbb{R}^{|\mathcal{V}|} &
+\begin{array}{l}
+\text{Logits for token }i\text{ (unnormalized scores over the vocabulary)}
+\end{array} \\[6pt]
+
+\mathbf{Z} & \mathbb{R}^{L \times |\mathcal{V}|} &
+\begin{array}{l}
+\text{Matrix of logits over the vocabulary (one row per token)}
+\end{array} \\[6pt]
+
+\mathbf{f}_i & \mathbb{R}^{|\mathcal{V}|} &
+\begin{array}{l}
+\text{Probability distribution for the }i^\text{th}\text{ token (softmax of }\mathbf{z}_i\text{)}
+\end{array} \\[6pt]
+
+\end{array}
+\)
+
+=== References
+
+: {[https://arxiv.org/pdf/1706.03762 Attention Is All You Need] (2017)} Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin
+
+: {[https://www.youtube.com/watch?v=wjZofJX0v4M&ab_channel=3Blue1Brown Transformers (how LLMs work) explained visually \[video\]] (2024)} Grant Sanderson
+
+: {[https://www.youtube.com/watch?v=eMlx5fFNoYc&ab_channel=3Blue1Brown Attention in transformers, step-by-step \[video\]] (2024)} Grant Sanderson
+
+: {[https://www.youtube.com/watch?v=9-Jl0dxWQs8&ab_channel=3Blue1Brown How might LLMs store facts \[video\]] (2024)} Grant Sanderson
+
+: {[https://e2eml.school/transformers.html Transformers from Scratch] (2021)} Brandon Rohrer
+
+: {[https://nlp.seas.harvard.edu/annotated-transformer/ The Annotated Transformer] (2022)} Austin Huang, Suraj Subramanian, Jonathan Sum, Khalid Almubarak, and Stella Biderman
+
+: {[https://jalammar.github.io/illustrated-transformer/ The Illustrated Transformer] (2018)} Jay Alammar
+
+: {[https://kazemnejad.com/blog/transformer_architecture_positional_encoding/ Transformer Architecture: The Positional Encoding] (2019)} Amirhossein Kazemnejad
+
+: {[https://www.youtube.com/watch?v=zxQyTK8quyY&ab_channel=StatQuestwithJoshStarmer Transformer Neural Networks \[video\]] (2023)} Josh Starmer
+
+: {[https://www.reddit.com/r/MachineLearning/comments/cttefo/comment/exs7d08/ Positional Encoding in Transformer] (2019)} Reddit discussion
+
+: {[https://lilianweng.github.io/posts/2023-01-27-the-transformer-family-v2/ The Transformer Family Version 2.0] (2023)} Lilian Weng
+
+: {[https://arxiv.org/pdf/2207.09238 Formal Algorithms for Transformers] (2022)} Mary Phuong and Marcus Hutter

@@ -1,0 +1,307 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Policy Distillation</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html" class="current">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Policy Distillation</h1>
+</div>
+<p><i>Revised August 30, 2025</i>
+</p>
+<p><a href="glossary.html" target=&ldquo;blank&rdquo;>Transfer learning</a> improves learning efficiency and effectiveness by augmenting target-environment states \(s_t \in \mathcal{M}_t\) with information \(\mathcal{I}_s\) from source environments:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:transfer-policy}
+    \pi(s_t) = \phi(\mathcal{I}_s, s_t) \;,
+\end{equation}
+\]
+</p><p>where \(\phi\) is a mapping from \((\mathcal{I}_s, s_t)\) to an action distribution.
+</p>
+<p>Policy transfer is a form of transfer learning in which \(\mathcal{I}_s = \{\pi_{E_i}\}_{i=1}^K\) is a set of expert policies trained in source domains \(\{\mathcal{M}_i\}_{i=1}^K\). Methods fall into two categories: policy reuse, as in <a href="successor-features.html" target=&ldquo;blank&rdquo;>successor features</a>, and policy distillation. Policy distillation trains a student policy to match an expert policy. Regressing Q-values is a direct form of policy distillation. It is, however, ineffective as Q-values are unbounded, unstable with respect to small changes in state or policy, and expensive to approximate over all state–action pairs. Restricting regression to the best action is also unreliable when multiple actions have similar values. Instead, policy distillation matches the expert’s action distribution using a divergence loss (<a href="kl-divergence.html" target=&ldquo;blank&rdquo;>KL divergence</a> or <a href="glossary.html" target=&ldquo;blank&rdquo;>cross-entropy</a>).
+</p>
+<p>In <i>teacher distillation</i> trajectories are sampled from the expert policy \(\pi_E\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \min_\theta \; \mathbb{E}_{\color{red}{\tau \sim \pi_E}}
+        \Bigg[ \sum_{t=1}^{|\tau|} D \big( \pi_E(\cdot \mid s_t) \,\|\, \pi(\cdot \mid s_t; \theta) \big) \Bigg] \;.
+\end{equation*}
+\]
+</p><p>In <i>student distillation</i> trajectories are sampled from the student policy \(\pi_\theta\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \min_\theta \; \mathbb{E}_{\color{red}{\tau \sim \pi_\theta}}
+        \Bigg[ \sum_{t=1}^{|\tau|} D \big( \pi_E(\cdot \mid s_t) \,\|\, \pi(\cdot \mid s_t; \theta) \big) \Bigg].
+\end{equation*}
+\]
+</p><p>Student distillation is generally preferred due to its superior empirical performance. <a href="https://arxiv.org/pdf/1511.06342.pdf" target=&ldquo;blank&rdquo;>Actor-mimic</a> is a representative method. It trains a student to reproduce a set of policies derived from expert <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>DQNs</a>. To avoid the instability of regressing Q-values directly, each expert DQN is converted into a policy network by applying a <a href="glossary.html" target=&ldquo;blank&rdquo;>softmax</a> over its Q-values:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \pi_{E_i}(a \mid s) = \frac{ \exp(\eta^{-1} Q_{E_i}(s,a)) } {\sum_{a&rsquo; \in \mathcal{A}_{E_i}} \exp(\eta^{-1} Q_{E_i}(s,a&rsquo;))} \;,
+\end{equation*}
+\]
+</p><p>where \(\eta\) is a temperature parameter and \(\mathcal{A}_{E_i}\) the action space of expert \(E_i\). The distillation loss with respect to expert \(E_i\) is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L_\text{Policy}^i(\theta) = -\sum_{a&rsquo; \in \mathcal{A}_{E_i}} \pi_{E_i}(a&rsquo; \mid s)\,\log \pi(a&rsquo; \mid s; \theta) \;.
+\end{equation*}
+\]
+</p><p>Actor-mimic also transfers feature representations. Let \(h(s)\) and \(h_{E_i}(s)\) denote hidden activations of the student and expert networks, respectively. A per-expert regression network \(f_i(h(s;\theta);\phi_i)\) is trained to predict \(h_{E_i}(s)\) from \(h(s;\theta)\), yielding the objective:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L_\text{FeatureRegression}^i(\theta;\phi_i) = \big\| f_i(h(s;\theta);\phi_i) - h_{E_i}(s) \big\|_2^2 \;.
+\end{equation*}
+\]
+</p><p>A separate \(f_i\) is used for each expert to avoid identifiability issues, i.e., ambiguity in attributing shared features to individual tasks. The dimensionality of \(h(s)\) need not equal that of \(h_{E_i}(s)\), allowing the student to use a smaller network than the expert.
+</p>
+<p>The complete per-expert Actor-mimic loss is therefore:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L^i(\theta;\phi_i) = L_\text{Policy}^i(\theta) + \beta L_\text{FeatureRegression}^i(\theta;\phi_i) \;,
+\end{equation*}
+\]
+</p><p>where \(\beta\) is a weighting parameter.
+</p>
+<p>In the multi-expert setting, training proceeds by sampling experts rather than minimizing an explicit weighted-sum objective. At each step an expert \(E_i\) is chosen, a batch of transitions is drawn from its replay buffer, and the per-expert loss \(L^i(\theta;\phi_i)\) is computed. Gradients from this loss update the shared student parameters \(\theta\) together with the expert-specific head parameters \(\phi_i\).
+</p>
+<p>The policy objective aligns the student's action distribution with that of the expert. The feature regression objective aligns intermediate representations, encouraging the student to reproduce not only the expert's actions but also its state abstractions. In combination, the student is trained to match both the expert’s decisions and its representational structure.
+</p>
+<h3>Policy Distillation from Trajectories</h3>
+<p><a href="https://arxiv.org/pdf/1803.03835.pdf" target=&ldquo;blank&rdquo;>Kickstarting DRL</a> extends policy distillation by combining the standard RL objective with an auxiliary cross-entropy loss:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L(\theta) = \mathbb{E}_{\tau \sim \pi_\theta} \Bigg[ L_\text{RL}(\tau;\theta) + \sum_t \color{blue}{\lambda_t H \left(\pi_E(\cdot \mid s_t), \pi(\cdot \mid s_t;\theta)\right)}\Bigg],
+\end{equation*}
+\]
+</p><p>where \(H(p,q) = -\sum_a p(a)\log q(a)\) is cross-entropy and \(\lambda_t\) controls the influence of distillation at time \(t\). Minimizing this loss maximizes the log-likelihood of expert actions under the student policy. Unlike standard distillation, \(\lambda_t\) may vary over time, allowing the student to shift from imitation to reward maximization and eventually exceed expert performance.
+</p>
+<p>The auxiliary loss (in blue) is analogous to entropy regularization. For comparison, <a href="https://arxiv.org/pdf/1602.01783.pdf" target=&ldquo;blank&rdquo;>A3C</a> augments its loss with \(-\beta H(\pi(\cdot \mid s_t;\theta))\), so minimizing the loss maximizes entropy and promotes exploration. In Kickstarting DRL, the divergence term instead biases \(\pi\) toward \(\pi_E\). In both cases the auxiliary term shapes learning but does not fix the limiting distribution.
+</p>
+<p>The value of \(\lambda_t\) strongly influences behavior, with sensitivity increasing in the multi-expert setting. In the single-expert case, one expert is used across all target environments. In the multi-expert case, observations are routed to task-specific experts, requiring a distinct schedule \(\{\lambda_t^i\}\) for each expert. Kickstarting tunes these weights online using Population Based Training (PBT). PBT combines parallel and sequential hyperparameter search. A population of \(n\) models with different hyperparameters is trained in parallel. Periodically, a model \(f_i\) undergoes an auxiliary update in which its hyperparameters are modified by exploit and explore functions: exploit copies settings from better-performing models, while explore perturbs them to maintain diversity. Training then continues. In Kickstarting DRL, PBT is used specifically to adapt \(\lambda_t^i\).
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>Kickstarting DRL Practical Implementation</b>
+</p>
+<p>Kickstarting DRL is implemented using the Importance Weighted Actor-Learner Architecture (IMPALA) rather than A3C. IMPALA is designed for multi-task learning with distributed actors and centralized learners. Each actor executes its local policy \(\pi_\mu\), initialized from the latest learner policy \(\pi_\theta\), and after \(n\) steps sends trajectories, action distributions \(\pi(a_t \mid s_t;\mu)\), and initial LSTM states to the learner. The learner then updates \(\pi_\theta\) on batches of trajectories collected from many actors.
+</p>
+<p>Because the learner updates asynchronously, its policy advances beyond that of the actors, creating an off-policy mismatch. IMPALA corrects for this using V-trace. Let:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+\rho_t = \frac{\pi_\theta(a_t \mid s_t)}{\pi_\mu(a_t \mid s_t)} \;, \qquad c_t = \min(\bar{c}, \rho_t), \quad \rho_t&rsquo; = \min(\bar{\rho}, \rho_t).
+\end{equation*}
+\]
+</p><p>The V-trace target for the value function at state \(s_t\) is defined recursively as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    v_t = V(s_t;\theta) + \sum_{i=t}^{t+n-1} \gamma^{i-t}
+    \Bigg( \prod_{j=t}^{i-1} c_j \Bigg) \, \delta_i V \;,
+\end{equation*}
+\]
+</p><p>where \(\delta_i V = \rho_i&rsquo; \big(r_i + \gamma V(s_{i+1};\theta) - V(s_i;\theta)\big)\).
+</p>
+<p>The policy gradient update uses the V-trace advantage:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    A_t = r_t + \gamma v_{t+1} - V(s_t;\theta) \;,
+\end{equation*}
+\]
+</p><p>yielding:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \Delta \theta \;\propto\; \sum_t \rho_t&rsquo; \,\nabla_\theta \log \pi(a_t \mid s_t;\theta)\, A_t \;.
+\end{equation*}
+\]
+</p><p>This formulation corrects the off-policy bias while limiting variance through truncated importance weights.
+</p>
+</div></div>
+<h3>Policy Distillation from Actor-Critic</h3>
+<p>Beyond Kickstarting DRL, <a href="https://arxiv.org/pdf/1902.02186.pdf" target=&ldquo;blank&rdquo;>several methods</a> directly incorporate the expert’s critic.
+</p>
+<p><i>Value-gated divergence</i> defines the loss:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L(\theta) = \mathbb{E}_{s \sim \mathcal{D}}
+        \Big[ \mathbf{1}\{ V_E(s) &gt; V(s;\theta) \} \,
+            D\!\left(\pi_E(\cdot \mid s) \,\|\, \pi(\cdot \mid s;\theta)\right) \Big],
+\end{equation*}
+\]
+</p><p>where \(\mathbf{1}\{\cdot\}\) is the indicator function. The divergence between policies is minimized only for states in which the expert's value exceeds that of the student, focusing updates on states with clear expert advantage.
+</p>
+<p><i>Expert bootstrapping</i> replaces the student's bootstrap term with the expert's critic, changing the actor–critic update from:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \nabla_\theta \log \pi(a_t \mid s_t;\theta)\,
+        \big(r_t + \gamma V(s_{t+1};\theta) - V(s_t;\theta)\big)
+\end{equation*}
+\]
+</p><p>to:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \nabla_\theta \log \pi(a_t \mid s_t;\theta) \big(r_t + \gamma V_E(s_{t+1}) - V(s_t;\theta)\big) \;.
+\end{equation*}
+\]
+</p><p>Here the expert's value function \(V_E\) is used to construct the temporal-difference target, providing a stronger baseline.
+</p>
+<p><i>Reward shaping with the expert's critic</i> uses the expert's value function for potential-based shaping:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \hat{r}_t = r_t + \gamma V_E(s_{t+1}) - V_E(s_t),
+\end{equation*}
+\]
+</p><p>which constitutes a form of <a href="glossary.html" target=&ldquo;blank&rdquo;>reward shaping</a>. This additional term in the reward function biases exploration toward trajectories preferred by the expert.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://arxiv.org/pdf/2009.07888.pdf" target=&ldquo;blank&rdquo;>Transfer Learning in Deep Reinforcement Learning: A Survey</a>,
+IEEE Transactions on Pattern Analysis and Machine Intelligence (2023)</dt>
+<dd><p>Zhuangdi Zhu, Kaixiang Lin, Anil K. Jain, and Jiayu Zhou
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1902.02186.pdf" target=&ldquo;blank&rdquo;>Distilling Policy Distillation</a>, AISTATS (2019)</dt>
+<dd><p>
+Wojciech Marian Czarnecki, Razvan Pascanu, Simon Osindero, Siddhant Jayakumar, Grzegorz Swirszcz, and Max Jaderberg
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1511.06295.pdf" target=&ldquo;blank&rdquo;>Policy Distillation</a>, (2015)</dt>
+<dd><p>Andrei A. Rusu, Sergio Gomez Colmenarejo,
+Caglar Gulcehre, Guillaume Desjardins, James Kirkpatrick, Razvan Pascanu, Volodymyr Mnih, Koray Kavukcuoglu, and Raia Hadsell
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1511.06342.pdf" target=&ldquo;blank&rdquo;>Actor-Mimic: Deep Multitask and Transfer Reinforcement Learning</a>, (2015)</dt>
+<dd><p>
+Emilio Parisotto, Jimmy Lei Ba, and Ruslan Salakhutdinov
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/abs/1803.03835" target=&ldquo;blank&rdquo;>Kickstarting Deep Reinforcement Learning</a> (2018)</dt>
+<dd><p>Simon Schmitt, Jonathan J. Hudson,
+Augustin Zidek, Simon Osindero, Carl Doersch, Wojciech M. Czarnecki, Joel Z. Leibo, Heinrich Kuttler, Andrew Zisserman,
+Karen Simonyan, and S. M. Ali Eslami
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1802.01561.pdf" target=&ldquo;blank&rdquo;>IMPALA: Scalable Distributed Deep-RL with Importance Weighted Actor-Learner Architectures</a>,
+International conference on machine learning (2018)</dt>
+<dd><p>Lasse Espeholt, Hubert Soyer, Remi Munos, Karen Simonyan, Volodymir Mnih,
+Tom Ward, Yotam Doron, Vlad Firoiu, Tim Harley, Iain Dunning, Shane Legg, and Koray Kavukcuoglu
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1711.09846.pdf" target=&ldquo;blank&rdquo;>Population Based Training of Neural Networks</a> (2017)</dt>
+<dd><p>Max Jaderberg,
+Valentin Dalibard, Simon Osindero, Wojciech M. Czarnecki, Jeff Donahue, Ali Razavi, Oriol Vinyals, Tim Green, Iain Dunning,
+Karen Simonyan, Chrisantha Fernando, and Koray Kavukcuoglu
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

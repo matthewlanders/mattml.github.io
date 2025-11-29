@@ -1,0 +1,305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Proximal Policy Optimization (PPO)</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html" class="current">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Proximal Policy Optimization (PPO)</h1>
+</div>
+<p><i>Revised May 30, 2025</i>
+</p>
+<p><i>The <a href="trpo.html" target=&ldquo;blank&rdquo;>TRPO note</a> is optional but recommended background reading.</i>
+</p>
+<p><a href="glossary.html" target=&ldquo;blank&rdquo;>On-policy</a> <a href="policy-gradients.html" target=&ldquo;blank&rdquo;>policy gradient</a> methods are generally <a href="glossary.html" target=&ldquo;blank&rdquo;>sample-inefficient</a> as they compute a single policy update per trajectory, using returns that span the entire episode. Multiple updates per trajectory ostensibly improve efficiency, however this produces biased gradient estimates. Consider a trajectory \(\tau = \{(s_0, a_0, r_1), \dots, (s_T, a_T, r_{T+1})\}\) generated by the policy \(\pi_{\theta_\text{old}}\). Suppose the first segment of this trajectory — comprising tuples \((s_k, a_k, G_k)\) for time steps \(k = 0, \dots, m-1\) — is used to perform a policy update using the <a href="pseudocode.html" target=&ldquo;blank&rdquo;>REINFORCE</a> rule:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \theta = \theta_\text{old} + \alpha \gamma^k G_k \nabla_\theta \ln \pi(a_k \mid s_k; \theta_\text{old}) \;,
+\end{equation*}
+\]
+</p><p>yielding a new policy \(\pi_\theta\). If a subsequent update is performed using data from a later segment of the same trajectory — for example, tuples \((s_j, a_j, G_j)\) for \(j = m, \dots, 2m-1\) — the update is no longer on-policy. That is, although the gradient is computed with respect to the updated policy \(\pi_{\theta}\), the data \((s_j, a_j, G_j)\) were generated under the previous policy \(\pi_{\theta_\text{old}}\). This violates the on-policy requirement that data used to estimate the policy gradient must be drawn from the current policy, thereby introducing bias into the gradient estimate and potentially leading to instability or divergence during training.
+</p>
+<p>Proximal Policy Optimization (PPO) improves the sample efficiency of both vanilla policy gradient methods and <a href="trpo.html" target=&ldquo;blank&rdquo;>TRPO</a> by enabling multiple gradient updates on data from a single policy. To promote stable learning, it constrains the divergence between the updated policy \(\pi_\theta\) and the data-generating policy \(\pi_{\theta_\text{old}}\) using a clipped probability ratio. This surrogate objective limits how far the policy can shift during optimization, allowing repeated updates while maintaining approximate on-policy behavior.
+</p>
+<p>PPO's learning objective is derived from TRPO's theoretically grounded <a href="glossary.html" target=&ldquo;blank&rdquo;>policy iteration framework</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:trpo-max-problem}
+    \max_\theta \mathbb{E}_{(s_t, a_t) \sim \pi_{\theta_\text{old}}} \left[ \color{red}{\frac{\pi(a_t \mid s_t; \theta)}{\pi(a_t \mid s_t; \theta_\text{old})}
+    A(s_t, a_t; \theta_\text{old})} - \color{blue}{C \max_s D_{KL} \left( \pi_{\theta_\text{old}}(\cdot \mid s) \,\|\, \pi_\theta(\cdot \mid s) \right)} \right] \;.
+\end{equation}
+\]
+</p><p>Equation \(\eqref{eq:trpo-max-problem}\) guarantees monotonic policy improvement by penalizing large deviations from the reference policy via the KL-divergence term (highlighted in blue). In practice, however, tuning the penalty coefficient \(C\) is challenging and often leads to overly conservative updates. Moreover, the expectation assumes exact computation over the state-action distribution induced by \(\pi_{\theta_\text{old}}\), which is typically intractable. Thus, TRPO replaces the penalized objective with a constrained optimization problem that enforces a trust region by bounding the KL divergence between the new policy \(\pi_\theta\) and the previous policy \(\pi_{\theta_\text{old}}\). This problem is solved by approximating the surrogate objective (emphasized in red) with a first-order Taylor expansion and the KL constraint with a second-order expansion. The resulting update takes the form:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:trpo-update}
+    \theta^* = \theta_\text{old} + \sqrt{\frac{2\delta}{g^\top H^{-1} g}} H^{-1} g \;,
+\end{equation}
+\]
+</p><p>where \(g\) is the gradient of the surrogate objective and \(H\) is the Hessian of the KL divergence.
+</p>
+<p>PPO emulates the monotonic improvement guarantees of TRPO while avoiding its reliance on second-order optimization. Specifically, it reuses TRPO’s surrogate objective:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:base-objective}
+    L^\text{TRPO}_{\theta_\text{old}}(\theta) = \mathbb{E}_{\tau \sim \pi_{\theta_\text{old}}} \left[ \frac{\pi(a_t \mid s_t; \theta)}{\pi(a_t \mid s_t; \theta_\text{old})}
+    A(s_t, a_t; \theta_\text{old}) \right] = \mathbb{E}_{\tau \sim \pi_{\theta_\text{old}}} \left[ \phi_t(\theta) A(s_t, a_t; \theta_\text{old}) \right] \;,
+\end{equation}
+\]
+</p><p>but replaces the KL penalty in Equation \(\eqref{eq:trpo-max-problem}\) with a clipped objective that directly truncates the importance sampling ratio \(\phi_t(\theta)\) to suppress updates that move too far from the reference policy:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:ppo-loss}
+    L^\text{CLIP}_{\theta_\text{old}}(\theta) = \mathbb{E}_{\tau \sim \pi_{\theta_\text{old}}} \left[ \min \left( \phi_t(\theta)
+    A(s_t, a_t; \theta_\text{old}), \text{clip}(\phi_t(\theta), 1-\epsilon, 1+\epsilon) A(s_t, a_t; \theta_\text{old}) \right) \right] \;,
+\end{equation}
+\]
+</p><p>where \(\epsilon\) is a hyperparameter (typically set to \(\epsilon = 0.2\)).
+</p>
+<p>The \(\text{clip}(\phi_t(\theta), 1-\epsilon, 1+\epsilon)\) term constrains the probability ratio \(\phi_t(\theta)\) to the interval \([1-\epsilon, 1+\epsilon]\), suppressing destabilizing updates by altering the standard policy gradient when \(\phi_t\) deviates too far from 1. The \(\text{clip}(\text{value}, \min, \max)\) operation is defined piecewise: it returns \(\min\) if the value is below the lower bound, \(\max\) if above the upper bound, and the value itself if within the bounds. This mechanism serves two critical purposes. First, it introduces pessimism into the objective by taking the minimum of the unclipped and clipped terms, ensuring that the surrogate never overestimates the policy improvement. Second, when the clipped term is selected, the objective becomes constant with respect to the policy parameters, <b>yielding zero gradient</b>. Consequently, such samples do not influence the update direction, preventing further change in a direction already deemed excessive. This dual role — pessimistic bounding and implicit step-size control — enables PPO to perform multiple gradient steps on the same batch while preserving stability.
+</p>
+<p>Notably, \(L^\text{CLIP}\) and \(L^\text{TRPO}\) are exactly equal at the point \(\theta = \theta_\text{old}\), where the importance sampling ratio satisfies \(\phi_t(\theta_\text{old}) = 1\) by definition:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    L^\text{CLIP}(\theta_\text{old}) &amp;= \mathbb{E}[\min(1 \cdot \hat{A}_t, 1 \cdot \hat{A}_t)] = \mathbb{E}[\hat{A}_t] \\
+    L^\text{TRPO}(\theta_\text{old}) &amp;= \mathbb{E}[1 \cdot \hat{A}_t] = \mathbb{E}[\hat{A}_t] \;.
+\end{align*}
+\]
+</p><p>Their gradients are also identical at this point:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \nabla_\theta L^\text{CLIP}(\theta)\big|_{\theta=\theta_\text{old}} = \nabla_\theta L^\text{TRPO}(\theta)\big|_{\theta=\theta_\text{old}} \;.
+\end{equation*}
+\]
+</p><p>More generally, in a neighborhood around \(\theta_\text{old}\) where \(\phi_t(\theta) \approx 1\), the clipping remains inactive, and both objectives locally reduce to the same linear form: \(\mathbb{E}[\phi_t(\theta)\hat{A}_t]\). This equivalence underlies PPO's ability to mimic TRPO's local behavior without requiring second-order optimization.
+</p>
+<p>As \(\theta\) diverges from \(\theta_\text{old}\) and the probability ratio \(\phi_t(\theta)\) deviates from 1, PPO and TRPO differ fundamentally in how they constrain policy updates. TRPO retains the original surrogate \(L^\text{TRPO}\) and imposes an explicit trust region constraint on the policy step size:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathbb{E}_{s \sim \rho_{\theta_\text{old}}} \left[ D_{KL} \left( \pi(\cdot \mid s; \theta_\text{old}) \Vert \pi(\cdot \mid s; \theta) \right) \right] \leq \delta \;.
+\end{equation*}
+\]
+</p><p>Optimization proceeds by maximizing \(L^\text{TRPO}\) subject to this constraint, thereby controlling updates through a bound in policy space rather than by modifying the objective itself. In this formulation, the KL constraint serves as the sole mechanism for limiting the update magnitude.
+</p>
+<p>PPO, by contrast, embeds the constraint directly into the objective. When the probability ratio \(\phi_t(\theta)\) falls outside the interval \([1 - \epsilon, 1 + \epsilon]\), the surrogate switches to a clipped form that fixes the objective to a constant value. For example, if \(\phi_t(\theta) &gt; 1 + \epsilon\) and \(\hat{A}_t &gt; 0\), the objective becomes \((1 + \epsilon)\hat{A}_t\) — a constant with respect to \(\theta\). Because this clipped term has zero gradient, it removes any further incentive to increase \(\phi_t(\theta)\). Effectively, this flattens the objective locally, nullifying gradients that would otherwise drive the policy too far. A symmetric case occurs when \(\phi_t(\theta) &lt; 1 - \epsilon\) and \(\hat{A}_t &lt; 0\): the objective becomes \((1 - \epsilon)\hat{A}_t\), again yielding no gradient and halting updates in that direction. In both cases, clipping suppresses updates from samples with extreme probability shifts, enforcing stable, conservative changes without relying on an external constraint.
+</p>
+<p>In this way, TRPO and PPO are both derived from the same importance-weighted surrogate objective but differ fundamentally in how they constrain policy change. TRPO retains the original surrogate and imposes an explicit KL constraint in policy space, whereas PPO modifies the objective to enforce local trust region behavior implicitly.
+</p>
+<h3>Evaluating PPO's objective under various conditions</h3>
+<p>The clipped objective (Equation \(\eqref{eq:ppo-loss}\)) selects the minimum between the unclipped term \(\phi_t(\theta) A_{\theta_\text{old}}\) and its clipped counterpart. This defines a pessimistic approximation designed to prevent the objective from being overly optimistic about <a href="actor-critic.html" target=&ldquo;blank&rdquo;>high-variance</a> updates. Crucially, when the clipped value is selected, the objective becomes constant with respect to \(\theta\) and therefore does not influence parameter updates. The unclipped term, by contrast, remains sensitive to policy parameters, allowing meaningful gradient-based learning. The following cases illustrate how the clipping mechanism behaves under different combinations of \(\phi_t\) and the sign of the advantage \(A_t\).
+</p>
+<dl>
+<dt><b>Case 1: \(\phi_t &gt; 1 + \epsilon\) and \(A_t &gt; 0\)</b></dt>
+<dd><p>Consider \(\phi_t = 1.5\), \(\epsilon = 0.2\) (clipping bounds \([0.8, 1.2]\)), and \(A_t = 2\). The unclipped value is \(1.5 \cdot 2 = 3\), while the clipped value is \(1.2 \cdot 2 = 2.4\). In this case, PPO selects the <b>clipped</b> value \((1+\epsilon)A_t = 2.4\).
+</p></dd>
+</dl>
+<dl>
+<dt></dt>
+<dd><p>This behavior occurs when the selected action becomes more probable (\(\phi_t &gt; 1+\epsilon\)) and has high advantage. Although this would normally justify a significant policy adjustment, PPO nullifies the effect by selecting the clipped term \((1+\epsilon)A_t\). Because this term is constant with respect to the policy parameters \(\theta\), it yields zero gradient. Consequently, no additional learning occurs from this state-action pair, preventing further increases in action probability and stabilizing policy updates.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Case 2: \(\phi_t &gt; 1 + \epsilon\) and \(A_t &lt; 0\)</b></dt>
+<dd><p>Consider \(\phi_t = 1.5\), \(\epsilon = 0.2\), and \(A_t = -2\). The unclipped value is \(-2 \cdot 1.5 = -3\), while the clipped value is \(-2 \cdot 1.2 = -2.4\). In this case, PPO selects the <b>unclipped</b> value \(\phi_t A_t = -3\).
+</p></dd>
+</dl>
+<dl>
+<dt></dt>
+<dd><p>This occurs when the probability of a now-undesirable action increases. The large negative product \(\phi_t A_t\) provides a strong corrective gradient: maximizing the objective will reduce \(\phi_t\), thereby lowering the probability of the action. Unlike the positive-advantage case, no clipping is applied here; PPO allows the full penalty to influence the update, reinforcing the need to reverse a harmful policy change.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Case 3: \(\phi_t &lt; 1 - \epsilon\) and \(A_t &gt; 0\)</b></dt>
+<dd><p>Consider \(\phi_t = 0.6\), \(\epsilon = 0.2\), and \(A_t = 2\). The unclipped value is \(2 \cdot 0.6 = 1.2\), while the clipped value is \(2 \cdot 0.8 = 1.6\). In this case, PPO selects the <b>unclipped</b> value \(\phi_t A_t = 1.2\).
+</p></dd>
+</dl>
+<dl>
+<dt></dt>
+<dd><p>This case reflects a reduction in the probability of a beneficial action. Since \(A_t &gt; 0\), the objective should encourage increasing \(\phi_t\) to restore the probability of that action. The unclipped term supports this by yielding a gradient that increases the probability of the action. The clipped term, by contrast, is constant and would produce no update. PPO selects the unclipped value to ensure the gradient reflects the actual drop in action probability and allows a measured correction.
+</p></dd>
+</dl>
+<dl>
+<dt><b>Case 4: \(\phi_t &lt; 1 - \epsilon\) and \(A_t &lt; 0\)</b></dt>
+<dd><p>Consider \(\phi_t = 0.6\), \(\epsilon = 0.2\), and \(A_t = -2\). The unclipped value is \(-2 \cdot 0.6 = -1.2\), while the clipped value is \(-2 \cdot 0.8 = -1.6\). In this case, PPO selects the <b>clipped</b> value \((1-\epsilon)A_t = -1.6\).
+</p></dd>
+</dl>
+<dl>
+<dt></dt>
+<dd><p>This case corresponds to an undesirable action for which the probability has already been reduced. Although the direction of change is appropriate, PPO selects the clipped term \((1 - \epsilon)A_t\) rather than the smaller-magnitude unclipped value. Because this clipped term is constant with respect to the policy parameters, it yields zero gradient. This stabilizes training by halting further changes once the policy has sufficiently corrected its behavior.
+</p></dd>
+</dl>
+<h3>Updating the parameters</h3>
+<p>PPO employs an <a href="actor-critic.html" target=&ldquo;blank&rdquo;>actor-critic</a> framework, where the actor is optimized using the clipped objective \(L^\text{CLIP}\). To encourage exploration, an <a href="sac.html" target=&ldquo;blank&rdquo;>entropy bonus</a> \(\mathcal{H}(s_t; \theta)\) is often added to the actor's objective, yielding an update rule:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \theta_{k+1} = \theta_k + \alpha^\theta \nabla_\theta \mathbb{E}_{t \sim \text{batch}} \left[ L^{\text{CLIP}}_t(\theta) + c \mathcal{H}_t(\theta) \right] \Big|_{\theta=\theta_k} \;,
+\end{equation*}
+\]
+</p><p>where \(c\) is a coefficient weighting the entropy bonus.
+</p>
+<p>The critic is trained to regress the <a href="glossary.html" target=&ldquo;blank&rdquo;>state-value function</a> which is used in the advantage term in Equation \(\eqref{eq:ppo-loss}\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    A_\pi(s, a) = Q_\pi(s, a) - V_\pi(s) \;.
+\end{equation*}
+\]
+</p><p>The critic loss is typically defined as the squared error between the predicted value and a <a href="glossary.html" target=&ldquo;blank&rdquo;>bootstrapped return</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L^\text{VF}(\psi) = \frac{1}{2}\left( V(s_t; \psi) - \hat{V}_t \right)^2 \;,
+\end{equation*}
+\]
+</p><p>where \(\hat{V}_t\) denotes a target value, such as a GAE-based return or an n-step return.
+</p>
+<p>The critic parameters \(\psi\) are updated to minimize the value loss \(L^\text{VF}(\psi)\). For a batch of data:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \psi_{k+1} = \psi_k - \alpha^\psi \nabla_\psi \mathbb{E}_{t \sim \text{batch}} \left[ L^\text{VF}_t(\psi) \right] \Big|_{\psi=\psi_k}
+\end{equation*}
+\]
+</p><p>Unlike TRPO, which requires solving Equation \(\eqref{eq:trpo-update}\) at each iteration, PPO updates parameters via standard stochastic gradient ascent on \(\theta\) and descent on \(\psi\).
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>Alternative network architecture</b>
+</p>
+<p>Because both value estimation and action selection typically rely on similar state features, it is common to parameterize the actor and critic as separate output heads of a shared neural network. In this shared-parameter setting, the value function loss becomes:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L^\text{VF}(\theta) = \frac{1}{2} \left( V(s_t; \theta) - \hat{V}_t \right)^2 \;,
+\end{equation*}
+\]
+</p><p>and the overall loss is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L^\text{PPO}(\theta) = L^\text{CLIP}(\theta) + c_1 \mathcal{H}(s_t; \theta) - c_2 L^\text{VF}(\theta) \;,
+\end{equation*}
+\]
+</p><p>where \(c_1\) and \(c_2\) are coefficients weighting the entropy bonus and value loss, respectively.
+</p>
+<p>Parameter updates are then performed via gradient ascent:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \theta_{k+1} = \theta_k + \alpha \nabla_\theta L^\text{PPO}_{\theta_k}(\theta) \Big|_{\theta=\theta_k} \;.
+\end{equation*}
+\]
+</p></div></div>
+<table class="imgtable"><tr><td>
+<img src="static/images/ppo/pseudocode.png" alt="PPO pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>An alternative formulation, <a href="https://arxiv.org/pdf/1707.06347.pdf" target=&ldquo;blank&rdquo;>PPO with Adaptive KL Penalty</a>, replaces clipping with a KL penalty term. However, the clipped objective performs comparably and is simpler to implement in practice.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1707.06347.pdf" target=&ldquo;blank&rdquo;>Proximal Policy Optimization Algorithms</a> (2017)</dt>
+<dd><p>John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://fse.studenttheses.ub.rug.nl/25709/1/mAI_2021_BickD.pdf" target=&ldquo;blank&rdquo;>Towards Delivering a Coherent Self-Contained Explanation of Proximal Policy Optimization</a> (2021)</dt>
+<dd><p>Daniel Bick
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

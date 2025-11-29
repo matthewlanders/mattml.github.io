@@ -1,0 +1,264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>The Deadly Triad</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html" class="current">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>The Deadly Triad</h1>
+</div>
+<p><i>Revised December 16, 2024</i>
+</p>
+<p><i>The <a href="off-policy-control-with-function-approximation.html" target=&ldquo;blank&rdquo;>Off-Policy Control with Function Approximation note</a> is
+optional but recommended background reading.</i>
+</p>
+<p>The <i>deadly triad</i> refers to the instability — that is, the risk of <a href="glossary.html" target=&ldquo;blank&rdquo;>divergence</a> — that can arise when combining <a href="glossary.html" target=&ldquo;blank&rdquo;>off-policy training</a>, <a href="glossary.html" target=&ldquo;blank&rdquo;>function approximation</a>, and <a href="glossary.html" target=&ldquo;blank&rdquo;>bootstrapping</a>. All known divergence examples for TD-style methods involve all three components; standard algorithms using only two (e.g., tabular off-policy TD, or on-policy TD with function approximation) are typically stable. However, when all three are combined, instability can emerge in both <a href="glossary.html" target=&ldquo;blank&rdquo;>prediction</a> and <a href="glossary.html" target=&ldquo;blank&rdquo;>control</a> tasks. This risk of divergence is not inherent to the learning process itself or caused by environmental uncertainty; it can also occur in planning methods, such as approximate <a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>dynamic programming</a>, where the environment is fully known.
+</p>
+<p>The deadly triad affects only <a href="glossary.html" target=&ldquo;blank&rdquo;>semi-gradient</a> methods; true gradient methods are immune. Despite this theoretical advantage, true gradient methods are less commonly used in practice than semi-gradient methods, making the risks associated with the deadly triad particularly relevant. Baird's counterexample is a well-known illustration of this instability.
+</p>
+<p>Consider an episodic six-state MDP with two actions. Five of the states are nonterminal (the upper states) and one is terminal (the lower state). The dashed action selects one of the five upper states with equal probability. The solid action transitions directly to the terminal state. Under the behavior policy \(\pi_\beta\), the dashed and solid actions are chosen with probabilities \(\tfrac{5}{6}\) and \(\tfrac{1}{6}\), respectively, resulting in a uniform next-state distribution over the nonterminal states. This same distribution is used to initialize each episode. The target policy \(\pi\) always selects the solid action, so its stationary distribution places all probability on the terminal state. All rewards are zero (so the true value function is \(V_*(s) = 0 \; \forall s\)), and the discount factor is \(\gamma = 0.99\).
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/bairds-counterexample/mdp.png" alt="Baird's counterexample MDP" width="450px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>Suppose the value of each state is estimated as a linear combination of parameters. For instance, the estimated value of state \(s_1\) is given by \(2\theta_1 + \theta_7\), where \(\theta_1\) and \(\theta_7\) are components of the parameter vector \(\theta \in \mathbb{R}^7\). The corresponding feature vector for \(s_1\) is \(\phi_{s_1} = [2, 0, 0, 0, 0, 0, 1]^\top\).
+</p>
+<p>The feature vectors for all states can be organized into a matrix \(\Phi\), wherein each row corresponds to the feature vector of a specific state. This matrix representation facilitates operations on the entire set of states (as was seen, for example, when using the <a href="learnability-of-rl-objectives.html" target=&ldquo;blank&rdquo;>projection operator</a>):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \Phi =
+    \begin{bmatrix}
+        2 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 \\
+        0 &amp; 2 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 \\
+        0 &amp; 0 &amp; 2 &amp; 0 &amp; 0 &amp; 0 &amp; 1 \\
+        0 &amp; 0 &amp; 0 &amp; 2 &amp; 0 &amp; 0 &amp; 1 \\
+        0 &amp; 0 &amp; 0 &amp; 0 &amp; 2 &amp; 0 &amp; 1 \\
+        0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 5 \\
+    \end{bmatrix}
+\end{equation*}
+\]
+</p><p>Using \(\Phi\), the true value function \(V_* = 0\) can be represented exactly as \(V_* = \Phi \theta\) by setting \(\theta = 0\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \hat{V} =
+    \begin{bmatrix}
+        2 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 \\
+        0 &amp; 2 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 \\
+        0 &amp; 0 &amp; 2 &amp; 0 &amp; 0 &amp; 0 &amp; 1 \\
+        0 &amp; 0 &amp; 0 &amp; 2 &amp; 0 &amp; 0 &amp; 1 \\
+        0 &amp; 0 &amp; 0 &amp; 0 &amp; 2 &amp; 0 &amp; 1 \\
+        0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 5
+    \end{bmatrix}
+    \begin{bmatrix}
+        0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0
+    \end{bmatrix}
+\end{equation*}
+\]
+</p><p>Notably, there are infinitely many choices for \(\theta\) such that \(\Phi \theta = 0\). For instance, consider \(\theta = [\frac{1}{2}, \frac{1}{2}, \frac{1}{2}, \frac{1}{2}, \frac{1}{2}, 5, -1 ]^\top\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \hat{V} =
+    \begin{bmatrix}
+        2 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 \\
+        0 &amp; 2 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 \\
+        0 &amp; 0 &amp; 2 &amp; 0 &amp; 0 &amp; 0 &amp; 1 \\
+        0 &amp; 0 &amp; 0 &amp; 2 &amp; 0 &amp; 0 &amp; 1 \\
+        0 &amp; 0 &amp; 0 &amp; 0 &amp; 2 &amp; 0 &amp; 1 \\
+        0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 5
+    \end{bmatrix}
+    \begin{bmatrix}
+        \frac{1}{2} \\ \frac{1}{2} \\ \frac{1}{2} \\ \frac{1}{2} \\ \frac{1}{2} \\ 5 \\ -1
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0
+    \end{bmatrix} \;.
+\end{equation*}
+\]
+</p><p>In fact, the vector \(\theta = [\frac{1}{2}, \frac{1}{2}, \frac{1}{2}, \frac{1}{2}, \frac{1}{2}, 5, -1 ]^\top\) lies in the null space of \(\Phi\), meaning any scalar multiple of \(\theta\) will also satisfy \(\Phi \theta = 0\). This observation, combined with the linear independence of the feature vectors, suggests that learning a linear approximation using a semi-gradient method should, in principle, be straightforward. However, we observe that the parameters diverge to infinity when the semi-gradient TD(0) update rule is applied:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \theta \gets \theta + \alpha \left[ r + \gamma \hat{V}(s&rsquo;; \theta) - \hat{V} (s; \theta) \right] \nabla \hat{V}(s; \theta) \;.
+\end{equation*}
+\]
+</p><p>Let the initial parameters be \(\theta_i = 1\) for all \(i\). With this initialization, \(\hat{V}(s_1) = 3\) and \(\hat{V}(s_6) = 6\). Now, suppose we observe a transition from \(s_1\) to \(s_6\) at time \(t\). Then, assuming  a discount factor \(\gamma = 0.99\) and step size \(\alpha = 0.1\), the temporal difference (TD) error \(\delta\) is calculated as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \delta = r + \gamma \hat{V}(s_6) - \hat{V}(s_1) = 0 + 0.99 \cdot 6 - 3 = 2.94.
+\end{equation*}
+\]
+</p><p>Since \(\hat{V}(s_1) = 2\theta_1 + \theta_7\), the gradients of \(\hat{V}(s_1)\) with respect to the parameters are:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+\frac{\partial \hat{V}(s_1)}{\partial \theta_1} = 2 \quad \text{and} \quad \frac{\partial \hat{V}(s_1)}{\partial \theta_7} = 1.
+\end{equation*}
+\]
+</p><p>Using these gradients, the updates to \(\theta_1 = 1\) and \(\theta_7 = 1\) are:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \theta_1 &amp;\gets \theta_1 + (\alpha \delta)2 = 1 + 0.1 \cdot 2.94 \cdot 2 = 1.588, \\
+    \theta_7 &amp;\gets \theta_7 + \alpha \delta = 1 + 0.1 \cdot 2.94 \cdot 1 = 1.294.
+\end{align*}
+\]
+</p><p>If we compute the update for each step from states \(s_1\) through \(s_5\) to \(s_6\), we find that \(\theta_7\) increases with every iteration:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    s_1 \rightarrow s_6: \theta_7 &amp;= 1.294 \\
+    s_2 \rightarrow s_6: \theta_7 &amp;= 1.704 \\
+    s_3 \rightarrow s_6: \theta_7 &amp;= 2.276 \\
+    s_4 \rightarrow s_6: \theta_7 &amp;= 3.074 \\
+    s_5 \rightarrow s_6: \theta_7 &amp;= 4.188 \;.
+\end{align*}
+\]
+</p><p>Therefore, steps from \(s_6\) to itself must reduce \(\theta_7\); otherwise, the parameters \(\theta_i\) will grow without bound. To quantify the impact of a step from \(s_6\) to itself on \(\theta_7\), we calculate the corresponding update:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \theta_7 = 4.188 + 0.1 \Big[ 0 + 0.99 \cdot \big( 1 + (5 \cdot 4.188) \big) - \big( 1 + (5 \cdot 4.188) \big) \Big] \cdot 5 = 4.0783 \;.
+\end{equation*}
+\]
+</p><p>Although this update reduces \(\theta_7\), the reduction is small: \(4.188 - 4.0783 = 0.1097\). As illustrated in the figure below, this reduction is insufficient to mitigate the overall growth of the parameters, leading to instability.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/bairds-counterexample/param-values.png" alt="Baird's counterexample MDP" width="450px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<table id="caption">
+<tr class="r1"><td class="c1">Results computed with step size \(\alpha = 0.01\), \(\gamma = 0.99\), and initial parameters \(\theta = [1, 1, 1, 1, 1, 10, 1]^\top\).
+</td></tr></table>
+<p>There are also counterexamples, similar to Baird’s, demonstrating divergence in Q-learning. However, the conditions under which divergence occurs are not well understood. This is particularly concerning because Q-learning otherwise provides the strongest convergence guarantees among control methods and serves as the foundation for many modern RL algorithms, such as <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>deep Q-learning</a>. Significant effort has been devoted to addressing this issue or establishing weaker but practical convergence guarantees. For instance, although standard deep Q-learning lacks formal convergence guarantees, some results have been obtained for a related algorithm, <a href="https://link.springer.com/chapter/10.1007/11564096_32" target=&ldquo;blank&rdquo;>Neural-Fitted Q Iteration</a>, when combined with deep ReLU networks. Moreover, convergence in Q-learning may still be achievable if the behavior policy is sufficiently close to the target policy, as in the case of an \(\epsilon\)-greedy policy.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="http://incompleteideas.net/book/the-book-2nd.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction</a>
+(2018)</dt>
+<dd><p>Richard S. Sutton and Andrew G. Barto
+</p></dd>
+</dl>
+<dl>
+<dt><a href="http://incompleteideas.net/Talks/RLtutorialNIPS2015.pdf" target=&ldquo;blank&rdquo;>Introduction to Reinforcement Learning with Function Approximation</a>
+(1995)</dt>
+<dd><p>Richard S. Sutton
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.udacity.com/course/reinforcement-learning--ud600" target=&ldquo;blank&rdquo;>Deep Reinforcement Learning [video]</a></dt>
+<dd><p>
+Charles Isbell, Michael Littman, and Chris Pryby
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1903.08894" target=&ldquo;blank&rdquo;>Towards Characterizing Divergence in Deep Q-Learning</a> (2019)</dt>
+<dd><p>Joshua Achiam,
+Ethan Knight, and Pieter Abbeel
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1901.00137" target=&ldquo;blank&rdquo;>A Theoretical Analysis of Deep Q-Learning</a> (2020)</dt>
+<dd><p>Jianqing Fan, Zhaoran Wang,
+Yuchen Xie, and Zhuoran Yang
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://link.springer.com/chapter/10.1007/11564096_32" target=&ldquo;blank&rdquo;>Neural Fitted Q Iteration - First Experiences with a Data
+Efficient Neural Reinforcement Learning Method</a> (2005)</dt>
+<dd><p>Martin Riedmiller
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

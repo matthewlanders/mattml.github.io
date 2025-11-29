@@ -1,0 +1,88 @@
+# jemdoc: menu{MENU}{nn-verification.html}
+= Neural Network Verification
+
+/Revised June 21, 2025/
+
+As deep neural networks (DNNs) have come to underlie critical infrastructure, the absence of rigorous guarantees about their behavior has emerged as a fundamental limitation. Because DNNs generalize from finite data to an unbounded input domain, their analysis aligns naturally with /[glossary.html verification]/, a technique from formal methods research that establishes properties over infinite input spaces. Traditional verification methods, however, are designed to establish /functional correctness/ — a guarantee that a program faithfully implements a specified mathematical function. While appropriate for conventional software, this notion is incongruent with DNNs, which approximate functions too complex or ill-defined to specify explicitly. It is possible, however, to define and formally verify /behavioral properties/ that a DNN is expected to satisfy.
+
+=== Defining Specifications
+
+Consider an $n$-layer neural network $f$ with input $\mathbf{x} \in \mathcal{D}_{\mathbf{x}} \subseteq \mathbb{R}^{k_0}$ and output $\mathbf{y} \in \mathcal{D}_{\mathbf{y}} \subseteq \mathbb{R}^{k_n}$, where $k_0$ and $k_n$ denote the input and output dimensions, respectively. Verifying $f$ requires a specification $\phi$ that formalizes the desired input–output behavior of the network. Such a specification typically takes the form: "for all $\mathbf{x} \in \mathcal{X}$, the output $f(\mathbf{x})$ lies in $\mathcal{Y}$," where $\mathcal{X} \subseteq \mathcal{D}_{\mathbf{x}}$ constrains the inputs and $\mathcal{Y} \subseteq \mathcal{D}_{\mathbf{y}}$ constrains the outputs. Formally, verification amounts to proving that $\mathbf{x} \in \mathcal{X} \Rightarrow f(\mathbf{x}) \in \mathcal{Y}$.
+
+For example, verifying robustness in an image classification network requires ensuring that small perturbations to the input (e.g., slight changes in pixel brightness) do not change the network's output. Let $\mathbf{x}_0$ denote an input for which the network predicts label $c^* \in \{1, \dots, k_n\}$. To certify robustness, it must be shown that the network assigns the highest score to $c^*$ over all perturbations $\mathbf{x} \in \mathcal{X}$; formally, $y_{c^*} > y_j$ for all $j \ne c^*$. This corresponds to the constraints:
+
+\(
+\begin{align}
+    \mathcal{X} &= \{ \mathbf{x} : \| \mathbf{x} - \mathbf{x}_0 \|_p \leq \epsilon \} \nonumber \\
+    \mathcal{Y} &= \{ \mathbf{y} : y_{c^*} > y_j \;\; \forall j \neq c^* \} \;, \nonumber
+\end{align}
+\)
+where $\epsilon$ bounds the input perturbation and $p$ denotes the norm used to measure its size.
+
+Given a network and a specification, DNN verification algorithms yield one of three outcomes. An /adversarial result/ returns the smallest perturbation $\epsilon^*$ that causes a violation. If $\epsilon^* \le \epsilon$, the specification fails; if $\epsilon^* > \epsilon$, it holds. A /counterexample result/ identifies some $\mathbf{x}^* \in \mathcal{X}$ such that $f(\mathbf{x}^*) \notin \mathcal{Y}$, thereby refuting the specification. A /reachability result/ computes the output set $\mathcal{R}(\mathcal{X}, f) := \{f(\mathbf{x}) : \mathbf{x} \in \mathcal{X}\}$. If $\mathcal{R}(\mathcal{X}, f) \subseteq \mathcal{Y}$, the specification is satisfied; otherwise, it is violated.
+
+Two primary classes of techniques have emerged for neural network verification: constraint-based and abstraction-based approaches.
+
+=== Constraint-Based Verification
+
+Specifications $\phi$ are typically encoded as logical constraints expressed in first-order logic (FOL). Propositional logic (PL), a restricted subset of FOL, builds formulas from Boolean variables combined using standard connectives: and ($\wedge$), or ($\vee$), and not ($\neg$).
+
+To capture numerical properties of neural networks, PL is extended with arithmetic theories. A common example is linear real arithmetic, which expresses constraints as linear relations of the form:
+
+\(
+\begin{equation*}
+    \sum_{i=1}^n c_i x_i + b \bowtie 0 \;,
+\end{equation*}
+\)
+where $c_i, b \in \mathbb{R}$, $x_i$ are real-valued variables, and $\bowtie \in \{<, \le, =, \ge, >\}$.
+
+Consider a simple network with two inputs $x_1$ and $x_2$, a single neuron defined by $t = 2x_1 + 8x_2$, and a ReLU activation. To verify that the network output is nonnegative for all inputs in $[0,1]^2$, the network is encoded as:
+
+\(
+\begin{equation*}
+    \psi \triangleq t = 2x_1 + 8x_2 \wedge (t > 0 \Rightarrow r = t) \wedge (t \leq 0 \Rightarrow r = 0),
+\end{equation*}
+\)
+
+and the specification as:
+
+\(
+\begin{equation*}
+    \phi \triangleq \forall x_1, x_2 \in [0,1] \;\; \psi \Rightarrow r \geq 0.
+\end{equation*}
+\)
+
+The formula $\psi$ includes ReLU activations encoded as implications, such as $(t > 0 \Rightarrow r = t)$, which are logically equivalent to disjunctions like $(t \leq 0 \vee r = t)$. Although each individual literal is linear, the disjunctive structure makes the formula non-convex. Constraint-based methods convert such formulas into mixed logical–arithmetic constraint systems, which [https://en.wikipedia.org/wiki/Satisfiability_modulo_theories SMT] and [https://www.gurobi.com/resources/mixed-integer-programming-mip-a-primer-on-the-basics/ MILP] solvers must evaluate by exhaustively exploring all ReLU activation patterns. As the number of ReLUs increases, the space of case splits grows exponentially, making complete verification NP-hard.
+
+=== Abstraction-Based Verification
+
+Abstraction-based methods improve scalability by evaluating the network over sets of inputs rather than individual points. Over-approximations of network behavior are computed using abstract domains, which propagate symbolic bounds through the computation. More specifically, given a region $\mathcal{X}$, the verifier computes an over-approximation of $f(\mathcal{X})$, the set of all possible outputs. For example, verifying $f(\mathcal{X}) \subseteq \{\mathbf{y} \mid \text{class}(\mathbf{y}) = \text{"dog"}\}$ guarantees that all inputs $\mathbf{x} \in \mathcal{X}$ are classified as "dog." While efficient these methods are incomplete: not everything that is true has a proof, meaning the verifier does not always return a definitive "yes" or "no" answer. Nonetheless, they are sound — any property that is proven is guaranteed to be true.
+
+The interval domain is the simplest abstract domain, representing sets of real values with bounded intervals. For example, let $g(\mathcal{X}) = \{x + 2 \mid x \in \mathcal{X}\}$ denote a function applied to a real-valued input set $\mathcal{X}$. When $\mathcal{X}$ is infinite, evaluating $g$ concretely is intractable. Abstract interpretation replaces $\mathcal{X}$ with an interval $[l, u]$ such that $l, u \in \mathbb{R}$ and $l \leq u$, encoding the set $\{x \mid l \leq x \leq u\}$. The abstract version of the function, $g^a([l, u]) = [l + 2, u + 2]$, operates directly on intervals and over-approximates the output of $g$ on $\mathcal{X}$.
+
+The principle illustrated by the scalar function $g(x) = x + 2$ extends to the affine and activation functions that compose neural networks. Affine transformations appear in every linear layer, where the input is mapped to a weighted sum and bias. In the scalar case, an affine function takes the form $f(x_1, \dots, x_n) = \sum_i c_i x_i + b$, with $c_i \in \mathbb{R}$ and each $x_i$ bounded in an interval $[l_i, u_i]$. The abstract evaluation over these intervals is:
+
+\(
+\begin{equation*}
+    f^a([l_1, u_1], \dots, [l_n, u_n]) = \left[ \sum_i l_i' + b, \sum_i u_i' + b \right],
+\end{equation*}
+\)
+where $l_i' = \min(c_i l_i, c_i u_i)$ and $u_i' = \max(c_i l_i, c_i u_i)$. The tuple $([l_1, u_1], \dots, [l_n, u_n])$ defines a hyperrectangle in $\mathbb{R}^n$ representing all $\mathbf{x}$ such that $l_i \leq x_i \leq u_i$ for each coordinate $i$.
+
+Activation functions follow each affine transformation and are typically applied elementwise. For any monotonically increasing activation function $f$, the abstract evaluation over an input interval $[l, u]$ is given by $f^a([l, u]) = [f(l), f(u)]$.
+
+Verification proceeds once input intervals have been propagated through the entire network. For instance, a specification might require that for inputs $x_1 \in [2,6]$ and $x_2 \in [8,12]$, the output satisfies $y \in [0,100]$. Given the network below, a verifier can confirm that this condition holds.
+
+~~~
+{}{img_left}{static/images/nn-verification/abstract_nn.png}{NN with Abstraction-Based Verification}{450px}
+~~~
+
+While the interval domain has been applied to verify DNNs in complex settings such as image classification and natural language processing, it is non-relational — it fails to capture dependencies between input dimensions. This limitation often results in significant over-approximation of reachable sets. Relational domains such as neural [https://verifieddeeplearning.com/ zonotopes and neural polyhedra] can preserve input dependencies, yielding tighter bounds and improved verification precision.
+
+=== References
+
+: {[http://theory.stanford.edu/~barrett/pubs/LAL+21.pdf Algorithms for verifying deep neural networks] (2021)} Changliu Liu, Tomer Arnon, Chris Lazarus, Christopher Strong, Clark Barrett, and Mykel J. Kochenderfer
+
+: {[https://verifieddeeplearning.com/ Introduction to neural network verification] (2021)} Aws Albarghouthi
+
+: {[https://blog.sigplan.org/2021/11/04/neural-network-verification-where-are-we-and-where-do-we-go-from-here/ Neural network verification: Where are we and where do we go from here?] (2021)} Aws Albarghouthi

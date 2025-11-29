@@ -1,0 +1,35 @@
+# jemdoc: menu{MENU}{experience.html}
+= Industry Experience
+
+==== Stride Consulting | Senior Software Engineer | 2017 -- 2019
+
+/Client: Schonfeld Strategic Advisors | Hedge Fund/
+- Built stateless Python services and stateful Java services to efficiently process billions of dollars in trades
+- Improved system latency from 1.1 seconds to 15 milliseconds and reduced system recovery time from 2 hours to less
+than 5 minutes by changing data transfer method from HTTP to Kafka
+
+/Client: Peloton Interactive | Connected Fitness Platform/
+- Led development of payment processing and order fulfillment tools for Australian launch
+- Designed and implemented an approach to facilitate communication with new Enterprise Resource Planner
+
+/Client: Magnetic | Advertising Management Platform/
+- Rebuilt core platform growing monthly recurring revenue from \$1,000,000 to \$6,000,000
+- Engineered Python microservices that allowed users to manage each component of an online advertisement including audience definition, budget selection, and media creation
+- Built microservices that published advertisements to 7 different networks
+
+==== Human API | Software Engineer | 2016 -- 2017
+- Worked with data science and product teams to build integration solutions for 40+ customers
+- Engineered custom products for 30+ clients including a user health timeline for Samsung
+- Devised a partnership plan with executives from Merck Germany
+
+==== Stonecrysus | Co-founder & CEO | 2013 -- 2016
+- Developed a machine learning health platform that earned 4 United States patents
+- Worked with an electrical engineering and design firm in Taiwan to manufacture a proprietary fitness wearable
+- Presented 3 times to groups of 300+ people, including CES
+- Negotiated with organizations such as Samsung, Amazon, and the US Olympic Committee
+- Designed and built a web platform that allowed health practitioners to access and analyze patient data
+
+==== Synduit | Co-founder & President | 2012 -- 2013
+- Grew monthly recurring revenue from \$0 to \$100,000+ in less than 1 year with a team of 2 people
+- Drove profit margin to 80% by overseeing the construction of a machine learning-based automation platform
+- Managed 12 employee team while building client base to 120+ businesses

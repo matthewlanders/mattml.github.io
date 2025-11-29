@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>The Reparameterization Trick</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html" class="current">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>The Reparameterization Trick</h1>
+</div>
+<p><i>Revised January 29, 2025</i>
+</p>
+<p>Consider a generic expectation \(\mathbb{E}_{z \sim p}[f(z; \theta)]\), where \(p\) is a density function. The gradient of this expectation with respect to \(\theta\) can be computed as:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+     \nabla_\theta \mathbb{E}_{z \sim p}[f(z; \theta)] &amp;= \nabla_\theta \left[ \int_z p(z) f(z; \theta) \, dz \right] \nonumber \\
+     &amp;= \int_z p(z) \nabla_\theta f(z; \theta) \, dz &amp;&amp; \text{by linearity of integration} \nonumber \\
+     &amp;= \mathbb{E}_{z \sim p} \left[\nabla_\theta f(z; \theta) \right] \;. \label{eq:independent-density}
+\end{align}
+\]
+</p><p>Thus demonstrating that the gradient of the expectation is equivalent to the expectation of the gradient when the density \(p\) is independent of \(\theta\). However, if \(p\) is parameterized by \(\theta\), the computation becomes more involved:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+     \nabla_\theta \mathbb{E}_{z \sim p_\theta}[f(z; \theta)] &amp;= \nabla_\theta \left[ \int_z p(z; \theta) f(z; \theta) \, dz \right] \label{eq:reparameterization-1} \\
+     &amp;= \int_z \nabla_\theta \left[ p(z; \theta) f(z; \theta) \right] \, dz \nonumber \\
+     &amp;= \color{red}{\int_z f(z; \theta) \nabla_\theta p(z; \theta) \, dz} + \color{blue}{\int_z p(z; \theta) \nabla_\theta f(z; \theta) \, dz} &amp;&amp; \text{by the product rule} \label{eq:reparameterization-2} \\
+\end{align}
+\]
+</p><p>In practice, directly computing the integrals in Equation \(\eqref{eq:reparameterization-2}\) is often intractable, particularly in high-dimensional settings. Instead, these integrals are typically re-expressed as expectations, which can be approximated via Monte Carlo methods. This reformulation is straightforward for the blue term, as it naturally takes the form of an expectation:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \int_z p(z; \theta) \nabla_\theta f(z; \theta) \, dz &amp;= \mathbb{E}_{z \sim p_\theta} \left[\nabla_\theta f(z; \theta) \right] \label{eq:blue-expectation} \\
+    &amp;\approx \frac{1}{N} \sum_{i=1}^N \nabla_\theta f(z_i; \theta) \nonumber \;,
+\end{align}
+\]
+</p><p>where \(z_i \sim p_\theta\) and \(\nabla_\theta f(z; \theta) = \left[ \frac{\partial f(z; \theta)}{\partial \theta_1}, \frac{\partial f(z; \theta)}{\partial \theta_2}, \dots, \frac{\partial f(z; \theta)}{\partial \theta_d} \right]^\top\). This Monte Carlo approximation provides an <a href="glossary.html" target=&ldquo;blank&rdquo;>unbiased</a> estimate of the gradient, making it practical for stochastic optimization methods such as <a href="backpropagation.html" target=&ldquo;blank&rdquo;>gradient descent</a>.
+</p>
+<p>To estimate the red term in Equation \(\eqref{eq:reparameterization-2}\), we could similarly sample \(z_i \sim p_\theta\), compute \(f(z_i; \theta)\nabla_\theta p(z_i; \theta)\), and take the average over \(i = 1, \dots, N\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:naive-estimate}
+    \frac{1}{N} \sum_{i=1}^N f(z_i; \theta) \nabla_\theta p(z_i; \theta) \;.
+\end{equation}
+\]
+</p><p>While seemingly intuitive, this approach is biased. For an estimator to be unbiased, its expectation must equal the true value of the parameter being estimated (in this case, the red term in Equation \(\eqref{eq:reparameterization-2}\)). However, evaluating the expectation of Equation \(\eqref{eq:naive-estimate}\) gives:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathbb{E} \left[\frac{1}{N} \sum_{i=1}^N f(z_i; \theta) \nabla_\theta p(z_i; \theta)\right]
+    = \int \color{green}{p(z; \theta)} f(z; \theta) \nabla_\theta p(z; \theta) \,dz
+    \; \neq \color{red}{\int f(z; \theta) \nabla_\theta p(z; \theta) \,dz} \;.
+\end{equation*}
+\]
+</p><p>This expression introduces an <b>extra</b> factor of \(p(z; \theta)\) (highlighted in green) in the integrand. Consequently, the naive sample-average in Equation \(\eqref{eq:naive-estimate}\) is actually an unbiased estimator of:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \int p(z; \theta) f(z; \theta) \nabla_\theta p(z; \theta) \, dz \;.
+\end{equation*}
+\]
+</p><div class="infoblock">
+<div class="blockcontent">
+<p><b>From where does the extra factor of \(p(z; \theta)\) come?</b>
+</p>
+<p>The expected value of an estimator \(\phi\) (some function of \(z\)) with respect to the probability distribution \(p(z; \theta)\) is defined as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:expectation-definition}
+    \mathbb{E}_{z \sim p_\theta} \left[ \phi(z) \right] = \int \underbrace{p(z; \theta)}_{\text{pdf}}
+    \; \underbrace{\phi(z)}_{\text{integrand}} \, dz \;.
+\end{equation}
+\]
+</p><p>Here, the probability density function \(p(z; \theta)\) determines how different values of \(z\) contribute to the integral, effectively acting as a <b>weighting</b> function, while the function \(\phi(z)\) is the quantity being integrated over \(z\). The product \(p(z; \theta) \phi(z)\) under the integral <b>defines</b> the expected value of \(\phi(z)\) when \(z\) is sampled from \(p_\theta\). When approximating this expectation via sampling, the density term \(p(z; \theta)\) does not appear in the sum as random draws from \(p_\theta\) inherently account for the weighting — values of \(z\) with higher probability density occur more frequently in the sample (it is by this definition that the \(p(z; \theta)\) disappears in Equation \(\eqref{eq:blue-expectation}\)).
+</p>
+<p>This concept also provides the intuition behind <a href="importance-sampling.html" target=&ldquo;blank&rdquo;>importance sampling</a> where we estimate the value of an integral with respect to the probability distribution \(p_\theta\), but samples are drawn from a different distribution \(b\). To account for the discrepancy between \(b\) and \(p_\theta\), we introduce a weighting term:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \int \phi(z) p(z; \theta) \, dz = \int \phi(z) \frac{p(z; \theta)}{b(z)} b(z) \, dz
+    = \mathbb{E}_{z \sim b} \left[ \frac{p(z; \theta)}{b(z)} \phi(z) \right] \;.
+\end{equation*}
+\]
+</p></div></div>
+<p>By the definition of an expectation (Equation \(\eqref{eq:expectation-definition}\)), obtaining an unbiased estimator of the red term in Equation \(\eqref{eq:reparameterization-2}\) requires an integrand of the form &ldquo;\(p(z; \theta) \times\) something&rdquo;. The <a href="policy-gradients.html" target=&ldquo;blank&rdquo;>log-derivative trick</a> enables precisely this reformulation:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \int f(z;\theta)\,\nabla_\theta p(z; \theta)\,dz &amp;= \int f(z;\theta)\,p(z; \theta)\,\nabla_\theta \log p(z; \theta) \,dz
+    &amp;&amp; \text{by the log-derivative trick} \\
+
+
+    &amp;= \mathbb{E}_{z \sim p_\theta} \left[ f(z;\theta) \nabla_\theta \log p(z; \theta) \right] \\
+    &amp;\approx \frac{1}{N} \sum_{i=1}^N f(z_i;\theta) \nabla_\theta \log p(z_i; \theta) \;.
+\end{align*}
+\]
+</p><p>This estimator involves the term \(f(z; \theta) \nabla_\theta \log p(z; \theta)\). Notably, \(\nabla_\theta \log p(z; \theta)\) can be large or exhibit significant fluctuations — particularly in high-dimensional parameter spaces — leading to <b>high variance</b> in the estimator.
+</p>
+<h3>The Reparameterization Trick</h3>
+<p>The reparameterization trick reduces variance by expressing the random variable \(z \sim p_\theta\) as a deterministic function \(g\) of \(\theta\) and an auxiliary random variable \(\epsilon\) drawn from a <b>distribution independent of \(\theta\)</b>:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \epsilon &amp;\sim p(\epsilon) \;, \\
+    z &amp;= g(\epsilon; \theta) \; .
+\end{align*}
+\]
+</p><p>That is, rather than sampling \(z\) directly from the \(\theta\)-dependent distribution \(p_\theta\), we instead sample \(\epsilon\) from a <b>fixed</b> distribution \(p(\epsilon)\) (independent of \(\theta\)) and define \(z\) as a transformation of \(\epsilon\) and \(\theta\). For example, if \(z\) is drawn from a Gaussian distribution with mean \(\mu(\theta)\) and standard deviation \(\sigma(\theta)\), we can reparameterize it as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    z = g(\epsilon; \theta) = \mu(\theta) + \sigma(\theta) \epsilon \;,
+\end{equation*}
+\]
+</p><p>where \(\epsilon \sim \mathcal{N}(0, 1)\).
+</p>
+<p>After reparameterizing \(z\) as \(g(\epsilon; \theta)\), the expectation is reformulated:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathbb{E}_{z \sim p_\theta}[f(z; \theta)] = \mathbb{E}_{\epsilon \sim p(\epsilon)}[f(g(\epsilon; \theta);\theta)] \;.
+\end{equation*}
+\]
+</p><p>This transformation allows the gradient with respect to \(\theta\) to be computed directly:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \nabla_\theta \mathbb{E}_{z \sim p_\theta}[f(z; \theta)] &amp;= \nabla_\theta \mathbb{E}_{\epsilon \sim p(\epsilon)} \left[f \left(g(\epsilon; \theta);\theta \right) \right] \nonumber \\
+    &amp;= \mathbb{E}_{\epsilon \sim p(\epsilon)} \left[\nabla_\theta \left( f \left(g(\epsilon; \theta) ;\theta \right) \right) \right] \label{eq:expectation-of-gradient} \\
+    &amp;= \mathbb{E}_{\epsilon \sim p(\epsilon)} \left[\nabla_z f(z; \theta)\big|_{z=g} \cdot \nabla_\theta g(\epsilon; \theta) + \frac{\partial f(z; \theta)}{\partial \theta} \right] \nonumber \;.
+\end{align}
+\]
+</p><h3>Summarizing the Benefits of the Reparameterization Trick</h3>
+<p>In Equation \(\eqref{eq:reparameterization-1}\), the gradient operator \(\nabla_\theta\) influences both the function \(f(z; \theta)\) and the distribution \(p(z; \theta)\) from which \(z\) is sampled. This dual dependence prevents the gradient from being moved inside the expectation, as it is generally <b>not</b> true that the <i>gradient of the expectation</i>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \nabla_\theta \mathbb{E}_{z \sim p_\theta}[f(z; \theta)]
+\end{equation*}
+\]
+</p><p>is equal to the <i>expectation of the gradient</i>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathbb{E}_{z \sim p_\theta}[\nabla_\theta f(z; \theta)] \;.
+\end{equation*}
+\]
+</p><p>The gradient of the expectation accounts for how variations in \(\theta\) affect both \(f(z; \theta)\) <b>and</b> the distribution \(p(z; \theta)\), while the expectation of the gradient captures only the direct dependence of \(f(z; \theta)\) on \(\theta\), ignoring its effect on \(p(z; \theta)\).
+</p>
+<p>Thus, to correctly compute \(\nabla_\theta \mathbb{E}_{z \sim p_\theta}[f(z; \theta)]\), we must account for the dependence of \(p(z; \theta)\) on \(\theta\). This can be achieved using the log-derivative trick, which states:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \nabla_\theta \mathbb{E}_{z \sim p_\theta}[f(z; \theta)] = \mathbb{E}_{z \sim p_\theta}[f(z; \theta) \nabla_\theta \log p(z; \theta) + \nabla_\theta f(z;\theta)] \;.
+\end{equation*}
+\]
+</p><p>While the term \(\nabla_\theta \log p(z; \theta)\) captures how variations in \(\theta\) influence the distribution \(p(z; \theta)\), this estimator often exhibits high variance, which can make optimization inefficient.
+</p>
+<p>The reparameterization trick replaces the randomness induced by the model parameters \(\theta\) with an external source of randomness \(\epsilon\). Since \(\epsilon\) is independent of \(\theta\), the gradient operator \(\nabla_\theta\) no longer affects the distribution \(p(\epsilon)\). Consequently, we can move the gradient inside the expectation in Equation \(\eqref{eq:expectation-of-gradient}\) (as in Equation \(\eqref{eq:independent-density}\)), which enables direct computation of \(\nabla_\theta f(g(\epsilon; \theta);\theta)\) via backpropagation.
+</p>
+<p>In effect, the reparameterization trick eliminates the need for the derivation that produced the red term in Equation \(\eqref{eq:reparameterization-2}\). Consequently, it avoids the reliance on the log-derivative trick and its inherently high-variance gradient estimates.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://gregorygundersen.com/blog/2018/04/29/reparameterization/" target=&ldquo;blank&rdquo;>The Reparameterization Trick</a> (2018)</dt>
+<dd><p>Gregory Gundersen
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1812.05905.pdf" target=&ldquo;blank&rdquo;>Soft Actor-Critic Algorithms and Applications</a> (2019)</dt>
+<dd><p>Tuomas Haarnoja,
+Aurick Zhou, Kristian Hartikainen, George Tucker, Sehoon Ha, Jie Tan, Vikash Kumar, Henry Zhu, Abhishek Gupta, Pieter
+Abbeel, and Sergey Levine
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

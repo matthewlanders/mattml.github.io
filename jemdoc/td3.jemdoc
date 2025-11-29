@@ -1,0 +1,263 @@
+# jemdoc: menu{MENU}{td3.html}
+= Twin Delayed Deep Deterministic Policy Gradients (TD3)
+
+/Revised June 19, 2025/
+
+/The [double-q-learning.html Double Q-learning] and [ddpg.html DDPG] notes are optional but recommended background reading./
+
+In Q-learning, [double-q-learning.html overestimation arises] from the use of the $\max$ operator during bootstrapping — among multiple noisy estimates, the maximum is selected, introducing positive bias into the target. Although [ddpg.html deterministic policy gradient (DPG)] methods avoid discrete maximization, they remain susceptible to overestimation due to the interaction between the actor and an approximate critic.
+
+Let $\pi(s;\phi)$ denote a deterministic policy parameterized by $\phi$, and let $Q(s,a;\theta)$ be an approximate critic. In DDPG, the actor is optimized by maximizing the critic's evaluation of its proposed actions, according to the objective:
+
+\(
+\begin{equation}\label{eq:actor-objective}
+    J(\phi) = \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi); \theta) \right] \;,
+\end{equation}
+\)
+where $\mathcal{D}$ denotes the state distribution, typically sampled from a [glossary.html replay buffer].
+
+Let $\phi_k$ be the actor parameters at iteration $k$. Define $\phi_\text{approx}$ as the updated parameters obtained by ascending the critic-derived objective in Equation $\eqref{eq:actor-objective}$:
+
+\(
+\begin{equation*}
+    \phi_\text{approx} = \phi_k + \frac{\alpha_k}{Z_1} \left. \nabla_\phi \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi); \theta) \right] \right|_{\phi = \phi_k} \;,
+\end{equation*}
+\)
+where $\alpha_k > 0$ is the step size and $Z_1 = \left. \nabla_\phi \mathbb{E}[\dots] \right|_{\phi_k}$ is the norm of the gradient, which serves as a normalization constant. The normalization term ensures that the update corresponds to a step of fixed length $\alpha_k$ in the gradient direction. This scaling isolates the directional component of the update, simplifying comparison between updates derived from different objective functions. 
+
+Define $\phi_\text{true}$ as the hypothetical update computed using the true action-value function $Q(s,a)$:
+
+\(
+\begin{equation*}
+    \phi_\text{true} = \phi_k + \frac{\alpha_k}{Z_2} \left. \nabla_\phi \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi)) \right] \right|_{\phi = \phi_k} \;.
+\end{equation*}
+\)
+
+Since $\phi_\text{approx}$ results from a step of length $\alpha_k$ in the normalized gradient direction of the critic-derived objective $J(\phi) = \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi); \theta) \right]$, it corresponds to the direction of steepest ascent under the critic's approximation. For sufficiently small $\alpha_k$, this guarantees that the critic's evaluation of $\pi(s;\phi_\text{approx})$ is at least as high as its evaluation of $\pi(s;\phi_\text{true})$, which follows from a step of equal length in a generally different direction:
+
+\(
+\begin{equation}\label{eq:ddpg-bound1}
+    \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi_\text{approx}); \theta) \right] \geq \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi_\text{true}); \theta) \right] \;.
+\end{equation}
+\)
+
+Analogously, since $\phi_\text{true}$ results from a step of length $\alpha_k$ in the normalized gradient direction of the true objective $J_\text{true}(\phi) = \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi)) \right]$, it defines the steepest local ascent under the true action-value. For sufficiently small $\alpha_k$, this implies that the true value of $\pi(s;\phi_\text{true})$ is at least as high as that of $\pi(s;\phi_\text{approx})$:
+
+\(
+\begin{equation}\label{eq:ddpg-bound2}
+    \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi_\text{true})) \right] \geq \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi_\text{approx})) \right] \;.
+\end{equation}
+\)
+
+Suppose further that the critic overestimates the value of the action proposed by $\phi_\text{true}$:
+
+\(
+\begin{equation}\label{eq:ddpg-assumption}
+    \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi_\text{true}); \theta) \right] \geq \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi_\text{true})) \right] \;.
+\end{equation}
+\)
+
+This assumption reflects a systematic upward bias in the critic's evaluation of near-optimal actions. This mirrors the [double-q-learning.html overestimation phenomenon in Q-learning], where the $\max$ operator selects overestimated values. Although no explicit maximization occurs in DPG methods, the actor is explicitly optimized to increase $Q(s, \pi(s;\phi); \theta)$, which biases the policy toward actions assigned high value by the critic. If $Q(s,a;\theta)$ overestimates near the true optimum, gradient ascent amplifies this error, inducing bias through optimization rather than selection — precisely the condition assumed in Equation $\eqref{eq:ddpg-assumption}$.
+
+Combining Equations $\eqref{eq:ddpg-bound1}$–$\eqref{eq:ddpg-assumption}$ yields:
+
+\(
+\begin{align}
+    \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi_\text{approx}); \theta) \right]
+    &\geq \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi_\text{true}); \theta) \right] && \text{by Equation \eqref{eq:ddpg-bound1}} \nonumber \\
+    &\geq \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi_\text{true})) \right] && \text{by Equation \eqref{eq:ddpg-assumption}} \nonumber \\
+    &\geq \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi_\text{approx})) \right] && \text{by Equation \eqref{eq:ddpg-bound2}} \;. \label{eq:ddpg-overestimation}
+\end{align}
+\)
+
+Thereby demonstrating that the critic overestimates the value of the updated policy. If such overestimation persists across iterations, the actor may converge toward regions of the action space that appear high-valued under the critic but yield suboptimal returns.
+
+~~~
+*Proving the Local Improvement in Actor Objectives*
+
+To formalize the intuition behind Equations $\eqref{eq:ddpg-bound1}$ and $\eqref{eq:ddpg-bound2}$, we consider the first-order behavior of the critic-derived and true policy objectives under normalized gradient updates. Let
+
+\(
+\begin{equation*}
+    J_\theta(\phi) = \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi); \theta) \right] \quad \text{and} \quad J_\text{true}(\phi) = \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi)) \right]
+\end{equation*}
+\)
+denote the approximate and true policy evaluation objectives, respectively. Let $\phi_k$ denote the current actor parameters, and define the gradient directions as:
+
+\(
+\begin{equation*}
+    g_\theta = \left. \nabla_\phi J_\theta(\phi) \right|_{\phi_k}, \qquad g_\text{true} = \left. \nabla_\phi J_\text{true}(\phi) \right|_{\phi_k} \;.
+\end{equation*}
+\)
+
+Let 
+
+\(
+\begin{equation}\label{eq:norm-definitions}
+    Z_1 = \|g_\theta\| \quad \text{and} \quad Z_2 = \|g_\text{true}\|
+\end{equation}
+\)
+
+denote the norms of these gradients. Then the update directions used to define $\phi_\text{approx}$ and $\phi_\text{true}$ are given by:
+
+\(
+\begin{equation*}
+    \phi_\text{approx} = \phi_k + \alpha_k \frac{g_\theta}{Z_1}, \qquad \phi_\text{true} = \phi_k + \alpha_k \frac{g_\text{true}}{Z_2} \;,
+\end{equation*}
+\)
+
+where $\alpha_k > 0$ is a small step size. Performing a first-order [glossary.html Taylor expansion] of $J_\theta$ around $\phi_k$ gives
+
+\(
+\begin{align*}
+    J_\theta(\phi_\text{approx}) &\approx J_\theta(\phi_k) + \alpha_k g_\theta^\top \frac{g_\theta}{Z_1} = J_\theta(\phi_k) + \alpha_k Z_1 \;, \\
+    J_\theta(\phi_\text{true}) &\approx J_\theta(\phi_k) + \alpha_k g_\theta^\top \frac{g_\text{true}}{Z_2} \;.
+\end{align*}
+\)
+
+It follows that:
+
+\(
+\begin{equation}\label{eq:ddpg-bound1-derivation}
+    J_\theta(\phi_\text{approx}) - J_\theta(\phi_\text{true}) \approx \alpha_k \left(\color{red}{Z_1 - \frac{g_\theta^\top g_\text{true}}{Z_2}} \right) \;.
+\end{equation}
+\)
+
+Thus, if the red term in Equation $\eqref{eq:ddpg-bound1-derivation}$ is positive, we can conclude the approximate update improves the critic's objective more than the true update. The sign of this difference can be established as:
+
+\(
+\begin{align*}
+    g_\theta^\top g_\text{true} &\le \|g_\theta\| \|g_\text{true}\| && \text{by the Cauchy-Schwarz inequality} \\
+    &\le Z_1 Z_2 && \text{by Equation \eqref{eq:norm-definitions}} \\ 
+    &\Rightarrow \quad \frac{g_\theta^\top g_\text{true}}{Z_2} \le Z_1 && \text{dividing both sides by } Z_2 \;.
+\end{align*}
+\)
+
+This implies that the red term is nonnegative. Hence, for sufficiently small $\alpha_k$,
+
+\(
+\begin{equation*}
+    J_\theta(\phi_\text{approx}) \ge J_\theta(\phi_\text{true}) \;.
+\end{equation*}
+\)
+
+An identical argument, with $J_\text{true}$ replacing $J_\theta$, shows that
+
+\(
+\begin{equation*}
+    J_\text{true}(\phi_\text{true}) \ge J_\text{true}(\phi_\text{approx}) \;.
+\end{equation*}
+\)
+
+These inequalities express that, under first-order updates of fixed step size, each gradient ascent step improves its own objective at least as much as the alternative step would improve that same objective.
+~~~
+
+=== Clipped Double Q-learning
+
+While both value-based methods and DPG algorithms are susceptible to overestimation bias, direct adaptations of [double-q-learning.html mitigation strategies] effective in the former prove inadequate in the latter. Specifically, in the [pseudocode.html Double DQN framework], the target is constructed using the online network for action selection and the target network for value estimation. The closest analogue in an actor-critic setting uses the target critic $Q(\theta')$ to evaluate the action $\pi(s'; \phi)$ selected by the current policy:
+
+\(
+\begin{equation}\label{eq:cdq-target-ddqn-analogue}
+    Y = r + \gamma Q(s', \pi(s'; \phi); \theta') \;.
+\end{equation}
+\)
+
+In practice, however, actor-critic methods typically exhibit slow policy updates relative to the critic. Consequently, the online $Q(\theta)$ and target $Q(\theta')$ critics remain nearly identical: both are trained on rollouts from the same slowly drifting policy, and $\theta'$ is incrementally nudged toward $\theta$ after each step. Their estimation errors are therefore highly correlated, so the bootstrap target in Equation $\eqref{eq:cdq-target-ddqn-analogue}$ carries no statistically independent signal; its errors mirror those of the online critic and thus cannot offset the overestimation bias.
+
+A more robust alternative, motivated by the [double-q-learning.html original Double Q-learning formulation], maintains two independent critics $Q(\theta_1), Q(\theta_2)$ and actors $\pi(\phi_1), \pi(\phi_2)$. Each actor is optimized with respect to its corresponding critic, while target estimates for each critic are computed using the target network of the other critic:
+
+\(
+\begin{align*}
+    Y_1 &= r + \gamma Q \left(s', \pi(s'; \phi_1); \theta_2' \right) \label{eq:td3-doubleq-target-1} \\
+    Y_2 &= r + \gamma Q \left(s', \pi(s'; \phi_2); \theta_1' \right) \;. \label{eq:td3-doubleq-target-2}
+\end{align*}
+\)
+
+This scheme introduces a degree of estimator independence by decoupling action selection from value evaluation. However, the two critics are not fully independent: they are trained on the same replay buffer and their learning targets are coupled. Specifically, $Y_1$ depends on the actor $\pi(\phi_1)$ and the target critic $Q(\theta_2')$, while $Y_2$ depends on $\pi(\phi_2)$ and $Q(\cdot;\theta_1')$. Since $\theta_1'$ and $\theta_2'$ evolve based on updates influenced by $Y_1$ and $Y_2$, the target used to update one critic is indirectly affected by the parameters and updates of the other. Consequently, for some next state $s'$, it may still hold that $Q(s', \pi(s';\phi_1); \theta_2') > Q(s', \pi(s';\phi_1); \theta_1')$. If $Q(s', \pi(s';\phi_1); \theta_1')$ is itself an overestimate — a manifestation of the same systematic upward bias captured by the assumption in Equation $\eqref{eq:ddpg-assumption}$, which underpins the overestimation result in Equation $\eqref{eq:ddpg-overestimation}$ — then this interaction can amplify rather than suppress the bias.
+
+To mitigate residual overestimation, TD3 introduces /Clipped Double Q-learning/, which replaces the target with the minimum of two critic estimates. Although the conceptual exposition above assumes two actors, the practical implementation of TD3 uses a single online actor $\pi(\phi)$ and a corresponding target actor $\pi(\phi')$, which selects the action used to compute the critic target. In addition, it maintains two critic networks $Q(\theta_1)$ and $Q(\theta_2)$, each with its own target network $Q(\theta_1')$ and $Q(\theta_2')$. Each critic $Q(\theta_i)$ is trained to regress toward the same target value:
+
+\(
+\begin{equation}\label{eq:critic-target}
+    Y = r + \gamma \min_{i=1,2} Q(s', \pi(s'; \phi'); \theta_i') \;.
+\end{equation}
+\)
+
+The $\min$ operator bounds the more biased estimate by the lesser of the two, suppressing the upward bias introduced by function approximation and the actor's optimization of the approximate critic. While this may induce /underestimation/, such errors are preferable to overestimation as underestimated actions are unlikely to be selected and thus are not explicitly propagated through the policy update.
+
+=== Target Networks and Delayed Policy Updates
+
+Clipped Double Q-learning reduces overestimation by suppressing high-variance value estimates as the $\min$ operator favors the more conservative of two critics, limiting the impact of spurious positive errors. However, this addresses only the /effect/ of variance. Variance in value estimates due to approximation errors, recursively propagated by TD updates, remains a distinct source of instability.
+
+Each TD update introduces a residual error $\delta(s,a)$, defined as the mismatch between the critic's output $Q(s,a;\theta)$ and its bootstrapped target. Under function approximation, the Bellman equation cannot be exactly satisfied, so these errors compound across updates. This accumulation is made explicit by expressing the Bellman equation with an error term $\delta(s,a)$:
+
+\(
+\begin{equation*}\label{eq:bellman_with_error}
+    Q(s,a;\theta) = r + \gamma \mathbb{E}_{\pi, P} \left[ Q(s', \pi(s'; \phi); \theta) \right] - \delta(s,a) \;.
+\end{equation*}
+\)
+
+Unrolling this recursion yields a cumulative expression for the learned value function:
+
+\(
+\begin{align}
+    Q(s_t,a_t;\theta) &= r_t + \gamma \mathbb{E} \left[ Q(s_{t+1}, a_{t+1}; \theta) \right] - \delta_t \nonumber \\
+    &= r_t + \gamma \mathbb{E} \left[ r_{t+1} + \gamma \mathbb{E} \left[ Q(s_{t+2}, a_{t+2}; \theta) \right] - \delta_{t+1} \right] - \delta_t \label{eq:error_accumulation} \\
+    &= \mathbb{E}_{\tau \sim \pi} \left[ \sum_{i=t}^T \gamma^{i-t} (r_i - \delta_i) \right] \;. \nonumber
+\end{align}
+\)
+
+Equation $\eqref{eq:error_accumulation}$ expresses the learned critic as the true return minus the discounted sum of TD errors. As $\gamma \to 1$, even modest residuals can compound across updates, inflating variance and biasing the actor toward unreliable value estimates.
+
+TD3 mitigates high-variance targets by enforcing two structural constraints on the update schedule. First, target networks for both actor and critic are updated slowly via Polyak averaging: 
+
+\(
+\begin{align*}
+    \theta' &\leftarrow \tau \theta + (1 - \tau)\theta' \\
+    \phi' &\leftarrow \tau \phi + (1 - \tau)\phi' \;,
+\end{align*}
+\)
+where with $\tau \ll 1$. These slowly evolving targets reduce the variance of the critic's bootstrapped targets, which in turn improves the quality of the gradients passed to the actor.
+
+Second, the actor and target networks are updated less frequently than the critic. Specifically, the critic is updated every step, while the actor and all target networks (i.e., the target actor $\pi(\phi')$ and both target critics $Q(\theta_1'), Q(\theta_2')$) are updated once every $d$ steps (typically $d = 2$). This two-timescale procedure ensures that the actor is optimized only when the critic has had sufficient time to reduce its estimation error. Delayed updates prevent premature policy shifts based on noisy value estimates, promoting smoother convergence and more reliable policy improvement.
+
+=== Target Policy Smoothing Regularization
+
+Deterministic policies select a single action per state, making them prone to overfitting to narrow peaks in the learned Q-function. When $Q(\theta)$ assigns disproportionately high value to one action while sharply penalizing nearby alternatives, the policy may converge to a brittle solution with poor generalization. This overfitting increases the variance of the critic's learning target (Equation $\eqref{eq:critic-target}$), as small perturbations to the selected action can yield large fluctuations in $Q(\theta)$. Thus, TD3 introduces target policy smoothing, which regularizes the critic to produce smoother value estimates around the actions proposed by the target policy. Rather than evaluating only the action $\pi(s';\phi')$, the target averages over a neighborhood around it, yielding a learning signal that is less sensitive to small perturbations. This mirrors the intuition for [pseudocode.html SARSA], where bootstrapping on the actual next action induces a form of local smoothing.
+
+The smoothed target takes the form:
+
+\(
+\begin{equation}\label{eq:tps_conceptual}
+    Y = r + \gamma \mathbb{E}_\epsilon \left[ Q(s', \pi(s'; \phi') + \epsilon; \theta') \right] \;,
+\end{equation}
+\)
+where $\epsilon$ is sampled noise and $Q(\theta')$ is a target critic. This expectation attenuates the influence of sharp local maxima in the Q-function and promotes a more stable training signal for both the actor and the critic.
+
+In practice, the expectation in Equation $\eqref{eq:tps_conceptual}$ is approximated by sampling. A small noise term $\epsilon$ is added to the action selected by the target actor $\pi(s';\phi')$, and the critic is updated using the Q-value at the perturbed action. The noise $\epsilon$ is sampled from a clipped Gaussian:
+
+\(
+\begin{align*}
+    \tilde{a}' &= \pi(s'; \phi') + \epsilon \\
+    \epsilon &\sim \text{clip}(\mathcal{N}(0,\sigma_a), -c, c) \;, \nonumber
+\end{align*}
+\)
+where $\sigma_a$ controls the noise scale and $c$ limits its magnitude to prevent extreme perturbations.
+
+This smoothed action $\tilde{a}'$ is substituted into the Clipped Double Q-learning target (Equation $\eqref{eq:critic-target}$), yielding:
+
+\(
+\begin{equation*}
+    Y = r + \gamma \min_{i=1,2} Q(s', \tilde{a}'; \theta_i') \;.
+\end{equation*}
+\)
+
+This target preserves the conservative bias of Clipped Double Q-learning while regularizing the critic against sharp discontinuities in $Q(s,a;\theta)$. Training on perturbed actions encourages smoother value functions, reducing sensitivity to small action changes and improving the robustness of the learned policy.
+
+~~~
+{}{img_left}{static/images/td3/td3.png}{TD3 pseudocode}{600px}
+~~
+
+=== References
+
+: {[https://arxiv.org/pdf/1802.09477 Addressing Function Approximation Error in Actor-Critic Methods] (2018)} Scott Fujimoto, Herke van Hoof, and David Meger

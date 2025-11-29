@@ -1,0 +1,400 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Value Functions and Policies</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html" class="current">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Value Functions and Policies</h1>
+</div>
+<p><i>Revised June 11, 2024</i>
+</p>
+<p><i>The <a href="mdp.html" target=&ldquo;blank&rdquo;>Markov Decision Processes note</a> is optional but recommended background reading.</i>
+</p>
+<p>In a <a href="mdp.html" target=&ldquo;blank&rdquo;>Markov Decision Process</a> (MDP), a decision-making agent seeks to <a href="mdp.html" target=&ldquo;blank&rdquo;>maximize the sum of its discounted rewards</a>. Expressed slightly differently, the agent prioritizes visiting states with the highest expected return. Consider the figure below. Assuming all other factors are equal, the agent should prefer state \(s_3\) over \(s_1\) because \(s_3\) has a higher expected return:
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/policies/mdp_1.png" alt="MDP 1" width="270px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p style="text-align:center">
+\[
+\begin{align*}
+    V(s_1) &amp;= 8 + (0.9 \cdot -3) = 5.3 &amp;&amp; \text{with } \gamma = 0.9 \\
+    V(s_3) &amp;= 5 + (0.9 \cdot 2) = 6.8
+\end{align*}
+\]
+</p><p>A state's value, or more precisely its expected return, can be formalized with the <i>value function</i>. Because transitioning between states requires actions, the value function is defined with respect to a sequence of actions called a <i><a href="glossary.html" target=&ldquo;blank&rdquo;>policy</a></i>. In the MDP below, for example, the value of \(s_0\) depends on the agent selecting either action \(a=0\) or \(a=1\):
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/policies/mdp_2.png" alt="MDP 2" width="400px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<table id="caption">
+<tr class="r1"><td class="c1">Note that the transitions between <i>all</i> states require an action, but because only one action is available in \(s_1, s_2, s_3,\) and \(s_4\), we omit the selected action to simplify notation.
+</td></tr></table>
+<p style="text-align:center">
+\[
+\begin{align*}
+    V(s_0 \mid a_0) = 2 + (0.9 \cdot 8) + (0.9*0.9 \cdot -3) = 6.77 \\
+    V(s_0 \mid a_1) = 1 + (0.9 \cdot 5) + (0.9*0.9 \cdot 2) = 7.12
+\end{align*}
+\]
+</p><p>Policies can be categorized by their nature (deterministic or stochastic) and by their temporal behavior (stationary or non-stationary). A <i>deterministic policy</i> maps each state to a specific action \(\pi: s \rightarrow a\). A <i>stochastic policy</i>, by contrast, is a conditional density; it maps a state to a probability distribution over actions \(\pi(a \mid s) = \mathbb{P}[a_t = a \mid s_t = s]\). A <i>stationary policy</i> is time-invariant, selecting actions based solely on the current state, such that \(a_t \sim \pi(\cdot \mid s_t)\) holds for all timesteps \(t\). A <i>non-stationary policy</i> permits temporal variation in action selection, formally expressed as \(\pi_i \neq \pi_j\) for any timesteps \(i \neq j\). This means that given the same state, a non-stationary policy may select different actions depending on when the decision is made.
+</p>
+<p>There are two types of value functions. The <i>state-value function</i> quantifies the value of a state \(s\) under a policy \(\pi\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    V_\pi (s) = \mathbb{E}_\pi [G_t \mid s_t = s] \; ,
+\end{equation*}
+\]
+</p><p>where \(G_t = \sum_{k=0}^{H} \gamma^k r_{t+k+1}\) represents the discounted sum of future rewards from time \(t\) (for more details, refer to the <a href="mdp.html" target=&ldquo;blank&rdquo;>MDP note</a>).
+</p>
+<p>The <i>action-value function</i> quantifies the value of taking action \(a\) in state \(s\) under policy \(\pi\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:action-value-function}
+    Q_\pi (s,a) = \mathbb{E}_\pi [G_t \mid s_t = s, a_t = a] \;.
+\end{equation}
+\]
+</p><p>Informally, the action-value function gives the expected return when taking action \(a\) in state \(s\) and following policy \(\pi\) thereafter.
+</p>
+<h3>The Bellman Expectation Equations</h3>
+<p>The Bellman equation provides a recursive decomposition of the value function, offering a structured method to evaluate the value of a state. It expresses a state's value in terms of its immediate reward and the discounted value of its successor state:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    V_\pi (s) &amp;= \mathbb{E}_\pi [G_t \mid s_t = s] \nonumber \\
+    &amp;= \mathbb{E}_\pi \Bigg[ \sum_{k=0}^{\infty} \gamma^k r_{t+k+1} \mid s_t = s  \Bigg] \nonumber \\
+    &amp;= \mathbb{E}_\pi [r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + \dots \mid s_t = s] \nonumber \\
+    &amp;= \mathbb{E}_\pi [r_{t+1} + \gamma(r_{t+2} + \gamma r_{t+3} + &hellip;) \mid s_t = s] \nonumber \\
+    &amp;= \mathbb{E}_\pi [r_{t+1} + \gamma G_{t+1} \mid s_t = s] \nonumber \\
+    &amp;= \mathbb{E}_\pi [r_{t+1} + \gamma V_\pi (s_{t+1}) \mid s_t = s] \label{eq:immediate-plus-future} \;.
+\end{align}
+\]
+</p><p>This formulation separates the immediate reward from the (more uncertain) future rewards. However, as outlined in the <a href="mdp.html" target=&ldquo;blank&rdquo;>MDP note</a>, transitions between states can be probabilistic due to the environment, the policy, or both. To account for this stochasticity, we modify Equation \(\eqref{eq:immediate-plus-future}\) using the MDP’s constituent elements, resulting in the <i>state-value Bellman expectation equation</i>:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    V_\pi (s) &amp;= \mathbb{E}_\pi [r_{t+1} + \gamma V_\pi (s_{t+1}) \mid s_t = s] \nonumber \\
+    &amp;= \sum_{a \in \mathcal{A}} \pi(a \mid s) \mathbb{E} \big[r_{t+1} + \gamma V_\pi(s_{t+1}) \mid s_t=s, a_t=a \big] \nonumber \\
+    &amp;= \sum_{a \in \mathcal{A}} \pi(a \mid s) \bigg( R(s,a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s,a,s&rsquo;) V_\pi (s&rsquo;) \bigg) \label{eq:sv-bellman} \;.
+\end{align}
+\]
+</p><p>Because we informally defined the action-value function as the expected return when taking action \(a\) in state \(s\) and then following policy \(\pi\), we can similarly extend Equation \(\eqref{eq:action-value-function}\) to derive the <i>action-value Bellman expectation equation</i>:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    Q_\pi (s,a) &amp;= \mathbb{E}[r_{t+1} + \gamma V_\pi(s_{t+1}) \mid s_t = s, a_t = a] \label{eq:av_bellman} \nonumber \\
+    &amp;= R(s,a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s,a,s&rsquo;) V_\pi (s&rsquo;) \nonumber \\
+    &amp;= R(s,a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s,a,s&rsquo;) \left( \sum_{a&rsquo; \in \mathcal{A}}
+    \pi(a&rsquo; \mid s&rsquo;) Q_\pi (s&rsquo;,a&rsquo;) \right) \label{eq:av-bellman} \;.
+\end{align}
+\]
+</p><p>Solving the Bellman expectation Equations \(\eqref{eq:sv-bellman}\) and \(\eqref{eq:av-bellman}\) is straightforward because the policy is fixed. We are not seeking to identify optimal actions or improve the policy; rather, we want to determine the value of a specific state or state-action pair given a static policy \(\pi\). A fixed policy reduces an MDP to a <i><a href="glossary.html" target=&ldquo;blank&rdquo;>Markov Reward Process</a></i> (MRP). An MRP is a special case of a <i>Markov chain</i>, a memoryless stochastic process characterized by a sequence of random states \(s_1, s_2, \dots\), satisfying the <a href="glossary.html" target=&ldquo;blank&rdquo;>Markov property</a>. A Markov chain is defined by a tuple \(\mathcal{M} = \langle \mathcal{S}, P \rangle\). An MRP extends a Markov chain by associating rewards with state transitions and is defined by \(\mathcal{M} = \langle \mathcal{S}, P, R, \gamma \rangle\). A fixed policy induces an MRP from an MDP because the agent's sequence of observed states and rewards is entirely governed by the policy \(\pi\).
+</p>
+<p>In an MRP, the Bellman expectation equation can be expressed in vector and matrix form to represent rewards, values, and transition probabilities under a fixed policy \(\pi\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:bellman_matrix}
+    \mathbf{v}_\pi = \mathbf{r}_\pi + \gamma P_\pi \mathbf{v}_\pi \;.
+\end{equation}
+\]
+</p><p>Expanding this into matrix notation:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation} \nonumber
+    \begin{bmatrix}
+        v_{1} \\ v_{2} \\ \vdots \\ v_{n}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        r_\pi(1) \\ r_\pi(2) \\ \vdots \\ r_\pi(n)
+    \end{bmatrix}
+    +
+    \gamma
+    \begin{bmatrix}
+        P_\pi({1,1}) &amp; P_\pi({1,2}) &amp; \cdots &amp; P_\pi({1,n}) \\
+        P_\pi({2,1}) &amp; P_\pi({2,2}) &amp; \cdots &amp; P_\pi({2,n}) \\
+        \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
+        P_\pi({n,1}) &amp; P_\pi({n,2}) &amp; \cdots &amp; P_\pi({n,n})
+    \end{bmatrix}
+    \begin{bmatrix}
+        v_{1} \\ v_{2} \\ \vdots \\ v_{n}
+    \end{bmatrix}
+\end{equation}
+\]
+</p><p>Here, \(\mathbf{r}_\pi\) represents the expected rewards and \(P_\pi\) represents the state transition probabilities under policy \(\pi\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    r_\pi(s) = \sum_{a \in \mathcal{A}} \pi(a \mid s) R(s, a) \quad \text{and} \quad P_\pi(s, s&rsquo;) = \sum_{a \in \mathcal{A}} \pi(a \mid s) P(s, a, s&rsquo;) \;.
+\end{equation*}
+\]
+</p><p>Notice that Equation \(\eqref{eq:bellman_matrix}\) is a linear equation that can be solved directly:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \mathbf{v}_\pi &amp;= \mathbf{r}_\pi + \gamma P_\pi \mathbf{v}_\pi \nonumber \\
+    \mathbf{v}_\pi - \gamma P_\pi \mathbf{v}_\pi &amp;= \mathbf{r}_\pi \nonumber \\
+    (\mathbf{I} - \gamma P_\pi)\mathbf{v}_\pi &amp;= \mathbf{r}_\pi \nonumber \\
+    \mathbf{v}_\pi &amp;= (\mathbf{I} - \gamma P_\pi)^{-1} \mathbf{r}_\pi \; , \nonumber
+\end{align}
+\]
+</p><p>where \(\mathbf{I}\) is the identity matrix.
+</p>
+<p>Consider a two-state system in which the agent transitions from state \(s_1\) to \(s_2\) with probability 0.2 (reward = \(-10\)) and remains in \(s_1\) with probability 0.8 (reward = \(15\)). From state \(s_2\), the agent transitions to \(s_1\) with probability 0.6 (reward = \(15\)) and remains in \(s_2\) with probability 0.4 (reward = \(-10\)).
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/policies/mrp.png" alt="Simple MRP" width="400px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>Using the Bellman expectation equation in matrix form (Equation \(\eqref{eq:bellman_matrix}\)), the value function can be computed as follows:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation} \nonumber
+    \begin{bmatrix}
+        v_{1} \\ v_{2}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        10 \\ 5
+    \end{bmatrix}
+    +
+    0.9
+    \begin{bmatrix}
+        0.8 &amp; 0.2 \\
+        0.6 &amp; 0.4
+    \end{bmatrix}
+    \begin{bmatrix}
+        v_{1} \\ v_{2}
+    \end{bmatrix}
+\end{equation}
+\]
+</p><p style="text-align:center">
+\[
+\begin{equation} \nonumber
+    \begin{bmatrix}
+        v_{1} \\ v_{2}
+    \end{bmatrix}
+    -
+    \Bigg (
+    0.9
+    \begin{bmatrix}
+        0.8 &amp; 0.2 \\
+        0.6 &amp; 0.4
+    \end{bmatrix}
+    \begin{bmatrix}
+        v_{1} \\ v_{2}
+    \end{bmatrix}
+    \Bigg )
+    =
+    \begin{bmatrix}
+        10 \\ 5
+    \end{bmatrix}
+\end{equation}
+\]
+</p><p style="text-align:center">
+\[
+\begin{equation} \nonumber
+    \Bigg (
+    \begin{bmatrix}
+        1 &amp; 0 \\
+        0 &amp; 1
+    \end{bmatrix}
+    -
+    0.9
+    \begin{bmatrix}
+        0.8 &amp; 0.2 \\
+        0.6 &amp; 0.4
+    \end{bmatrix}
+    \Bigg )
+    \begin{bmatrix}
+        v_{1} \\ v_{2}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        10 \\ 5
+    \end{bmatrix}
+\end{equation}
+\]
+</p><p style="text-align:center">
+\[
+\begin{equation} \nonumber
+    \begin{bmatrix}
+        v_{1} \\ v_{2}
+    \end{bmatrix}
+    =
+    \Bigg (
+    \begin{bmatrix}
+        1 &amp; 0 \\
+        0 &amp; 1
+    \end{bmatrix}
+    -
+    0.9
+    \begin{bmatrix}
+        0.8 &amp; 0.2 \\
+        0.6 &amp; 0.4
+    \end{bmatrix}
+    \Bigg )^{-1}
+    \begin{bmatrix}
+        10 \\ 5
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        89.02 \\ 82.93
+    \end{bmatrix}
+\end{equation}
+\]
+</p><p>Note we arbitrarily selected the discount rate \(\gamma=0.9\).
+</p>
+<h3>The Bellman Optimality Equations</h3>
+<p>While the Bellman expectation equations allow us to evaluate the value of a given policy, our ultimate goal is not just to assess specific policies but to identify the &ldquo;best&rdquo; policy. Formally, in a finite MDP — characterized by a finite number of states, actions, and rewards — a policy \(\pi\) is considered better than another policy \(\pi'\) if and only if \(V_\pi(s) \geq V_{\pi&rsquo;}(s)\) for every state \(s \in \mathcal{S}\). Similarly, in terms of the action-value function, a policy is optimal if \(Q_\pi(s, a) \geq Q_{\pi&rsquo;}(s, a)\) for all states \(s \in \mathcal{S}\) and all actions \(a \in \mathcal{A}\). The best or <i>optimal policy</i> \(\pi_*\), which guarantees expected returns at least as high as any other policy, can be found by solving the <i>Bellman optimality equations</i> and applying <i>greedy action selection</i>.
+</p>
+<p>In any state \(s\), a greedy action with respect to the state-value function \(V_\pi\) is the action that maximizes the expected one-step-ahead value \(\arg\max_a \mathbb{E}[r_{t+1} + \gamma V_\pi(s_{t+1}) \mid s_t=s, a_t=a]\). It thus follows that a greedy policy with respect to \(V_\pi\) selects the maximizing action in every state. The optimal policy, then, is the greedy policy with respect to the <i>optimal state-value function</i> \(V_*\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\nonumber
+    V_*(s) = \max_\pi V_\pi(s) \;.
+\end{equation}
+\]
+</p><p>Thus, if \(V_*\) is known, selecting the greedy action in each state will result in the optimal policy. Similarly, the <i>optimal action-value function</i> can be used to derive the optimal policy:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\nonumber
+    Q_*(s, a) = \max_\pi Q_\pi(s, a) \;.
+\end{equation}
+\]
+</p><p>The optimal state-value function, \(V_*\), is found by solving the <i>state-value Bellman optimality equation</i>:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    V_* (s) &amp;= \max_{a} Q_*(s,a) \\
+    &amp;= \max_{a} \left( R(s,a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s,a,s&rsquo;) V_* (s&rsquo;) \right) \;.
+\end{align*}
+\]
+</p><p>The optimal action-value function \(Q_*\) is derived by solving the <i>action-value Bellman optimality equation</i>:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    Q_* (s,a) &amp;= R(s,a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s,a,s&rsquo;) V_* (s&rsquo;) \\
+    &amp;= R(s,a) + \gamma \sum_{s&rsquo; \in \mathcal{S}} P(s,a,s&rsquo;) \max_{a&rsquo;} Q_* (s&rsquo;, a&rsquo;) \;.
+\end{align*}
+\]
+</p><p>Unlike the Bellman expectation equations, the Bellman optimality equations introduce the \(\max\) operator, which defines the greedy action and renders the equations non-linear. As a result, they cannot be solved directly as in Equation \(\eqref{eq:bellman_matrix}\). Nonetheless, the Bellman optimality equations are foundational in reinforcement learning. As outlined in the <a href="dynamic-programming-for-mdps.html" target=&ldquo;blank&rdquo;>dynamic programming for MDPs note</a>, there are various iterative methods for solving these equations.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://www.davidsilver.uk/teaching/" target=&ldquo;blank&rdquo;>Markov Decision Processes</a>, Lectures on Reinforcement Learning (2015)</dt>
+<dd><p>David Silver
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://sites.ualberta.ca/~szepesva/rlbook.html" target=&ldquo;blank&rdquo;>Algorithms for Reinforcement Learning</a>, Synthesis Lectures on Artificial Intelligence and Machine Learning (2019)</dt>
+<dd><p>Csaba Szepesvari
+</p></dd>
+</dl>
+<dl>
+<dt><a href="http://incompleteideas.net/book/the-book-2nd.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction</a> (2018)</dt>
+<dd><p>Richard S. Sutton and Andrew G. Barto
+</p></dd>
+</dl>
+<dl>
+<dt>Markov Decision Processes: Discrete Stochastic Dynamic Programming (1994)</dt>
+<dd><p>Martin L. Puterman
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://ieor8100.github.io/rl/" target=&ldquo;blank&rdquo;>MDPs</a>, Reinforcement Learning (2019)</dt>
+<dd><p>Shipra Agrawal
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

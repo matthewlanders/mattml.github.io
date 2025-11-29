@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>DRL Verification</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html" class="current">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>DRL Verification</h1>
+</div>
+<p><i>Revised June 23, 2025</i>
+</p>
+<p><i>The <a href="nn-verification.html" target=&ldquo;blank&rdquo;>Neural Network Verification note</a> is optional but recommended background reading.</i>
+</p>
+<p>Although deep reinforcement learning (DRL) algorithms are built using deep neural networks (DNNs), the verification of such systems introduces challenges that differ fundamentally from those in conventional <a href="nn-verification.html" target=&ldquo;blank&rdquo;>DNN verification</a>. DRL methods are designed for sequential decision making, requiring the DNN to select an action at every timestep \(t \in \mathcal{T}\) during an episode. Standard deep learning tasks, by contrast, typically involve a single forward pass. Thus, although scalability is already a critical obstacle in DNN verification, the problem is compounded in the DRL setting.
+</p>
+<p>In image classification, for example, robustness verification asserts that small input perturbations (e.g., slight changes in pixel brightness) do not affect the network's prediction. This guarantee must hold for only one network invocation. DRL robustness, by contrast, demands that such invariance be ensured at every timestep. For instance, verifying that a self-driving car never changes its action under perturbed sensor readings requires proving that the DNN outputs identical actions for both perturbed and unperturbed inputs at <i>every</i> decision point. This multiplies the verification burden. Verifying \(t\) consecutive invocations of a DNN with \(n\) nodes is equivalent to encoding a single network of size \(t \cdot n\) into the verification engine. Since the verification problem is <a href="nn-verification.html" target=&ldquo;blank&rdquo;>NP-complete</a>, the worst-case complexity grows from \(2^n\) to \(2^{t \cdot n}\).
+</p>
+<p>Moreover, in DRL the output of one network invocation directly influences the inputs to subsequent invocations. Verification must therefore reason over trajectories rather than isolated outputs. For instance, certifying that a self-driving car reaches its destination safely requires proving that the <i>entire</i> sequence of actions leads to a safe outcome. Verifying such temporally extended properties necessitates tools beyond those used for single-step DNN verification.
+</p>
+<p>Finally, DRL agents often operate under stochastic dynamics, arising from randomness in the policy, uncertainty in the environment, and other sources of nondeterminism. Verification must therefore account for distributions over possible outcomes. Returning to the self-driving car example: even if a learned policy prescribes proceeding at a green light, sensor noise or perception failures might cause the car to misinterpret the signal. Proving safety in such settings requires guarantees over all relevant probabilistic transitions, not just deterministic execution traces.
+</p>
+<p>Because standard DNN verification methods do not extend naturally to sequential, probabilistic settings, a distinct class of DRL verification methods has emerged. <a href="https://dl.acm.org/doi/full/10.1145/3596444" target=&ldquo;blank&rdquo;>Our open-access survey</a> provides a detailed overview of these techniques.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://dl.acm.org/doi/full/10.1145/3596444" target=&ldquo;blank&rdquo;>Deep Reinforcement Learning Verification: A Survey</a> (2023)</dt>
+<dd><p>Matthew Landers and Afsaneh Doryab
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

@@ -1,0 +1,694 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Constrained Markov Decision Processes</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html" class="current">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Constrained Markov Decision Processes</h1>
+</div>
+<p><i>Revised August 13, 2025</i>
+</p>
+<p><i>The <a href="mdp.html" target=&ldquo;blank&rdquo;>Markov Decision Processes note</a> is optional but recommended background reading.</i>
+</p>
+<p>Reinforcement learning problems are typically formalized as the optimal control of an incompletely known <a href="mdp.html" target=&ldquo;blank&rdquo;>Markov Decision Process</a> (MDP), in which an agent seeks to maximize expected cumulative discounted reward:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \text{arg} \max_{\pi \in \Pi} J^\pi = \mathbb{E}_{s \sim \mu, \tau \sim \pi} \left[ \sum_{t=0}^T \gamma^t r_t \right] = \sum_{s \in \mathcal{S}} \mu(s) V^\pi(s) \; .
+\end{equation*}
+\]
+</p><p>where \(\pi \in \Pi\) is a <a href="glossary.html" target=&ldquo;blank&rdquo;>policy</a> and \(\mu\) is an initial state distribution.
+</p>
+<p>In many real-world settings, policies must not only maximize reward but also satisfy auxiliary constraints, such as limits on cost, risk, or safety violations. Constrained Markov Decision Processes (CMDPs) model such problems by introducing a set of cost functions \(\mathcal{C} = \{ C_1, \dots, C_m \}\) and corresponding bounds \(\mathbf{l} = \{ l_1, \dots, l_m \}\), where each \(C_i : \mathcal{S} \times \mathcal{A} \rightarrow \mathbb{R}\) and \(l_i \in \mathbb{R}\).
+</p>
+<p>More formally, define the state-cost function as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    V_{C_i}^\pi(s) = \mathbb{E}_{\tau \sim \pi} \left[ \sum_{t=0}^T \gamma^t C_i(s_t, a_t) \mid s_0 = s \right] \; ,
+\end{equation*}
+\]
+</p><p>and the expected discounted cost under initial state distribution \(\mu\) as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    J_{C_i}^\pi = \sum_{s \in \mathcal{S}} \mu(s) V_{C_i}^\pi(s) \; .
+\end{equation*}
+\]
+</p><p>The CMDP objective is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \arg\max_{\pi \in \Pi_C} J^\pi ,
+    \quad \text{where} \quad
+    \Pi_C = \{ \pi \in \Pi : J_{C_i}^\pi \le l_i \ \forall i \} .
+\end{equation*}
+\]
+</p><p>Equivalently, writing the constraints explicitly gives:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}\label{eq:constrained}
+   &amp;\arg\max_{\pi \in \Pi} \; \sum_{s \in \mathcal{S}} \mu(s) V^\pi(s) \\
+   &amp;\text{subject to} \quad \sum_{s \in \mathcal{S}} \mu(s) V_{C_i}^\pi(s) \leq l_i \quad \forall i \; . \nonumber
+\end{align}
+\]
+</p><p>Because strictly enforcing the constraints at every step of the optimization is typically computationally intractable, Equation \(\eqref{eq:constrained}\) is approximated with a regularized, unconstrained objective:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:soft-penalties}
+     \max_{\pi \in \Pi} \; J^\pi - \sum_{i=1}^m w_i \, [\, J_{C_i}^\pi - l_i \, ]_+ \;,
+\end{equation}
+\]
+</p><p>where \(w_i \ge 0\) are fixed penalty coefficients. The hinge form \([x]_+ = \max\{x,0\}\) ensures that penalties are applied only when a constraint is violated, preserving the intended semantics of the original problem. The naive form without \([\,\cdot\,]_+\) incorrectly rewards driving \(J_{C_i}^\pi\) far below \(l_i\).
+</p>
+<p>While the soft penalties in Equation \(\eqref{eq:soft-penalties}\) avoid explicit constraint handling, they have significant drawbacks. First, they provide no guarantee that the final policy is feasible (i.e., respects all constraints). Second, performance is sensitive to the scaling and tuning of the penalty coefficients. Third, mixing reward and penalty terms in the objective can cause gradient interference, often leading to slow convergence or plateaus.
+</p>
+<h3>Lagrangian Relaxation</h3>
+<p>The limitations of fixed soft penalties motivate replacing hand-tuned weights with optimization-driven multipliers. Lagrangian relaxation introduces dual variables \(\lambda_i \ge 0\) that penalize violations adaptively rather than via preset \(w_i\), separating reward maximization from constraint enforcement and yielding a principled saddle-point problem. In what follows, the constrained objective is recast from a maximization (Equation \(\eqref{eq:soft-penalties}\)) to a minimization for alignment with standard optimization theory.
+</p>
+<p>A generic constrained optimization problem:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}\label{eq:constrained-optimization}
+    &amp;\min_{\theta \in \mathbb{R}^d} L(\theta) \\
+    &amp;\text{subject to} \quad C_i(\theta) - l_i \leq 0 \quad \forall i = 1, \dots, M \;, \nonumber
+\end{align}
+\]
+</p><p>can be <i>relaxed</i> by introducing penalty terms into the objective:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \min_{\theta \in \mathbb{R}^d} \; \mathcal{L}(\theta, \lambda) =
+    L(\theta) + \sum_{i=1}^M \lambda_i \left( C_i(\theta) - l_i \right) \; ,
+\end{equation*}
+\]
+</p><p>where \(\lambda \in [0, \infty)^M\) is a vector of <i>Lagrange multipliers</i>.
+</p>
+<p>The resulting function \(\mathcal{L}(\theta, \lambda)\) is the Lagrangian. This formulation &ldquo;relaxes&rdquo; the original problem by removing explicit constraints and instead penalizing constraint violations in the objective. If each \(\lambda_i\) is large enough, then any \(\theta\) that violates a constraint will yield a larger Lagrangian value than some feasible \(\theta\) with lower \(L(\theta)\), so the minimizer will prefer feasible solutions. This motivates the primal Lagrangian formulation:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:primal}
+    \mathcal{P}^* = \min_{\theta \in \mathbb{R}^d} \max_{\lambda \geq 0} \; \mathcal{L}(\theta, \lambda) =
+    \min_{\theta \in \mathbb{R}^d} \max_{\lambda \geq 0} \left[ L(\theta) + \sum_{i=1}^M \lambda_i \left( C_i(\theta) - l_i \right) \right] \; .
+\end{equation}
+\]
+</p><p>Importantly, the constrained problem (Equation \(\eqref{eq:constrained-optimization}\)) and the primal Lagrangian (Equation \(\eqref{eq:primal}\)) share the same optimal solution \(\theta^*\) allowing \(\lambda_i \to \infty\). This equivalence can be seen by analyzing the inner maximization in Equation \(\eqref{eq:primal}\). If any constraint is violated (i.e., if \(C_i(\theta) - l_i &gt; 0\) for some \(i\)) then the term \(\lambda_i \left( C_i(\theta) - l_i \right)\) grows without bound as \(\lambda_i \to \infty\), causing \(\mathcal{L}(\theta, \lambda)\) to diverge. Hence, the maximum over \(\lambda \geq 0\) is infinite whenever \(\theta\) is infeasible. To avoid this, any minimizing \(\theta\) must satisfy all constraints. Conversely, if \(\theta\) is feasible (i.e., \(C_i(\theta) - l_i \leq 0\) for all \(i\)), then the inner maximization is attained at \(\lambda = 0\), since each term \(\lambda_i \left( C_i(\theta) - l_i \right)\) is non-positive and thus maximized when \(\lambda_i = 0\). In that case, the Lagrangian reduces to \(L(\theta)\), and minimizing \(\mathcal{L}(\theta, \lambda)\) over feasible \(\theta\) is equivalent to minimizing \(L(\theta)\) subject to the constraints.
+</p>
+<p>From the primal form, the <b>Lagrangian dual</b> is defined by reversing the order of optimization:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \max_{\lambda \geq 0} \mathcal{D}(\lambda) =
+    \max_{\lambda \geq 0} \min_{\theta \in \mathbb{R}^d} \mathcal{L}(\theta, \lambda) =
+    \max_{\lambda \geq 0} \min_{\theta \in \mathbb{R}^d} \left[ L(\theta) + \sum_{i=1}^M \lambda_i \left( C_i(\theta) -l_i \right) \right] \; .
+\end{equation*}
+\]
+</p><p>Unlike the primal, the dual function \(\mathcal{D}(\lambda)\) is concave in \(\lambda\). This follows because \(\mathcal{L}(\theta, \lambda)\) is affine in \(\lambda\) for fixed \(\theta\), and \(\mathcal{D}(\lambda)\) is the pointwise minimum over a family of such affine functions. The pointwise minimum of concave functions is concave, and affine functions are both concave and convex; therefore, \(\mathcal{D}(\lambda)\) is concave.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/cmdps/affine.png" alt="The pointwise minimum of affine functions is concave" width="350px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<table id="caption">
+<tr class="r1"><td class="c1">Image adapted from <a href="https://math.stackexchange.com/questions/515812/pointwise-infimum-of-affine-functions-is-concave" target=&ldquo;blank&rdquo;>StackExchange</a>. The pointwise minimum of affine functions is concave.
+</td></tr></table>
+<p>Because the dual objective \(\mathcal{D}(\lambda)\) is concave and the feasible set \(\{\lambda \in \mathbb{R}^M : \lambda \geq 0\}\) is convex, the dual problem is a convex optimization problem.
+</p>
+<p>More specifically, by definition, a set \(S\) is convex if, for any \(u, v \in S\) and any \(\alpha \in [0,1]\), the point \(\alpha u + (1-\alpha)v\) is also in \(S\). To verify convexity of the feasible set, take \(\lambda^{(1)}, \lambda^{(2)}\) in the set. Then:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \lambda^{(1)}, \lambda^{(2)} \in \mathbb{R}^M,\ \lambda^{(1)} \geq 0,\ \lambda^{(2)} \geq 0
+    \ \Rightarrow\
+    \alpha \lambda^{(1)} + (1 - \alpha) \lambda^{(2)} \color{red}{\geq} 0 \quad \forall \alpha \in [0, 1] \; .
+\end{equation*}
+\]
+</p><p>Since both \(\lambda^{(1)}\) and \(\lambda^{(2)}\) are componentwise nonnegative, each component of \(\alpha \lambda^{(1)} + (1 - \alpha) \lambda^{(2)}\) is a convex combination of nonnegative numbers and is therefore nonnegative, establishing the inequality \(\alpha \lambda^{(1)} + (1 - \alpha) \lambda^{(2)} \color{red}{\geq} 0\). Thus \(\alpha \lambda^{(1)} + (1 - \alpha) \lambda^{(2)}\) lies in the feasible set, and the set is convex.
+</p>
+<p>The primal problem in Equation \(\eqref{eq:primal}\), by contrast, is generally not a convex optimization problem because the objective \(L(\theta)\) and constraint functions \(C_i(\theta)\) may be non-convex. Minimizing a non-convex function over the convex domain \(\mathbb{R}^d\) can yield multiple local minima, and standard convex optimization guarantees do not apply.
+</p>
+<p>Although convex, the dual provides only a lower bound on the optimal value of the primal:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \max_{\lambda \geq 0} \mathcal{D}(\lambda) =
+    \max_{\lambda \geq 0} \min_{\theta \in \mathbb{R}^d} \mathcal{L}(\theta,\lambda) \leq
+    \min_{\theta \in \mathbb{R}^d} \max_{\lambda \geq 0} \mathcal{L}(\theta,\lambda)
+    = p^* \; .
+\end{equation*}
+\]
+</p><p>Here,
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    p^* = \min_{\theta \in \mathbb{R}^d \,:\, C_i(\theta) \le l_i \ \forall i} L(\theta)
+\end{equation*}
+\]
+</p><p>denotes the optimal value of the original constrained problem in Equation \(\eqref{eq:constrained-optimization}\).
+</p>
+<h3>The Primal Formulation via Occupancy Measures</h3>
+<p>Solving the CMDP directly in the space of policies is difficult because the set of all possible policies is vast, and both the objective and constraints depend on the full distribution over trajectories they induce. However, the problem can be reformulated exactly by changing variables from a policy \(\pi\) to its induced <i>discounted occupancy measure</i> \(x\). This step relies on a structural property of CMDPs known as <i>sufficiency</i>: for any problem instance, there exists an optimal policy within the class of stationary policies. In the discounted occupancy measure space, the CMDP takes the form of a convex optimization problem, which admits a principled solution via Lagrangian duality.
+</p>
+<h4>Stationary Policies are Sufficient</h4>
+<p>The sufficiency of stationary policies can be shown by first defining the discounted normalized occupancy measure induced by a policy \(\pi\) and an initial distribution \(d_0\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:occupancy-measure}
+    \phi_{d_0}^\pi(s,a) = (1 - \gamma) \sum_{t=0}^\infty \gamma^t \mathbb{P}[s_t = s, a_t = a \mid \pi, d_0] \;,
+\end{equation}
+\]
+</p><p>where the factor \((1 - \gamma)\) normalizes the distribution so that \(\sum_{s,a} \phi_{d_0}^\pi(s,a) = 1\).
+</p>
+<p>The <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>value function</a> \(V_\pi(r, d_0)\) can be expressed in terms of the occupancy measure:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    (1 - \gamma) V_\pi(r, d_0)
+    &amp;= (1 - \gamma) \mathbb{E}_{d_0} \left[ \sum_{t=0}^\infty \gamma^t r(s_t, a_t) \right] &amp;&amp; \text{by the definition of value function} \nonumber \\
+    &amp;= (1 - \gamma) \sum_{t=0}^\infty \gamma^t \mathbb{E}_{d_0} [r(s_t, a_t)] &amp;&amp; \text{by linearity of expectation} \nonumber \\
+    &amp;= (1 - \gamma) \sum_{t=0}^\infty \gamma^t \sum_{s,a} \mathbb{P}[s_t = s, a_t = a \mid \pi, d_0] \, r(s,a) &amp;&amp; \text{expanding the expectation} \nonumber \\
+    &amp;= \sum_{s,a} \phi_{d_0}^\pi(s,a) \, r(s,a) &amp;&amp; \text{by Equation } \eqref{eq:occupancy-measure} \nonumber \\
+    &amp;= \langle \phi_{d_0}^\pi, r \rangle &amp;&amp; \text{inner product notation} \label{eq:linear}
+\end{align}
+\]
+</p><p>Stationary policies are sufficient because, for any policy — including the optimal policy — there exists a stationary policy with an identical occupancy measure. Since the value function is linear in the occupancy measure (by Equation \(\eqref{eq:linear}\)), this implies equal expected return.
+</p>
+<p>More formally, for any policy \(\pi\) and initial state distribution \(d_0\), there exists a stationary policy \(\pi'\) such that:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:stationary-policy}
+\phi_{d_0}^\pi(s,a) = \phi_{d_0}^{\pi&rsquo;}(s,a) \quad \forall (s,a) \;,
+\end{equation}
+\]
+</p><p>where \(\pi'\) is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:policy}
+    \pi&rsquo;(a \mid s) = \frac{\phi_{d_0}^\pi(s,a)}{\phi_{d_0}^\pi(s)} \;,
+\end{equation}
+\]
+</p><p>and \(\phi_{d_0}^\pi(s) = \sum_a \phi_{d_0}^\pi(s,a)\). If \(\phi_{d_0}^\pi(s) = 0\), any valid distribution over actions may be selected.
+</p>
+<p>Intuitively, the definition in Equation \(\eqref{eq:policy}\) constructs a stationary policy by matching the conditional action probabilities observed under the original policy. The occupancy measure \(\phi_{d_0}^\pi(s,a)\) gives the long-run discounted frequency of visiting state–action pair \((s,a)\), while \(\phi_{d_0}^\pi(s)\) is the corresponding frequency of visiting state \(s\). Their ratio is therefore the empirical probability of taking action \(a\) when in state \(s\) under \(\pi\). Choosing \(\pi'\) to equal this ratio ensures that \(\pi'\) induces exactly the same occupancy measure as \(\pi\), and hence achieves identical objective value and constraint satisfaction.
+</p>
+<h4>Proving Stationary Policies are Sufficient</h4>
+<p>We now show that, given Equation \(\eqref{eq:policy}\), \(\phi_{d_0}^\pi(s) = \phi_{d_0}^{\pi&rsquo;}(s)\) for all states \(s\), which immediately implies Equation \(\eqref{eq:stationary-policy}\). Let:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:transition-probability}
+    P^{\pi&rsquo;}(s, s&rsquo;) = \sum_{a} \pi&rsquo;(a \mid s) \mathbf{P}(s, a, s&rsquo;) \;,
+\end{equation}
+\]
+</p><p>denote the probability of transitioning to \(s'\) from \(s\) under policy \(\pi'\). Then:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \phi_{d_0}^\pi(s)
+    &amp;= (1 - \gamma) \sum_{t=0}^\infty \gamma^t \mathbb{P}[s_t = s \mid \pi, d_0]
+    &amp;&amp; \text{by Equation } \eqref{eq:occupancy-measure} \\
+
+    &amp;= (1 - \gamma)d_0(s) + (1 - \gamma) \sum_{t=1}^\infty \gamma^t \mathbb{P}[s_t = s \mid \pi, d_0]
+    &amp;&amp; \text{isolate \(t=0\) term} \\
+
+    &amp;= (1 - \gamma)d_0(s) + (1 - \gamma)\gamma \sum_{t=0}^\infty \gamma^t \mathbb{P}[s_{t+1} = s \mid \pi, d_0]
+    &amp;&amp; \text{reindex the sum} \\
+
+    &amp;= (1 - \gamma)d_0(s) + \gamma \sum_{s&rsquo;, a}
+    \left[ (1 - \gamma) \sum_{t=0}^\infty \gamma^t \mathbb{P}[s_t = s&rsquo;, a_t = a \mid \pi, d_0] \right]
+    \mathbf{P}(s&rsquo;, a, s)
+    &amp;&amp; \text{one-step expansion using total probability} \\
+
+    &amp;= (1 - \gamma)d_0(s) + \gamma \sum_{s&rsquo;, a} \phi_{d_0}^\pi(s&rsquo;, a) \, \mathbf{P}(s&rsquo;, a, s)
+    &amp;&amp; \text{by Equation } \eqref{eq:occupancy-measure} \\
+
+    &amp;= (1 - \gamma)d_0(s) + \gamma \sum_{s&rsquo;} \sum_a \phi_{d_0}^\pi(s&rsquo;, a) \, \mathbf{P}(s&rsquo;, a, s)
+    &amp;&amp; \text{reorder summation} \\
+
+    &amp;= (1 - \gamma)d_0(s) + \gamma \sum_{s&rsquo;} \left( \sum_a \frac{\phi_{d_0}^\pi(s&rsquo;, a)}{\phi_{d_0}^\pi(s&rsquo;)} \, \mathbf{P}(s&rsquo;, a, s) \right) \phi_{d_0}^\pi(s&rsquo;)
+    &amp;&amp; \text{multiply and divide by } \phi_{d_0}^\pi(s&rsquo;) \\
+
+    &amp;= (1 - \gamma)d_0(s) + \gamma \sum_{s&rsquo;} \left( \sum_a \pi&rsquo;(a \mid s&rsquo;) \, \mathbf{P}(s&rsquo;, a, s) \right) \phi_{d_0}^\pi(s&rsquo;)
+    &amp;&amp; \text{by Equation} \eqref{eq:policy} \\
+
+    &amp;= (1 - \gamma)d_0(s) + \gamma \sum_{s&rsquo;} \phi_{d_0}^\pi(s&rsquo;) \, P^{\pi&rsquo;}(s&rsquo;, s)
+    &amp;&amp; \text{by Equation } \eqref{eq:transition-probability}
+\end{align*}
+\]
+</p><p>Because the policy \(\pi'\) is fixed, the final expression can be written in vector form using a <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>transition matrix</a> \(P^{\pi&rsquo;}\) and a <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>row vector</a> \(\phi_{d_0}^\pi\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \phi_{d_0}^\pi = (1 - \gamma)d_0 + \gamma \phi_{d_0}^\pi P^{\pi&rsquo;} \;.
+\end{equation*}
+\]
+</p><p>Solving this recurrence:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \phi_{d_0}^\pi &amp;= (1 - \gamma)d_0 + \gamma \phi_{d_0}^\pi P^{\pi&rsquo;} \\
+    \phi_{d_0}^\pi - \gamma \phi_{d_0}^\pi P^{\pi&rsquo;} &amp;= (1 - \gamma)d_0 \\
+    \phi_{d_0}^\pi (\mathbf{I} - \gamma P^{\pi&rsquo;}) &amp;= (1 - \gamma)d_0 \\
+    \phi_{d_0}^\pi &amp;= (1 - \gamma)d_0 (\mathbf{I} - \gamma P^{\pi&rsquo;})^{-1} \;.
+\end{align*}
+\]
+</p><p>But this is exactly the solution to the linear system defined by the dynamics under \(\pi'\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \phi_{d_0}^{\pi&rsquo;} &amp;= (1 - \gamma)d_0 + \gamma \phi_{d_0}^{\pi&rsquo;} P^{\pi&rsquo;} \\
+    \phi_{d_0}^{\pi&rsquo;} (\mathbf{I} - \gamma P^{\pi&rsquo;}) &amp;= (1 - \gamma)d_0 \\
+    \phi_{d_0}^{\pi&rsquo;} &amp;= (1 - \gamma)d_0 (\mathbf{I} - \gamma P^{\pi&rsquo;})^{-1} \;.
+\end{align*}
+\]
+</p><p>The matrix \(\mathbf{I} - \gamma P^{\pi&rsquo;}\) is invertible because \(P^{\pi&rsquo;}\) is stochastic (all row sums are \(1\)) and \(0 \le \gamma &lt; 1\) ensures that \(\rho(\gamma P^{\pi&rsquo;}) &lt; 1\), where \(\rho(\cdot)\) denotes the <a href="https://en.wikipedia.org/wiki/Spectral_radius" target=&ldquo;blank&rdquo;>spectral radius</a>. Since \(\mathbf{I} - \gamma P^{\pi&rsquo;}\) is invertible, the linear system:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \phi(\mathbf{I} - \gamma P^{\pi&rsquo;}) = (1 - \gamma)d_0
+\end{equation*}
+\]
+</p><p>has exactly one solution for \(\phi\). Both \(\phi_{d_0}^\pi\) and \(\phi_{d_0}^{\pi&rsquo;}\) satisfy this system. By uniqueness they must, therefore, be equal:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \phi_{d_0}^\pi = \phi_{d_0}^{\pi&rsquo;} \;.
+\end{equation*}
+\]
+</p><p>Thus, any occupancy measure induced by an arbitrary policy can be matched by that of a stationary policy. This establishes the sufficiency of stationary policies. The algebraic structure mirrors the matrix formulation of value functions in <a href="glossary.html" target=&ldquo;blank&rdquo;>Markov reward processes</a>, highlighting the close connection between occupancy measures and value functions.
+</p>
+<h4>The Equivalent Linear Program</h4>
+<p>From the sufficiency of stationary policies, any feasible policy in the CMDP defined in Equation \(\eqref{eq:constrained}\) can be replaced by a stationary policy with the same discounted occupancy measure. For a stationary policy \(\pi'\), the discounted occupancy measure \(x(s,a) = \phi_{d_0}^{\pi&rsquo;}(s,a)\) satisfies the balance equation obtained by marginalizing Equation \(\eqref{eq:occupancy-measure}\) over \(a\) and expanding one step forward in time under the transition dynamics \(\mathbf{P}\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \sum_a x(s,a) = (1-\gamma)d_0(s) + \gamma \sum_{s&rsquo;,a} x(s&rsquo;,a)\,\mathbf{P}(s&rsquo;,a,s) \quad \forall s \in \mathcal{S}.
+\end{equation*}
+\]
+</p><p>The set of all discounted occupancy measures achievable by some stationary policy is therefore
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    X_\gamma = \left\{ x \in [0,\infty)^{\mathcal{S} \times \mathcal{A}} \; \middle| \;
+    \sum_a x(s,a) = (1-\gamma)d_0(s) + \gamma \sum_{s&rsquo;,a} x(s&rsquo;,a) \mathbf{P}(s&rsquo;,a,s),\; \forall s \in \mathcal{S} \right\} \;.
+\end{equation*}
+\]
+</p><p>Expressing the CMDP objective in terms of \(x\) yields an equivalent linear program:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \min_{x} &amp;\; -\langle x, r \rangle \label{eq:linear-program} \\
+    \text{s.t.} \quad
+    &amp;x \in X_\gamma \nonumber \\
+    &amp;\langle x, C_i \rangle - (1-\gamma)l_i \leq 0,
+    \quad i = 1, \dots, m \; . \nonumber
+\end{align}
+\]
+</p><p>The reward and cost constraints are linear in \(x\) because \(J^\pi\) and \(J_{C_i}^\pi\) are inner products between the occupancy measure and the corresponding reward or cost function (Equation \(\eqref{eq:linear}\)). The feasible set \(X_\gamma\) is defined by linear flow-conservation constraints, so the entire problem is a finite-dimensional linear program over the occupancy measure space.
+</p>
+<h4>The Lagrangian in Reinforcement Learning</h4>
+<p>In the CMDP linear program (Equation \(\eqref{eq:linear-program}\)), the Lagrangian is:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \mathcal{L}(x,\lambda)
+    &amp;= -\langle x, r \rangle
+       + \sum_{i=1}^m \lambda_i \left( \langle x, C_i \rangle - (1-\gamma) l_i \right) \label{eq:rl-lagrangian} \\
+
+    &amp;= -\sum_{s,a} x(s,a) \, r(s,a)
+       + \sum_{i=1}^m \lambda_i \left[ \sum_{s,a} x(s,a) \, C_i(s,a) - (1-\gamma) l_i \right]
+    &amp;&amp; \text{expand inner products: }\langle f, g \rangle = \sum_{s,a} f(s,a) g(s,a) \nonumber \\
+
+    &amp;= -\sum_{s,a} x(s,a) \, r(s,a)
+       + \sum_{i=1}^m \lambda_i \sum_{s,a} x(s,a) \, C_i(s,a)
+       - (1-\gamma) \sum_{i=1}^m \lambda_i l_i
+    &amp;&amp; \text{distribute the sum over \(i\)} \nonumber  \\
+
+    &amp;= \sum_{s,a} x(s,a) \left[ -r(s,a) + \sum_{i=1}^m \lambda_i C_i(s,a) \right]
+       - (1-\gamma) \sum_{i=1}^m \lambda_i l_i
+    &amp;&amp; \text{group reward and cost terms inside a single bracket} \nonumber  \\
+
+    &amp;= \left\langle x, -r + \sum_{i=1}^m \lambda_i C_i \right\rangle
+       - (1-\gamma) \sum_{i=1}^m \lambda_i l_i
+    &amp;&amp; \text{rewrite in inner product notation} \nonumber  \\
+
+    &amp;= \langle x, r_\lambda \rangle - (1-\gamma) \sum_{i=1}^m \lambda_i l_i
+    &amp;&amp; \text{define } r_\lambda(s,a) = -r(s,a) + \sum_{i=1}^m \lambda_i C_i(s,a) \nonumber
+\end{align}
+\]
+</p><p>In the primal formulation:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:rl-primal}
+    \mathcal{P}^* = \min_{x \in X_\gamma} \; \max_{\lambda \geq 0} \; \mathcal{L}(x,\lambda) \;,
+\end{equation}
+\]
+</p><p>the maximization over \(\lambda\) enforces the CMDP constraints: if some \(k\) satisfies \(\langle x, C_k \rangle - (1-\gamma) l_k &gt; 0\), then as \(\lambda_k \to \infty\) the Lagrangian diverges to \(+\infty\), so any minimizer of the outer problem must satisfy all constraints. Thus, if \(\lambda^*\) corresponding to an optimal occupancy \(x^*\) were given, one might attempt to recover \(x^*\) by solving:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:minimization-problem}
+    \min_{x \in X_\gamma} \mathcal{L}(x,\lambda^*) \;,
+\end{equation}
+\]
+</p><p>where
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \mathcal{L}(x,\lambda^*) = \langle x, r_{\lambda^*} \rangle \color{red}{- (1-\gamma)\sum_{i=1}^m \lambda_i^* l_i}
+    \quad \text{and} \quad
+    r_{\lambda^*}(s,a) = -r(s,a) + \sum_{i=1}^m \lambda_i^* C_i(s,a) \;,
+\end{align*}
+\]
+</p><p>because the constant term (in red) does not affect the minimizer, Equation \(\eqref{eq:minimization-problem}\) is equivalent to the <b>single-objective MDP</b>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \max_{x \in X_\gamma} \langle x, -r_{\lambda^*} \rangle \;,
+\end{equation*}
+\]
+</p><p>which can be solved with standard RL methods.
+</p>
+<p><b>However</b>, solving a scalarized subproblem at fixed \(\lambda^*\) does not, in general, solve the original CMDP. Two structural issues prevent this reduction. First, minimizers at fixed \(\lambda^*\) are generally nonunique. The set \(\arg\min_{x \in X_\gamma} \mathcal{L}(x,\lambda^*)\) may contain occupancies corresponding to deterministic policies that cease to be optimal once \(\lambda\) is reoptimized. Second the constrained optimum can require stochastic stationary policies even when each scalarized subproblem admits a deterministic solution. A deterministic minimizer of \(\mathcal{L}(\cdot,\lambda^*)\) can therefore fail to satisfy the original CMDP constraints.
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>Uniformly Optimal Stationary Policies May Not Exist and Optimal Policies May Be Stochastic</b>
+</p>
+<p>While there exists a <i><a href="glossary.html" target=&ldquo;blank&rdquo;>uniformly optimal</a></i>, <i><a href="glossary.html" target=&ldquo;blank&rdquo;>stationary policy</a></i> in MDPs, in general this property does not hold in CMDPs.
+</p>
+<p>Consider a two-state CMDP in which the agent, from state \(s_1\), transitions to \(s_1\) with probability \(p\) and to \(s_2\) with probability \(1 - p\). These transitions yield rewards of \(0\) and \(1\), and costs of \(0\) and \(1\), respectively. From \(s_2\), the agent deterministically remains in \(s_2\), collecting a reward of \(1\) and incurring a cost of \(-1\). In such a CMDP, any stationary policy is fully characterized by \(p \in [0, 1]\).
+</p>
+<p>Without loss of generality, set \(\gamma = 0\). Let \(d_0 \in [0,1]\) denote the probability of starting in \(s_1\), defining the initial state distribution. For a stationary policy parameterized by \(p\), the expected reward and cost are:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    V_p(r, d_0) &amp;= d_0 \left( p \cdot 0 + (1 - p) \cdot 1 \right) + (1 - d_0)(1) \\
+                &amp;= d_0(1 - p) + 1 - d_0 \;, \\
+    V_p(c, d_0) &amp;= d_0 \left( p \cdot 0 + (1 - p) \cdot 1 \right) + (1 - d_0)(-1) \\
+                &amp;= d_0(1 - p) - 1 + d_0 \;.
+\end{align*}
+\]
+</p><p>Let the constraint limit be \(\mathbf{l} = [0]\). Feasibility requires that the expected cost not exceed this limit:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    V_p(c, d_0) &amp;= d_0(1 - p) - 1 + d_0 \leq 0 \\
+    2d_0 - d_0p - 1 &amp;\leq 0 \\
+    -d_0p &amp;\leq -2d_0 + 1 \\
+    p &amp;\geq \frac{2d_0 - 1}{d_0}
+\end{align*}
+\]
+</p><p>This inequality characterizes the set of feasible stationary policies for each \(d_0\). When \(d_0 &gt; 0.5\), the set of feasible stationary policies is \(p \in \left[\frac{2d_0 - 1}{d_0}, 1\right]\). Since \(V_p(r, d_0)\) is decreasing in \(p\), the reward-maximizing policy within this range is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    p^* = \frac{2d_0 - 1}{\color{red}{d_0}} \;.
+\end{equation*}
+\]
+</p><p>Because this optimal value of \(p\) depends on \(d_0\), different initial state distributions induce different optimal policies. No single stationary policy is optimal for all \(d_0\), so no uniformly optimal stationary policy exists.
+</p>
+<p>When \(d_0 &gt; \frac{1}{2}\), the optimal stationary policy satisfies \(0 &lt; p^* &lt; 1\) and therefore randomizes between actions. Evaluating the reward at \(p^*\) using \(V_p(r, d_0) = d_0(1 - p) + 1 - d_0\) gives:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    V_{p^*}(r, d_0) = 2 - 2d_0 \;.
+\end{equation*}
+\]
+</p><p>The best deterministic stationary policy in this regime is \(p = 1\), which yields:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    V_{p=1}(r, d_0) = 1 - d_0 \;.
+\end{equation*}
+\]
+</p><p>The value difference:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    V_{p^*}(r, d_0) - V_{p=1}(r, d_0) = 1 - d_0
+\end{equation*}
+\]
+</p><p>shows that restricting policies to be deterministic in this CMDP strictly reduces the achievable value by \(1 - d_0\) for every \(\frac{1}{2} &lt; d_0 &lt; 1\).
+</p>
+</div></div>
+<p>The correct solution must instead satisfy the saddle-point condition:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathcal{L}(x^*,\lambda) \le \mathcal{L}(x^*,\lambda^*) \le \mathcal{L}(x,\lambda^*) \quad \forall x \in X_\gamma,\; \forall \lambda \ge 0,
+\end{equation*}
+\]
+</p><p>not merely optimality at a fixed \(\lambda^*\).
+</p>
+<p>Rock–Paper–Scissors offers a simple analogy. The mixed strategy with uniform probabilities \(\lambda_1^* = \lambda_2^* = \lambda_3^* = 1/3\) is a Nash equilibrium. If the opponent is fixed to uniform play, any deviation leaves the payoff unchanged at \(0\). Once the opponent is allowed to reoptimize, however, that deviation becomes exploitable. Similarly, in CMDPs, minimizing \(\mathcal{L}(\cdot,\lambda^*)\) at fixed \(\lambda^*\) can appear neutral but is not valid unless \((x^*,\lambda^*)\) forms a saddle point stable to dual reoptimization.
+</p>
+<h3>Solving CMDPs</h3>
+<p>While a CMDP cannot, in general, be reduced to an equivalent unconstrained MDP by fixing \(\lambda^*\), the saddle-point formulation in Equation \(\eqref{eq:rl-primal}\) allows each primal update to be carried out by solving an unconstrained MDP. The optimal dual variables are given by \(\lambda_*(x) = \arg\max_{\lambda \ge 0} \mathcal{L}(x,\lambda)\). Danskin’s theorem implies that the gradient of the min–max objective with respect to \(x\) is equal to the partial derivative of \(\mathcal{L}\) with respect to \(x\), evaluated at any maximizer \(\lambda_*\). Thus, at a given \(x\), the primal update is identical to that of an unconstrained MDP with the reward function replaced by its \(\lambda_*(x)\)-weighted counterpart. Importantly, this is not a single fixed MDP but a sequence of unconstrained MDPs — one for each \(\lambda_*(x_k)\) encountered during the iterations—solved alongside the dual updates.
+</p>
+<h4>Danskin's Theorem</h4>
+<p>Let \(\mathcal{L}^\prime_x(x,\lambda)\) denote the partial derivative of \(\mathcal{L}(x,\lambda)\) with respect to \(x\). For fixed \(x\), let \(\lambda_*(x)\) be any maximizer of \(\mathcal{L}(x,\cdot)\), and define:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \Phi(x) = \mathcal{L}(x, \lambda_*(x)).
+\end{equation*}
+\]
+</p><p>If \(\mathcal{L}\) is continuously differentiable in \(x\) for all \(\lambda\) and the maximizer \(\lambda_*(x)\) is unique, then:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \nabla \Phi(x) = \mathcal{L}^\prime_x\big(x, \lambda_*(x)\big).
+\end{equation*}
+\]
+</p><p>Thus, the gradient of \(\Phi\) with respect to \(x\) can be evaluated by differentiating \(\mathcal{L}\) with respect to \(x\) at the dual optimizer \(\lambda_*(x)\), without differentiating through \(\lambda_*(x)\) itself. This property is useful in policy-gradient methods for CMDPs because it allows the primal update to be computed without explicitly tracking how the optimal multipliers change with the policy.
+</p>
+<h4>Using Gradient-Based Methods to Solve CMDPs</h4>
+<p>Danskin's theorem implies that the gradient of \(\Phi(x) = \mathcal{L}(x, \lambda_*(x))\) can be computed as \(\mathcal{L}_x^\prime(x,\lambda_*(x))\), where \(\lambda_*(x)\) maximizes \(\mathcal{L}(x, \cdot)\) for fixed \(x\). This allows the search for a saddle point to be formulated as the ordinary differential equation:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:ode}
+    \dot{x} = -\mathcal{L}_x^\prime(x,\lambda_*(x)).
+\end{equation}
+\]
+</p><p>However, \(\lambda_*(x)\) is not known explicitly. Thus, for fixed \(x\), a maximizer is computed by projected gradient ascent:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:lambda-projected}
+    \lambda^{k+1} = \Pi_{[0,\infty)^m}\!\left( \lambda^{k} + \eta_k \,\mathcal{L}_{\lambda}^\prime(x,\lambda^{k}) \right),
+\end{equation}
+\]
+</p><p>where \(\Pi_{[0,\infty)^m}\) denotes Euclidean projection onto the nonnegativity constraints and \(\eta_k &gt; 0\) is a stepsize. The projection enforces \(\lambda^{k+1} \ge 0\) componentwise and the iterates converge to a maximizer \(\lambda_*(x)\) for any initial \(\lambda^0 \ge 0\).
+</p>
+<p>To compute \(\Phi\), the dynamics (Equation \(\eqref{eq:ode}\)) and the projected gradient-ascent dynamics for \(\lambda\) (Equation \(\eqref{eq:lambda-projected}\)) can be combined into the coupled system
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \dot{x} &amp;= -\epsilon \, \mathcal{L}_x^\prime(x,\lambda) \\
+    \dot{\lambda} &amp;= \Pi_{[0,\infty)^m}\!\left( \mathcal{L}_{\lambda}^\prime(x,\lambda) \right) \;,
+\end{align*}
+\]
+</p><p>where \(\epsilon\) is small so that updates to \(\lambda\) occur on a faster timescale than updates to \(x\).
+</p>
+<p>This separation of timescales is necessary because \(\dot{x}\) depends on \(\lambda\), and accurate optimization of \(x\) requires that \(\lambda\) be close to \(\lambda_*(x)\). The \(\lambda\)-update is the <i>inner-loop optimization</i>, while the \(x\)-update is the <i>outer-loop optimization</i>. In practice, \(\lambda_*(x)\) may be unbounded and perfect separation is impossible, so a discrete two-timescale recursion is used instead:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    x_{k+1} &amp;= x_k - a_k \big( \mathcal{L}_x^\prime(x_k,\lambda_k) + W_k \big), \\
+    \lambda_{k+1} &amp;= \Pi_{[0,\infty)^m} \!\left( \lambda_k + b_k \big( \mathcal{L}_{\lambda}^\prime(x_k,\lambda_k) + U_k \big) \right),
+\end{align*}
+\]
+</p><p>where \((a_k)\) and \((b_k)\) are positive step-size sequences with \(a_k \ll b_k\) and both \(a_k \to 0\), \(b_k \to 0\) at rates slow enough to ensure convergence. The terms \(W_k\) and \(U_k\) are zero-mean noise sequences.
+</p>
+<p>Finally, since \(x\) is a discounted occupancy measure, directly updating \(x\) requires maintaining a distribution over all states, which is often impractical. Instead, the search can be carried out in a smoothly parameterized policy class \(\pi_\theta\). In this parameterized setting, the Lagrangian in Equation \(\eqref{eq:rl-lagrangian}\) becomes:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \mathcal{L}(\theta,\lambda) &amp;= -(1-\gamma) \, V_{\pi_\theta}(r,d_0) + \sum_{i=1}^m \lambda_i \left[ (1-\gamma) \, V_{\pi_\theta}( C_i, d_0 ) - (1-\gamma)l_i \right] \label{eq:rl-lagrange} \\
+    &amp;= - (1-\gamma) \, V_{\pi_\theta} \left( r - \sum_{i=1}^m \lambda_i C_i, d_0 \right) - (1-\gamma) \sum_{i=1}^m \lambda_i l_i \;, \nonumber
+\end{align}
+\]
+</p><p>where \(V_{\pi_\theta}(f,d_0)\) denotes the \(\gamma\)-discounted value of signal \(f\) under \(\pi_\theta\) from initial distribution \(d_0\).
+</p>
+<h3>Gradient-Based Primal–Dual Methods for CMDPs</h3>
+<p>A constrained MDP requires simultaneous optimization over the primal parameters \(\theta\) and the nonnegative dual multipliers \(\lambda\). The optimization alternates between decreasing the Lagrangian with respect to \(\theta\) and increasing it with respect to \(\lambda\).
+</p>
+<p>For the dual variables, the partial derivative of \(\mathcal{L}(\theta,\lambda)\) with respect to \(\lambda_i\) is
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:multipliers-update}
+    \frac{\partial}{\partial \lambda_i} \mathcal{L}(\theta,\lambda)
+    = (1-\gamma) \, V_{\pi_\theta}(C_i, d_0) - (1-\gamma) \, l_i,
+\end{equation}
+\]
+</p><p>which is positive when the \(i\)th cost exceeds its limit and negative otherwise. This update increases multipliers when constraints are violated and decreases them when they are satisfied.
+</p>
+<p>For the primal parameters, fixing \(\lambda\) yields an unconstrained MDP with modified reward:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    r(s,a) - \sum_{i=1}^m \lambda_i C_i(s,a) \;,
+\end{equation*}
+\]
+</p><p>which can be optimized using any policy optimization method. In gradient-based primal–dual algorithms, \(\theta\) is updated to approximately minimize \(\mathcal{L}(\theta,\lambda)\) for the current \(\lambda\), and \(\lambda\) is updated by projected gradient ascent to preserve nonnegativity. This produces a sequence of unconstrained MDPs, each corresponding to the current multiplier vector, and converges to a saddle point under suitable step-size conditions.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/cmdps/dual_descent.png" alt="dual gradient descent pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>Because the dual objective lower bounds the primal objective, a zero duality gap guarantees that solving the dual yields the same optimal value as solving the primal directly. In the tabular setting, constrained reinforcement learning satisfies this property exactly. With parameterized policies, the duality gap is bounded linearly by the approximation error and can be reduced arbitrarily by increasing the representational capacity of \(\pi_\theta\).
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="http://readingsml.blogspot.com/2020/03/constrained-mdps-and-reward-hypothesis.html" target=&ldquo;blank&rdquo;>Constrained MDPs and the reward hypothesis</a> (2020)</dt>
+<dd><p>Csaba Szepesvari
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.youtube.com/watch?v=EOMy6rahdJc&amp;ab_channel=VolodymyrKuleshov" target=&ldquo;blank&rdquo;>Cornell CS 5787: Applied Machine Learning. Lecture 10. Part 1: Lagrange Duality [video]</a> (2021)</dt>
+<dd><p>Volodymyr Kuleshov
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1910.13393.pdf" target=&ldquo;blank&rdquo;>Constrained Reinforcement Learning Has Zero Duality Gap</a>, Advances in Neural Information Processing Systems (2019)</dt>
+<dd><p>Santiago Paternain, Luiz F. O. Chamon, Miguel Calvo-Fullana, and Alejandro Ribeiro
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://web.stanford.edu/class/ee364a/lectures/duality.pdf" target=&ldquo;blank&rdquo;>Duality</a> (2023)</dt>
+<dd><p>Stephen Boyd
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://mathinsight.org/ordinary_differential_equation_introduction" target=&ldquo;blank&rdquo;>An introduction to ordinary differential equations</a>
+(2020)</dt>
+<dd><p>Duane Q. Nykamp
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.stat.cmu.edu/~ryantibs/convexopt-F15/scribes/11-dual-gen-scribed.pdf" target=&ldquo;blank&rdquo;>Convex Optimization</a> (2015)</dt>
+<dd><p>Ryan Tibshirani
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

@@ -1,0 +1,480 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Off-Policy Evaluation</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html" class="current">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Off-Policy Evaluation</h1>
+</div>
+<p><i>Revised July 23, 2025</i>
+</p>
+<p><i>The <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies</a> note is optional but recommended background reading.</i>
+</p>
+<p>Off-policy evaluation (OPE) estimates the expected return of a target policy \(\pi_e\) using data generated by a different, behavior policy \(\pi_b\). This permits evaluation without executing \(\pi_e\), which may be infeasible when online experimentation is expensive, unsafe, or constrained. OPE is <i>purely evaluative</i> — estimate the value of \(\pi_e\) under the distribution induced by \(\pi_b\). This contrasts with <a href="glossary.html" target=&ldquo;blank&rdquo;>offline RL</a> which <i>learns a policy</i> from logged data \(\mathcal{D} = \{(s_t, a_t, r_{t+1}, s_{t+1})^i\}_{i=1}^T\) collected under \(\pi_b\). The OPE structure parallels that of causal inference, where the effect of a specified intervention is estimated from observational data. In precision medicine, for example, treatments are assigned based on individual patient features, but decisions rely on historical data in which different patients received different treatments under different conditions.
+</p>
+<h3>OPE in Contextual Bandits</h3>
+<p>In the <i>\(k\)-armed bandit problem</i>, an agent repeatedly selects from \(k\) actions with each action \(a  \in \mathcal{A}\) yielding a reward drawn from a stationary distribution conditioned on \(a\). The objective is to maximize expected cumulative reward over \(T\) time steps.
+</p>
+<p>Each action has an associated value function that the agent estimates from data:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    Q_*(a) = \mathbb{E}[r_t \mid a_t = a] \;,
+\end{equation*}
+\]
+</p><p>where \(r_t\) is the reward observed after taking action \(a_t\) at time \(t\).
+</p>
+<p>The <i>contextual bandit</i> problem generalizes the \(k\)-armed bandit setting by conditioning action selection on a state \(s \in \mathcal{S}\). Actions are selected according to a policy \(\pi(a \mid s)\), with rewards determined by both states and actions \(R(s,a)\). Repeating this process for \(T\) time steps and recording each transition yields a dataset:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \tau_\pi = \{(s_i, a_i, r_i)\}_{i=1}^T \quad s \sim d,\; a \sim \pi,\; r \sim R(s, a) \; ,
+\end{equation*}
+\]
+</p><p>where \(d\) is the state distribution.
+</p>
+<p>Like the \(k\)-armed case, each action influences only the immediate reward; not future states. Thus, assuming the state distribution \(d\) is stationary and the reward distribution \(R(s,a)\) is time-invariant, the samples are independent and identically distributed (i.i.d.). This distinguishes contextual bandits from full RL problems, where actions affect long-term dynamics and rewards.
+</p>
+<p>OPE estimates the expected reward of a fixed evaluation policy \(\pi_e\). Like all policies, \(\pi_e\) maps states in \(\mathcal{S}\) to probability distributions over actions in \(\mathcal{A}\). If \(\mathcal{A}\) is discrete, actions are selected with probability \(\pi_e(a \mid s)\). If \(\mathcal{A}\) is continuous, assume for simplicity that \(\pi_e(\cdot \mid s)\) defines a non-degenerate density over \(\mathcal{A}\) for every \(s \in \mathcal{S}\); that is, \(\pi_e\) is strictly stochastic.
+</p>
+<p>The expected reward under \(\pi_e\) is given by:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    J &amp;= \mathbb E[r_{\pi_e}] \nonumber \\
+    &amp;= \sum_{s\in\mathcal S}\sum_{a\in\mathcal A}\sum_{r\in\mathcal R} p_{\pi_e}(s,a,r) \; r  \label{eq:evaluation-policy-reward-2}\\
+    &amp;= \sum_{s\in\mathcal S} p(s) \sum_{a\in\mathcal A} \pi_e(a\mid s) \sum_{r\in\mathcal R} p(r\mid s,a) \; r \;, \label{eq:evaluation-policy-reward-3}
+\end{align}
+\]
+</p><p>where \(p_{\pi_e}(s,a,r)\) is the joint distribution over state-action-reward triples induced by executing \(\pi_e\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:distribution-factorization}
+    p_{\pi_e}(s,a,r) = p(s)\, \pi_e(a \mid s)\, p(r \mid s,a) \;.
+\end{equation}
+\]
+</p><div class="infoblock">
+<div class="blockcontent">
+<p><b>Assumptions: Consistency, No Unmeasured Confounders, and Weak Positivity</b>
+</p>
+<p>The expected reward under \(\pi_e\) (Equation \(\eqref{eq:evaluation-policy-reward-3}\)) is identifiable (i.e., the population quantity of interest \(J\) can be expressed as a functional of the observed data distribution \(\tau_{\pi_b}\)) if \(\tau_{\pi_b}\) satisfies three standard assumptions from causal inference: consistency, no unmeasured confounding, and weak positivity.
+</p>
+<dl>
+<dt><i>1) Consistency</i>:</dt>
+<dd><p>The observed reward equals the potential outcome associated with the current state and action: \(r_t = R(s_t, a_t)\). For example, suppose \(X\) is a binary treatment variable (\(0\): untreated, \(1\): treated), and \(Y\) is a binary outcome (\(0\): survival, \(1\): death). Let \(Y^{x=0}\) and \(Y^{x=1}\) denote the potential outcomes under treatments \(x=0\) and \(x=1\), respectively. A causal effect exists for individual \(i\) if \(Y_i^{x=0} \neq Y_i^{x=1}\). Although both potential outcomes are defined, only one is observed. If individual \(i\) receives \(X=1\), then the factual outcome is \(Y_i = Y_i^{x=1}\). Consistency asserts that the observed outcome equals the potential outcome under the received treatment: \(X_i = x \Rightarrow Y_i = Y_i^x\).
+</p></dd>
+</dl>
+<dl>
+<dt><i>2) No unmeasured confounders</i>:</dt>
+<dd><p>For all \(a \in \mathcal{A}\), the action \(A\) is conditionally independent of the potential outcome \(R(s,a)\) given the state \(s\): \(A \perp R(s,a) \mid s\). All common causes of action and outcome are assumed to be captured by \(s\). For example, in estimating the effect of income on voting, age may be a confounder, influencing both income and voting. If age is omitted from \(s\), conditional independence fails and the estimate is biased.
+</p></dd>
+</dl>
+<dl>
+<dt><i>3) Weak positivity</i>:</dt>
+<dd><p>For all \(s \in \mathcal{S}\), the <a href="glossary.html" target=&ldquo;blank&rdquo;>support</a> of \(\pi_e(\cdot \mid s)\) is contained in the support of \(\pi_b(\cdot \mid s)\). That is, if \(\pi_e(a \mid s) &gt; 0\), then \(\pi_b(a \mid s) &gt; 0\).
+</p></dd>
+</dl>
+</div></div>
+<p>The expectation in Equation \(\eqref{eq:evaluation-policy-reward-2}\) cannot be evaluated directly, as the full data-generating distribution \(p_{\pi_e}(s,a,r)\) is not observable. Specifically, although the evaluation policy \(\pi_e\) is known, the environment's dynamics (i.e., state distribution and reward function) are not. If samples from \(p_{\pi_e}\) were available, the expectation could be approximated via <a href="glossary.html" target=&ldquo;blank&rdquo;>Monte Carlo estimation</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}
+    J = \mathbb{E}_{(s,a,r) \sim p_{\pi_e}}[r] \approx \frac{1}{T} \sum_{i=1}^T r_i \;. \label{eq:expectation-function-of-triple}
+\end{equation}
+\]
+</p><p>The data, however, are collected under a different policy \(\pi_b\). Thus, the expectation under \(p_{\pi_e}\) must be expressed in terms of the observed distribution \(p_{\pi_b}\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathbb{E}_{(s,a,r) \sim p_{\pi_e}}[r] = \mathbb{E}_{(s,a,r) \sim p_{\pi_b}}[\eta(s,a)\, r] \;,
+\end{equation*}
+\]
+</p><p>where \(\eta(s,a)\) is a reweighting factor, with multiple valid choices.
+</p>
+<h4>Importance Sampling</h4>
+<p><a href="importance-sampling.html" target=&ldquo;blank&rdquo;>Importance sampling</a> reweights samples drawn from \(p_{\pi_b}\) to estimate expectations under \(p_{\pi_e}\) as:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    J &amp;= \mathbb{E}_{(s,a,r) \sim p_{\pi_e}}[r] \\
+    &amp;= \mathbb{E}_{(s,a,r) \sim p_{\pi_b}} \left[ \frac{p_{\pi_e}(s,a,r)}{p_{\pi_b}(s,a,r)}\, r \right] \\
+    &amp;= \mathbb{E}_{(s,a,r) \sim p_{\pi_b}} \left[ \frac{p(s)\, \pi_e(a \mid s)\, p(r \mid s,a)}{p(s)\, \pi_b(a \mid s)\, p(r \mid s,a)} \, r \right] &amp;&amp; \text{by equation } \eqref{eq:distribution-factorization} \\
+    &amp;= \mathbb{E}_{(s,a,r) \sim p_{\pi_b}} \left[ \frac{\pi_e(a \mid s)}{\pi_b(a \mid s)}\, r \right] \\
+    &amp;\approx \frac{1}{T} \sum_{i=1}^T \frac{\pi_e(a_i \mid s_i)}{\pi_b(a_i \mid s_i)}\, r_i \; , \quad (s_i,a_i,r_i) \sim p_{\pi_b} \;,
+\end{align*}
+\]
+</p><p>This derivation establishes that importance sampling yields an <a href="glossary.html" target=&ldquo;blank&rdquo;>unbiased estimator</a> of \(J\), provided weak positivity (also called <i>the coverage assumption</i>) holds. In practice, \(\pi_b\) is often unknown and must be approximated by a model \(\hat{\pi}_b\). If \(\hat{\pi}_b(a \mid s) \approx \pi_b(a \mid s)\), then the estimator \(\hat{J}_{IS}\) remains approximately unbiased.
+</p>
+<p>Although importance sampling is unbiased, it can be high variance when \(\pi_e\) deviates significantly from \(\pi_b\). In such cases, small changes in the input can induce large fluctuations in the output. Consider a contextual bandit with constant deterministic reward \(r\), a uniform behavior policy \(\pi_b(\cdot \mid s) = U(\mathcal{A})\) for all \(s \in \mathcal{S}\) (i.e., \(\pi_b(a \mid s) = 1/K\) for \(K = |\mathcal{A}|\)), and a deterministic evaluation policy \(\pi_e(a \mid s) = \mathbb{I}_{a = a^*(s)}\), where \(a^*(s)\) denotes the action selected by \(\pi_e\). Let \(\rho = \frac{\pi_e(a \mid s)}{\pi_b(a \mid s)}\). Then:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \mathbb{V}[\rho r \mid a \sim U]
+    &amp;= r^2 \mathbb{V}[\rho \mid a \sim U] &amp;&amp; \text{since \(r\) is constant} \nonumber  \\
+    &amp;= r^2 \left( \mathbb{E}[\rho^2 \mid a \sim U] - \mathbb{E}[\rho \mid a \sim U]^2 \right) &amp;&amp; \text{definition of variance} \nonumber  \\
+    &amp;= r^2 \left( \mathbb{E}[\rho^2 \mid a \sim U] - 1 \right) &amp;&amp; \text{since \(\mathbb{E}[\rho] = 1\)} \nonumber  \\
+    &amp;= r^2 \left( \mathbb{E} \left[ \left( \frac{\pi_e(a \mid s)}{\pi_b(a \mid s)} \right)^2 \;\middle|\; a \sim U \right] - 1 \right) &amp;&amp; \text{expand \(\rho^2\)} \nonumber  \\
+    &amp;= r^2 \left( \mathbb{E} \left[ \left( \frac{\mathbb{I}_{a = a^*(s)}}{1/K} \right)^2 \;\middle|\; a \sim U \right] - 1 \right) &amp;&amp; \text{substitute \(\pi_e(a \mid s) = \mathbb{I}_{a = a^*(s)}\), \(\pi_b(a \mid s) = 1/K\)} \nonumber  \\
+    &amp;= r^2 \left( \mathbb{E} \left[ \mathbb{I}_{a = a^*(s)} \cdot K^2 \;\middle|\; a \sim U \right] - 1 \right) &amp;&amp; \text{simplify fraction} \nonumber  \\
+    &amp;= r^2 \left( K^2 \cdot \mathbb{P}(a = a^*(s)) - 1 \right) &amp;&amp; \text{linearity of expectation} \nonumber \\
+    &amp;= r^2 \left( K^2 \cdot \frac{1}{K} - 1 \right) &amp;&amp; \text{since \(a \sim U\), so \(\mathbb{P}(a = a^*(s)) = \frac{1}{K}\)} \nonumber \\
+    &amp;= r^2 (K - 1) \;. \label{eq:is-variance}
+\end{align}
+\]
+</p><p>Hence, the variance of a single importance-weighted sample grows linearly with \(K\). Since \(\hat{J}_{IS}\) averages \(T\) such samples, its variance is equal to \(r^2(K - 1)/T\).
+</p>
+<h4>Weighted Importance Sampling</h4>
+<p>High variance in importance sampling arises from stochasticity in the weighting and normalization of samples, not from variability in the rewards themselves. When \(r\) is constant across all states, actions, and time steps, \(\pi_b\) is uniform, and \(\pi_e\) is deterministic, the importance weight equals \(K\) if \(a_i = a^*(s_i)\) and zero otherwise. Samples with \(a_i \ne a^*(s_i)\) contribute nothing, and only a subset of the data is effectively retained. Since the corresponding rewards are constant and identical, variance must result from normalization.
+</p>
+<p>More specifically, although approximately \(T/K\) samples receive nonzero weight, the estimator averages over \(T\) total samples. This introduces sensitivity to fluctuations in the frequency of the condition \(a_i = a^*(s_i)\). Let:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \tau_{\pi_b}^\prime = \{(s_i, a_i, r_i) \in \tau_{\pi_b} : a_i = a^*(s_i)\}
+\end{equation*}
+\]
+</p><p>denote the retained subset. The estimator becomes:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \frac{1}{T} \sum_{i=1}^T \frac{\mathbb{I}_{a_i = a^*(s_i)}}{1/K} r_i
+    = \sum_{i=1}^T \frac{\mathbb{I}_{a_i = a^*(s_i)}}{T/K} r_i
+    = \frac{1}{T/K} \sum_{i \in \tau_{\pi_b}^\prime} r_i \; .
+\end{equation*}
+\]
+</p><p>The denominator reflects the expected count of samples with nonzero weight \(T/K\), while the numerator (i.e., the summation) reflects the realized count \(|\tau_{\pi_b}^\prime|\). Variability in the number of matching samples thus induces estimator variance even under constant reward.
+</p>
+<p><i>Weighted importance sampling</i> (WIS) modifies standard importance sampling by normalizing with the realized sum of weights rather than the dataset size. Specifically:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:wis}
+    \hat{J}_{WIS} = \frac{1}{\sum_{i=1}^T \rho_i} \sum_{i=1}^T \rho_i r_i \; .
+\end{equation}
+\]
+</p><p>Intuitively, the resulting estimator is a weighted average of rewards from the subset of data where the behavior and evaluation policies have overlapping support (\(\rho_i &gt; 0\)). Unlike standard importance sampling, however, WIS is generally biased. Nonetheless, it is <i><a href="glossary.html" target=&ldquo;blank&rdquo;>consistent</a></i>: as the number of samples increases, \(\hat{J}_{WIS}\) converges in probability to the true value of \(J\). The normalization factor satisfies:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \sum_{i=1}^T \rho_i \approx T \quad \text{as } T \to \infty \;,
+\end{equation*}
+\]
+</p><p>since \(\mathbb{E}[\rho_i] = 1\) and the weights concentrate around their expectation by the law of large numbers. In practice, WIS is often preferred due to its favorable bias–variance tradeoff.
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>Bias vs. Consistency</b>
+</p>
+<p>Bias and consistency are distinct statistical properties. Bias is a finite-sample property. An estimator is unbiased if its expected value equals the true value of the parameter at each fixed sample size \(n\), i.e., \(\mathbb{E}[\hat{\theta}_n] = \theta\). This is usually required to hold for every \(n\).
+</p>
+<p>Consistency, by contrast, is asymptotic. It describes whether the estimator converges in probability to the true value as the sample size grows \(\hat{\theta}_n \xrightarrow{p} \theta\) as \(n \to \infty\), meaning \(P(|\hat{\theta}_n - \theta| &gt; \varepsilon) \to 0\) for all \(\varepsilon &gt; 0\). Intuitively, the estimator’s distribution concentrates around the true value as the sample size grows.
+</p>
+<p>For example, suppose \(X_1,\dots,X_n \overset{\text{i.i.d.}}{\sim} \mathcal{N}(\mu,\sigma^2)\). The &ldquo;single–observation&rdquo; estimator \(T_n = X_n\) is unbiased since \(\mathbb{E}[T_n] = \mu\). It is not, however, consistent: \(P(|T_n - \mu| &gt; \varepsilon) = 2\Phi(-\varepsilon/\sigma) &gt; 0\) for all \(n\), so there is no convergence to \(0\).
+</p>
+<p>The sample mean:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \bar X_n = \frac{1}{n} \sum_{i=1}^n X_i \;,
+\end{equation*}
+\]
+</p><p>is also unbiased, with \(\mathbb{E}[\bar X_n] = \mu\) and \(\operatorname{Var}(\bar X_n) = \sigma^2 / n \to 0\), which implies \(\bar X_n \xrightarrow{p} \mu\). Hence it is consistent.
+</p>
+<p>Unbiasedness and consistency are logically independent. An estimator can be unbiased but inconsistent, as with \(T_n = X_n\) above or biased but consistent if the bias vanishes as \(n\) grows.
+</p>
+</div></div>
+<h4>Direct Method</h4>
+<p>While importance sampling reweights data to account for the mismatch between \(\pi_b\) and \(\pi_e\), the <i>direct method</i> (DM) estimates the value of the evaluation policy by modeling the reward function from data collected under \(\pi_b\).
+</p>
+<p>In practice, the dataset \(\tau_{\pi_b}\) is partitioned into two disjoint subsets to prevent overfitting. The first is used to fit a model of the reward function. In the contextual bandit setting, this model estimates the expected reward for each state-action pair. That is, the model learns a function \(\hat{Q}\) to approximate \(Q(s,a) = \mathbb{E}[r \mid s,a]\). The second subset is used to evaluate \(\pi_e\) via the estimated reward function:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \hat{J}_{DM} = \frac{1}{n} \sum_{i=1}^n \sum_{a \in \mathcal{A}} \pi_e(a \mid s_i)\, \hat{Q}(s_i,a) \;.
+\end{equation*}
+\]
+</p><p>The direct method typically has low variance, as it avoids reweighting and discards stochasticity in the observed rewards. In theory, if \(\hat{Q}\) were unbiased for \(Q\), then \(\hat{J}_{DM}\) would also be unbiased. But in practice, \(\hat{Q}\) is almost always biased due to (i) the expressive capacity of the model class (e.g., a linear model cannot approximate a highly nonlinear reward function, regardless of data quantity) and (ii) the sample size available for training.
+</p>
+<p>Moreover, the bias is generally difficult to characterize because approximation error \(\|Q - \hat{Q} \|\) is hard to quantify for arbitrary function classes. In some cases, the error can be bounded under capacity constraints or smoothness assumptions. Finally, bias may also be exacerbated by misaligned loss functions. If the loss used for model learning does not account for \(\pi_e\), the resulting estimator may allocate capacity to regions of the state space that \(\pi_e\) never visits, undermining the relevance of the model to the evaluation task.
+</p>
+<h4>Doubly Robust Estimator</h4>
+<p>Recall from Equation \(\eqref{eq:is-variance}\) that when the reward is a deterministic constant \(r\), the variance of a single importance-weighted sample is \(r^2(K - 1)\), where \(K\) is the number of actions. This expression vanishes if \(r^2 = 0\) or \(K = 1\). In particular, the variance can be reduced by subtracting a constant \(c\) from \(r\), yielding the shifted reward \((r - c)\). The resulting variance is \((r - c)^2(K - 1)\), which becomes zero when \(c = r\).
+</p>
+<p>This idea extends to stochastic rewards via <i>doubly robust estimation</i> (DR), which combines importance sampling with the direct method. DR inherits the low variance of the direct method and the consistency of importance sampling:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \hat{J}_{DR} = \frac{1}{n} \sum_{i=1}^n \left[ \rho_i \left( r_i - \hat{Q}(s_i, a_i) \right) + \hat{Q}(s_i, \pi_e) \right] \;,
+\end{equation*}
+\]
+</p><p>where \(\rho_i = \frac{\pi_e(a_i \mid s_i)}{\pi_b(a_i \mid s_i)}\) and
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \hat{Q}(s_i, \pi_e) = \sum_{a \in \mathcal{A}} \pi_e(a \mid s_i)\, \hat{Q}(s_i, a) \;.
+\end{equation*}
+\]
+</p><p>DR reduces to importance sampling when \(\hat{Q} = 0\).
+</p>
+<p>The DR estimator uses \(\hat{Q}\) as a baseline and applies a correction when a matching sample is available. The correction term \(\rho_i (r_i - \hat{Q}(s_i, a_i))\) offsets bias in the model. When \(\hat{Q}(s_i, a_i)\) closely approximates \(r_i\), this correction is small and the overall variance is reduced. Conversely, when the model estimate is poor, the correction is large, recovering the true reward via reweighting.
+</p>
+<p>As with importance sampling, DR estimators often rely on an estimate \(\hat{\pi}_b\) of the behavior policy. Crucially, DR is consistent if either \(\hat{Q}\) or \(\hat{\pi}_b\) is correctly specified — meaning equal to the true \(Q\) or \(\pi_b\) on the relevant domain. This dual robustness underlies the name doubly robust — consistency is guaranteed if either the reward model or behavior model is correct, but not necessarily both.
+</p>
+<h3>OPE in RL</h3>
+<p>Extending OPE from contextual bandits to <a href="mdp.html" target=&ldquo;blank&rdquo;>Markov Decision Processes</a> (MDPs) introduces a fundamental complication — the data are no longer i.i.d. In an MDP, each action not only determines the immediate reward but also affects the next state, creating sequentially correlated trajectories. This invalidates bandit-style OPE methods for two reasons. First, distributional shift arises from differences in the <i>state visitation patterns</i> induced by the evaluation policy \(\pi_e\) and the behavior policy \(\pi_b\). OPE must therefore correct for mismatches in <b>both</b> action selection and state occupancy. Second, the <i>curse of horizon</i> emerges when applying importance sampling to long trajectories. Specifically, estimating the value of an \(H\)-step trajectory requires multiplying \(H\) importance weights, \(\prod_{t=1}^H \rho_t\), each contributing variance. Consequently, the overall variance increases exponentially with \(H\), making the estimator unstable for nontrivial horizons. Addressing these issues requires estimators designed specifically for sequential settings. These methods often depend on some combination of two auxiliary quantities, referred to as <i>nuisance functions</i>, which must be estimated from offline data.
+</p>
+<h4>Nuisance Functions</h4>
+<p>A <i>nuisance function</i> is any quantity that, while not the target of inference, must be estimated to construct a statistically valid or efficient estimator. In the MDP setting, two nuisance functions commonly arise. The first is the Q-function \(Q(s,a)\), which represents the expected cumulative reward obtained by taking action \(a\) in state \(s\) and following the evaluation policy \(\pi_e\) thereafter:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    Q^{\pi_e}(s, a) = \mathbb{E}_{\pi_e} \left[ \sum_{t=0}^\infty \gamma^t r_{t+1} \,\middle|\, s_0 = s, a_0 = a \right] \; ,
+\end{equation*}
+\]
+</p><p>where \(\gamma \in [0, 1)\) is the discount factor. For a detailed treatment of the Q-function, see the <a href="model-free-control.html" target=&ldquo;blank&rdquo;>Model Free Control note</a>.
+</p>
+<p>The second nuisance function is the marginal density ratio \(\mu^*(s,a)\) which corrects for distributional shift by reweighting state-action pairs according to their relative discounted visitation frequencies under \(\pi_e\) and \(\pi_b\). This quantity is central to addressing the curse of horizon. Rather than correcting per-step action probabilities, \(\mu^*\) adjusts for the long-run, discounted visitation frequency of state-action pairs.
+</p>
+<p>Formally, the marginal density ratio is defined as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mu^*(s, a) = \frac{d^{\pi_e}(s, a)}{d^{\pi_b}(s, a)} \;,
+\end{equation*}
+\]
+</p><p>where:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    d^\pi(s,a) = (1 - \gamma) \sum_{t=0}^\infty \gamma^t \mathbb{P}^\pi(s_t = s, a_t = a)
+\end{equation*}
+\]
+</p><p>is the discounted state-action visitation distribution under \(\pi\), with trajectories initialized from a fixed distribution \(d_0\).
+</p>
+<p>The ratio \(\mu^*(s,a)\) quantifies how much more (or less) frequently the pair \((s,a)\) is encountered under \(\pi_e\) than under \(\pi_b\), measured with respect to the same starting distribution. Using this single, trajectory-level ratio avoids the variance amplification associated with products of stepwise importance weights.
+</p>
+<p>Although neither \(Q\) nor \(\mu^*\) is the primary object of interest, the quality of the policy value estimate \(\hat{J}(\pi_e)\) depends on the accuracy with which these auxiliary functions are learned.
+</p>
+<h4>Estimating Q-functions</h4>
+<p>The Q-function \(Q(s,a)\) satisfies a <a href="policy-and-value-iteration-proofs.html" target=&ldquo;blank&rdquo;>fixed-point condition</a> defined by the <a href="glossary.html" target=&ldquo;blank&rdquo;>Bellman equation</a>. Estimation methods exploit this structure by minimizing <a href="glossary.html" target=&ldquo;blank&rdquo;>Bellman error</a> on the offline data.
+</p>
+<h5>Fitted Q-Iteration (FQE)</h5>
+<p>Fitted Q-Iteration (FQE) estimates the Q-function by solving a sequence of supervised regression problems that enforce the Bellman equation. At each iteration \(k\), the current estimate \(\hat{Q}_k\) is used to generate Bellman targets, which define the regression labels for the next update.
+</p>
+<p>Given data tuples \((s, a, r, s&rsquo;)\) from the offline dataset, the update solves:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \hat{Q}_{k+1} \leftarrow \arg\min_{\tilde{Q}} \mathbb{E}_T \left[ \left( \tilde{Q}(s,a) - \left( r_{t+1} + \gamma \hat{Q}_k(s&rsquo;, \pi_e) \right) \right)^2 \right] \;,
+\end{equation*}
+\]
+</p><p>where where \(\mathbb{E}_T\) is the empirical average over the \(T\) transitions in the offline dataset \(\mathcal{D}\) and \(\hat{Q}_k(s&rsquo;, \pi_e)\) is the expected value under the evaluation policy:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:q-hat-discrete}
+    \hat{Q}_k(s&rsquo;, \pi_e) = \sum_{a&rsquo;} \pi_e(a&rsquo; \mid s&rsquo;)\, \hat{Q}_k(s&rsquo;, a&rsquo;) \;.
+\end{equation}
+\]
+</p><p>This process is repeated until convergence. FQE is compatible with any function approximator and has been widely used with both linear models and deep neural networks.
+</p>
+<h5>Minimax Q-learning</h5>
+<p>Unlike FQE, Minimax Q-learning avoids repeated fitted-Q iterations and instead enforces the Bellman equation in expectation. The Bellman condition requires that the error term \(r + \gamma Q(s&rsquo;, \pi_e) - Q(s,a)\) have zero expectation under the data distribution. To enforce this constraint, the method introduces a test function \(f \in \mathcal{F}\) that identifies systematic patterns in the Bellman error; if the expected product \(f(s,a) [r + \gamma Q(s&rsquo;, \pi_e) - Q(s,a)]\) is nonzero, the Bellman condition is violated.  The Q-function is optimized to minimize the worst-case violation detected by \(f\). The resulting minimax objective is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \arg\min_{\tilde{Q} \in \mathcal{Q}} \max_{f \in \mathcal{F}} \left( \mathbb{E}_T \left[ f(s,a)\left\{r_{t+1} + \gamma \tilde{Q}(s&rsquo;,\pi_e) - \tilde{Q}(s,a)\right\} \right] - \lambda \mathbb{E}_T[f(s,a)^2] \right) \;,
+\end{equation*}
+\]
+</p><p>where \(\mathcal{Q}\) and \(\mathcal{F}\) are the function classes for the Q-function and discriminator, respectively, \(\lambda\) is a <a href="glossary.html" target=&ldquo;blank&rdquo;>Lagrange multiplier</a>, and the inner expectation \(\mathbb{E}_{a'\sim\pi_e(\cdot|s&rsquo;)}[\tilde{Q}(s&rsquo;,a&rsquo;)]\) is computed as in Equation \(\eqref{eq:q-hat-discrete}\).
+</p>
+<p>While computationally more demanding than FQE, this approach can yield stronger statistical guarantees. When both \(\mathcal{Q}\) and \(\mathcal{F}\) are linear, the objective reduces to Least-Squares Temporal-Difference for Q-learning (LSTDQ), which admits a closed-form solution.
+</p>
+<h4>Estimating Marginal Ratios</h4>
+<p>Estimating the marginal density ratio \(\mu^*\) follows a minimax framework similar to that of Q-function estimation. Like \(Q\), the function \(\mu^*\) satisfies a Bellman-style identity that enables its estimation from data. This identity expresses a fixed-point relationship over trajectories under the behavior policy. Specifically, \(\mu^*\) satisfies a recursion that relates its value at \((s,a)\) to its expected value at subsequent state-action pairs drawn from \(\pi_e\). This structure forms the basis for a minimax estimation problem, the solution \(\hat{\mu}^*\) for which is given by:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \arg\min_{\tilde{\mu}^* \in \mathcal{M}} \max_{f \in \mathcal{F}} \left( \mathbb{E}_T \left[ \gamma \tilde{\mu}^*(s,a)\, f(s&rsquo;,\pi_e) - \tilde{\mu}^*(s,a)\, f(s,a) \right] + (1-\gamma) \mathbb{E}_{p_e^{(1)}}[f(s, \pi_e)] - \lambda \mathbb{E}_T[f(s,a)^2] \right) \;,
+\end{equation*}
+\]
+</p><p>where \(p_e^{(1)}\) is the initial state distribution, \(\mathcal{M}\) and \(\mathcal{F}\) denote the function classes for the density ratio and test functions, respectively, \(\lambda\) is a Lagrange multiplier, and \(f(s, \pi_e)\) is the expected value under the evaluation policy.
+</p>
+<p>This formulation directly parallels minimax Q-learning, substituting the Bellman error with the marginal ratio identity.
+</p>
+<h4>MDP Estimators</h4>
+<p>With the nuisance functions defined, the MDP counterparts of the previously introduced bandit estimators follow directly.
+</p>
+<h4>The Marginalized Importance Sampling (MIS) Estimator</h4>
+<p>The marginalized importance sampling (MIS) estimator extends the bandit importance sampling method to MDPs by replacing per-step importance ratios with the marginal density ratio \(\mu^*(s,a)\). It relies solely on \(\mu^*\) to reweight observed rewards, discarding the Q-function. The estimator for the total discounted reward \(J\) is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \hat{J}_{\text{MIS}} =\frac{1}{1-\gamma} \frac{1}{T}\sum_{i=1}^{T} \hat{\mu}^*(s_i,a_i)\,r_i
+\end{equation*}
+\]
+</p><p>By using a single aggregated correction term, MIS avoids the exponential variance growth of stepwise importance sampling. Its accuracy, however, depends critically on the quality of the density ratio estimate \(\hat{\mu}^*\).
+</p>
+<h4>Direct Method (DM)</h4>
+<p>The direct method (DM) extends its bandit analogue to the MDP setting by computing the expected return under \(\pi_e\) using a learned Q-function \(\hat{Q}\), without reference to the behavior policy or observed rewards:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \hat{J}_{DM} = \frac{1}{n} \sum_{i=1}^n \hat{Q}(s_{i,0}, \pi_e) = \frac{1}{n} \sum_{i=1}^n \sum_a \pi_e(a \mid s_{i,0})\, \hat{Q}(s_{i,0}, a) \;,
+\end{equation*}
+\]
+</p><p>where \(\{s_{i,0}\}_{i=1}^n\) are the initial states of \(n\) observed trajectories.
+</p>
+<p>This estimator avoids variance from reward stochasticity but is prone to bias from model misspecification. Systematic error in \(\hat{Q}\) directly propagates to the final estimate.
+</p>
+<h4>Double Reinforcement Learning (DRL) Estimator</h4>
+<p>The double reinforcement learning (DRL) estimator combines the direct method with marginalized importance sampling to yield a statistically efficient estimator for MDPs. It is the basis for many modern OPE methods in RL:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \hat{J}_{\text{DRL}} =
+    \frac{1}{n} \sum_{i=1}^n \hat{Q}(s_{i,0}, \pi_e) + \frac{1}{T} \sum_{j=1}^T \frac{\hat{\mu}^*(s_j, a_j)}{1 - \gamma} \left( r_j + \gamma \hat{Q}(s_j&rsquo;, \pi_e) - \hat{Q}(s_j, a_j) \right) \;.
+\end{equation*}
+\]
+</p><p>The first term estimates \(J(\pi_e)\) from the learned Q-function. The second term corrects model error using observed rewards and transitions, reweighted by the estimated marginal density ratio \(\hat{\mu}^*\). If \(\hat{Q}\) is accurate, the Bellman error vanishes and the correction term has no effect. If \(\hat{Q}\) is misspecified, the correction offsets its bias.
+</p>
+<p>The DRL estimator is consistent if either \(\hat{Q}\) or \(\hat{\mu}^*\) is correctly specified. This double robustness significantly improves reliability in practice. Furthermore, among a broad class of regular estimators, DRL attains the lowest possible asymptotic mean squared error, even when \(\hat{Q}\) and \(\hat{\mu}^*\) are learned via flexible, nonparametric models satisfying mild convergence conditions.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://arxiv.org/pdf/2212.06355.pdf" target=&ldquo;blank&rdquo;>A Review of Off-Policy Evaluation in Reinforcement Learning</a> (2022)</dt>
+<dd><p>Masatoshi Uehara, Chengchun Shi, and Nathan Kallus
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://courses.cs.washington.edu/courses/cse599m/19sp/notes/off_policy.pdf" target=&ldquo;blank&rdquo;>Off-policy Evaluation and Learning</a> (2019)</dt>
+<dd><p>Alekh Agarwal and Sham Kakade
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/2005.01643.pdf" target=&ldquo;blank&rdquo;>Offline Reinforcement Learning: Tutorial, Review, and Perspectives on Open Problems</a> (2020)</dt>
+<dd><p>Sergey Levine1, Aviral Kumar, George Tucker, and Justin Fu
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://people.eecs.berkeley.edu/~jiantao/2902021spring/scribe/EE290_Lecture_23_24.pdf" target=&ldquo;blank&rdquo;>Importance Sampling, Doubly Robust Estimator</a> (2021)</dt>
+<dd><p>Jiantao Jiao
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://nanjiang.cs.illinois.edu/files/cs498/9_is.pdf" target=&ldquo;blank&rdquo;>Importance Sampling</a> (2021)</dt>
+<dd><p>Nan Jiang
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://nanjiang.cs.illinois.edu/files/cs598/note6.pdf" target=&ldquo;blank&rdquo;>Notes on Importance Sampling and Policy Gradient</a> (2020)</dt>
+<dd><p>Nan Jiang
+</p></dd>
+</dl>
+<dl>
+<dt><a href="http://www2.stat.duke.edu/~fl35/teaching/640/Chap3.5_Doubly%20Robust%20Estimation.pdf" target=&ldquo;blank&rdquo;>Doubly Robust and Augmented Estimators</a> (2023)</dt>
+<dd><p>Fan Li
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

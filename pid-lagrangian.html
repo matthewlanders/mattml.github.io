@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>PID Lagrangian</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html" class="current">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>PID Lagrangian</h1>
+</div>
+<p><i>Revised August 22, 2025</i>
+</p>
+<p><i>The <a href="constrained-mdps.html" target=&ldquo;blank&rdquo;>Constrained Markov Decision Processes note</a> is optional but recommended background reading.</i>
+</p>
+<p>In <a href="glossary.html" target=&ldquo;blank&rdquo;>primal-dual methods</a> for <a href="constrained-mdps.html" target=&ldquo;blank&rdquo;>constrained MDPs</a>, constraints affect the policy optimization only through the Lagrange multipliers:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \max_\theta \min_{\lambda \geq 0} \mathcal{L}(\theta, \lambda) = J^\pi(\theta) - \lambda \big(J_c^\pi(\theta) - l\big).
+\end{equation*}
+\]
+</p><p>Because the primal and dual updates are coupled, intermediate policies can violate constraints; feasibility is guaranteed only at a saddle point \((\pi^*, \lambda^*)\), where the <a href="https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions" target=&ldquo;blank&rdquo;>KKT conditions</a> hold. The PID Lagrangian method mitigates these transient violations by interpreting the dual update as a feedback controller: the multiplier \(\lambda\) regulates the constraint cost around the setpoint \(l\). In this framework, proportional feedback improves responsiveness, integral feedback eliminates steady-state error, and derivative feedback damps fluctuations.
+</p>
+<h3>PID Controller</h3>
+<p>Proportional–Integral–Derivative (PID) control is a fundamental scheme in classical control theory. A PID controller computes the error \(e(t)\) between a desired setpoint and a measured process variable, and adjusts the control input through proportional, integral, and derivative terms. The proportional term applies an output \(K_P e(t)\), scaling the immediate error by the gain \(K_P\). The integral term applies \(K_I \int_0^t e(\tau)\,d\tau\), which accumulates past error to remove steady-state offsets that persist under proportional control alone. Its strength is governed by the integral gain \(K_I\). The derivative term applies \(K_D \tfrac{d}{dt} e(t)\), which reacts to the rate of error change. This anticipatory action improves stability and mitigates overshoot by damping rapid deviations. The derivative gain \(K_D\) sets the magnitude of this effect. Together, these components balance responsiveness, accuracy, and stability. The gains \((K_P, K_I, K_D)\) are typically treated as tunable hyperparameters. Their effects can be summarized as follows:
+</p>
+<ol>
+<li><p><b>Proportional Term (\(K_P\))</b>
+</p>
+<ol>
+<li><p>Higher \(K_P\): Increases responsiveness to error, reducing constraint violations more quickly. Excessive values induce oversensitivity, instability, or oscillations.
+</p>
+</li>
+<li><p>Lower \(K_P\): Slows error correction and may yield inadequate responses.
+</p>
+</li></ol>
+</li>
+<li><p><b>Integral Term (\(K_I\))</b>
+</p>
+<ol>
+<li><p>Higher \(K_I\): Eliminates steady-state error by correcting accumulated bias. Excessive values amplify oscillations and slow convergence due to large corrective swings.
+</p>
+</li>
+<li><p>Lower \(K_I\): Weakens correction of persistent error, allowing steady-state deviations to remain.
+</p>
+</li></ol>
+</li>
+<li><p><b>Derivative Term (\(K_D\))</b>
+</p>
+<ol>
+<li><p>Higher \(K_D\): Provides anticipatory damping based on the error's rate of change, reducing overshoot and improving stability. Excessive values cause aggressive reactions to error fluctuations, destabilizing the system.
+</p>
+</li>
+<li><p>Lower \(K_D\): Diminishes damping, leading to overshoot and less stable responses.
+</p>
+</li>
+</ol>
+
+</li>
+</ol>
+<table class="imgtable"><tr><td>
+<img src="static/images/pid-lagrangian/plots.png" alt="PID example plots" width="900px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<table id="caption">
+<tr class="r1"><td class="c1">This figure illustrates the contribution of each term in PID control. The x-axis denotes timesteps and the y-axis the constraint function value. The black curve represents the constraint trajectory, and the horizontal gray line marks the constraint limit. The proportional term (left) depends only on the instantaneous deviation at each timestep. The integral term (middle) accumulates deviations over time, so even a small but persistent violation eventually produces a substantial corrective effect. The derivative term (right) responds to the rate of change of the constraint, damping rapid deviations before they can accumulate.
+</td></tr></table>
+<h3>Constraint-Controlled Reinforcement Learning</h3>
+<p>The dual update in the standard Lagrangian formulation:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \nabla_\theta \mathcal{L}(\theta, \lambda) &amp;= \nabla_\theta J^\pi(\theta) - \lambda \nabla_\theta J_c^\pi(\theta), \\
+    \nabla_\lambda \mathcal{L}(\theta, \lambda) &amp;= -\left(J_c^\pi(\theta) - l \right) \;,
+\end{align*}
+\]
+</p><p>is equivalent to an integral-only controller, where the learning rate \(\alpha_\lambda\) serves as \(K_I\). The multiplier \(\lambda\) accumulates deviations of the constraint cost \(J_c^\pi\) from the limit \(l\). Proportional and derivative corrections can be incorporated by augmenting the update with additional feedback terms:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:pid-multiplier}
+    \lambda_{t+1} = \Big[ K_P \big(J_c^\pi(\theta_t) - l\big)
+        + K_I \sum_{\tau=0}^t \big(J_c^\pi(\theta_\tau) - l\big)
+        + K_D \big(J_c^\pi(\theta_t) - J_c^\pi(\theta_{t-1})\big)_+
+    \Big]_+ \;.
+\end{equation}
+\]
+</p><p>The operator \((x)_+\) denotes the positive part, defined as \(\max\{x,0\}\). It is applied to \((J_c^\pi(\theta_t)-J_c^\pi(\theta_{t-1}))\) so that the derivative term responds only to increases in violation, and in the projection step \([\cdot]_+\) to enforce \(\lambda_{t+1}\ge 0\). Equation \(\eqref{eq:pid-multiplier}\) can be expressed as an update rule as follows:
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/pid-lagrangian/pid-lagrangian-multiplier.png" alt="PID-Controlled Lagrange Multiplier pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>This PID update defines a dynamical system for the multiplier. In practice, it is embedded directly within a reinforcement learning scheme (e.g., <a href="ppo.html" target=&ldquo;blank&rdquo;>PPO</a>):
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/pid-lagrangian/constraint-controlled-rl.png" alt="Constraint-Controlled Reinforcement Learning pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>The approach employs two mechanisms to stabilize updates under a varying penalty coefficient \(\lambda\). First, it separates value and cost-value critics to prevent interference between reward and cost signals, reducing instability when \(\lambda\) changes rapidly. Second, it rescales the policy gradient:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathcal{L}(\theta;\lambda) = J(\theta) - \lambda J_c(\theta),
+\end{equation*}
+\]
+</p><p>to offset the large parameter updates induced when \(\lambda\) heavily weights the cost term in the penalized objective, giving the modified gradient:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \nabla_\theta \mathcal{L}(\theta;\lambda)
+    = \frac{1}{1+\lambda}\Big(\nabla_\theta J(\theta) - \lambda \nabla_\theta J_c(\theta)\Big) \;.
+\end{equation*}
+\]
+</p><h3>Improving Robustness Within and Across Environments</h3>
+<p>Consider two CMDPs that are identical except the rewards in one are scaled by a constant \(\rho\). Then \(J\) and \(\nabla_\theta J\) scale by \(\rho\) while \(J_c\) and \(\nabla_\theta J_c\) remain unchanged. To preserve the Lagrangian tradeoff \(J - \lambda J_c\) and the resulting learning dynamics, the optimal rescales as \(\lambda^* \mapsto \rho\,\lambda^*\). For the standard (unnormalized) Lagrangian update, this implies that the controller parameters must also scale: \(\lambda_0 \mapsto \rho \lambda_0\) and \((K_P, K_I, K_D) \mapsto \rho (K_P, K_I, K_D)\). To avoid this sensitivity to the reward scale, we instead use the normalized update
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \nabla_\theta \mathcal{L} = (1 - u_k)\,\nabla_\theta J^\pi(\theta_k) - u_k\,\beta_k\,\nabla_\theta J_c^\pi(\theta_k) \;,
+\end{equation*}
+\]
+</p><p>where \(0 \leq u_k = \lambda_k/(1+\lambda_k) \leq 1\). With this normalization, \(\lambda\) retains a consistent operational meaning independent of reward scaling. The ratio of unscaled policy gradients is a natural choice for \(\beta_k\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \beta_{\nabla, k} = \frac{\| \nabla_\theta J(\theta_k) \|}{\| \nabla_\theta J_c(\theta_k) \|} \;.
+\end{equation*}
+\]
+</p><p>When \(\lambda=1\), the reward and cost gradients are scaled to have equal norm, so the update is balanced and \(\lambda\) directly controls their relative weighting.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://arxiv.org/pdf/2007.03964.pdf" target=&ldquo;blank&rdquo;>Responsive Safety in Reinforcement Learning by PID Lagrangian Methods</a>, International Conference on Machine Learning (2020)</dt>
+<dd><p>Adam Stooke, Joshua Achiam, and Pieter Abbeel
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://cdn.openai.com/safexp-short.pdf" target=&ldquo;blank&rdquo;>Benchmarking Safe Exploration in Deep Reinforcement Learning</a> (2019)</dt>
+<dd><p>Alex Ray, Joshua Achiam, and Dario Amodei
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.youtube.com/watch?v=UR0hOmjaHp0&amp;ab_channel=BrianDouglas" target=&ldquo;blank&rdquo;>PID Control - A brief introduction</a> [video] (2013)</dt>
+<dd><p>Brian Douglas
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

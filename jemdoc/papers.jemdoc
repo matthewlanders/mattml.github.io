@@ -1,0 +1,21 @@
+# jemdoc: menu{MENU}{papers.html}
+= Papers
+
+[https://scholar.google.com/citations?user=yiWlY9IAAAAJ&hl=en Google Scholar]
+
+\* indicates equal contribution
+
+: {[https://dl.acm.org/doi/10.1145/3596444 Deep Reinforcement Learning Verification: A Survey], ACM Computing Surveys
+(2023)} *Matthew Landers* and Afsaneh Doryab
+
+: {[https://academic.oup.com/jamia/advance-article/doi/10.1093/jamia/ocac065/6586579 A bias evaluation checklist for predictive models and its pilot application for 30-day hospital readmission models],
+Journal of the American Medical Informatics Association (2022)} Echo Wang\*, *Matthew Landers\**, Roy Adams\*, Adarsh Subbaswamy, Hadi Kharrazi, Darrell Gaskin, and Suchi Saria
+
+: {[https://www.karger.com/Article/Abstract/517885 Digital Endpoints: Definition, Benefits, and Current Barriers in Accelerating Development and Adoption],
+Digital Biomarkers (2021)} *Matthew Landers*, Ray Dorsey, and Suchi Saria
+
+: {[https://content.iospress.com/articles/journal-of-parkinsons-disease/jpd212545 Will Artificial Intelligence Replace the Movement Disorders Specialist for Diagnosing and Managing Parkinson’s Disease?],
+Journal of Parkinson’s Disease (2021)}  *Matthew Landers*, Suchi Saria, and Alberto Espay
+
+: {[https://www.mdpi.com/1424-8220/21/22/7510 Prediction of Hospital Readmission from Longitudinal Mobile Data Streams],
+Sensors (2021)} Chen Qian, Patraporn Leelaprachakul, *Matthew Landers*, Carissa Low, Anind K . Dey, and Afsaneh Doryab

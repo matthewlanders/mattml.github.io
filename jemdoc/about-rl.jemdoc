@@ -1,0 +1,21 @@
+# jemdoc: menu{MENU}{about-rl.html}
+= About RL
+
+/Revised March 7, 2025/
+
+In many machine learning subfields, state-of-the-art approaches are notable for achieving performance comparable to that of humans. For example, generative models trained on vast web datasets can produce text, images, and videos that closely resemble expert-created content. Fundamentally, these models are [transformer.html density estimators]; they leverage enormous amounts of training data to approximate an extremely large distribution using equally large models. When fitting a distribution, it is crucial to consider its origin. Here, the distribution is human-generated, as most text and images on the web are created by people. This imposes a limitation — the model inherently reflects and reproduces typical human behavior present in the data.
+
+While these /data-driven/ methods learn patterns in training data, reinforcement learning (RL) approaches are /outcome-driven/ — they are designed to optimize results, often yielding *novel* behavior. For instance, AlphaGo’s [https://youtu.be/WXuK6gekU1Y?feature=shared&t=2967 Move 37] against world champion Lee Sedol was an unconventional yet highly effective play, astonishing even top Go players. Similar emergent behaviors in fields like healthcare could have profound, transformative implications. Achieving these outcomes requires a learning paradigm that differs fundamentally from supervised and unsupervised learning. RL problems are typically formalized as optimal control tasks, where an agent learns to act in an environment to maximize a numerical objective. Unlike traditional control methods, which often rely on a well-specified environment model, RL algorithms learn through trial-and-error interaction with minimal supervision — the agent receives feedback solely through numerical rewards and typically starts without prior knowledge of how to optimize its behavior. This makes RL well-suited for sequential decision-making problems, where each action affects future choices, particularly in settings with unknown or time-varying dynamics, high-dimensional or continuous state and action spaces, or evolving performance requirements.
+
+Because my research focuses on RL, most of these notes cover related topics. Each note concludes with a list of sources I have either directly used or found relevant, even if not explicitly cited. Here, however, I provide a curated selection of general RL resources that I find particularly valuable.
+
+=== References
+
+: {[http://incompleteideas.net/book/the-book-2nd.html Reinforcement Learning: An Introduction] (2018)}
+Richard S. Sutton and Andrew G. Barto
+
+: {[https://sites.ualberta.ca/~szepesva/rlbook.html Algorithms for Reinforcement Learning], (2019)} Csaba Szepesvari
+
+: {[https://www.davidsilver.uk/teaching/ Lectures on Reinforcement Learning] (2015)} David Silver
+
+: {[https://rail.eecs.berkeley.edu/deeprlcourse/ Deep Reinforcement Learning] (2023)} Sergey Levine

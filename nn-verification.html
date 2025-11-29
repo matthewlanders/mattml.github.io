@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Neural Network Verification</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html" class="current">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Neural Network Verification</h1>
+</div>
+<p><i>Revised June 21, 2025</i>
+</p>
+<p>As deep neural networks (DNNs) have come to underlie critical infrastructure, the absence of rigorous guarantees about their behavior has emerged as a fundamental limitation. Because DNNs generalize from finite data to an unbounded input domain, their analysis aligns naturally with <i><a href="glossary.html" target=&ldquo;blank&rdquo;>verification</a></i>, a technique from formal methods research that establishes properties over infinite input spaces. Traditional verification methods, however, are designed to establish <i>functional correctness</i> — a guarantee that a program faithfully implements a specified mathematical function. While appropriate for conventional software, this notion is incongruent with DNNs, which approximate functions too complex or ill-defined to specify explicitly. It is possible, however, to define and formally verify <i>behavioral properties</i> that a DNN is expected to satisfy.
+</p>
+<h3>Defining Specifications</h3>
+<p>Consider an \(n\)-layer neural network \(f\) with input \(\mathbf{x} \in \mathcal{D}_{\mathbf{x}} \subseteq \mathbb{R}^{k_0}\) and output \(\mathbf{y} \in \mathcal{D}_{\mathbf{y}} \subseteq \mathbb{R}^{k_n}\), where \(k_0\) and \(k_n\) denote the input and output dimensions, respectively. Verifying \(f\) requires a specification \(\phi\) that formalizes the desired input–output behavior of the network. Such a specification typically takes the form: &ldquo;for all \(\mathbf{x} \in \mathcal{X}\), the output \(f(\mathbf{x})\) lies in \(\mathcal{Y}\),&rdquo; where \(\mathcal{X} \subseteq \mathcal{D}_{\mathbf{x}}\) constrains the inputs and \(\mathcal{Y} \subseteq \mathcal{D}_{\mathbf{y}}\) constrains the outputs. Formally, verification amounts to proving that \(\mathbf{x} \in \mathcal{X} \Rightarrow f(\mathbf{x}) \in \mathcal{Y}\).
+</p>
+<p>For example, verifying robustness in an image classification network requires ensuring that small perturbations to the input (e.g., slight changes in pixel brightness) do not change the network's output. Let \(\mathbf{x}_0\) denote an input for which the network predicts label \(c^* \in \{1, \dots, k_n\}\). To certify robustness, it must be shown that the network assigns the highest score to \(c^*\) over all perturbations \(\mathbf{x} \in \mathcal{X}\); formally, \(y_{c^*} &gt; y_j\) for all \(j \ne c^*\). This corresponds to the constraints:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \mathcal{X} &amp;= \{ \mathbf{x} : \| \mathbf{x} - \mathbf{x}_0 \|_p \leq \epsilon \} \nonumber \\
+    \mathcal{Y} &amp;= \{ \mathbf{y} : y_{c^*} &gt; y_j \;\; \forall j \neq c^* \} \;, \nonumber
+\end{align}
+\]
+</p><p>where \(\epsilon\) bounds the input perturbation and \(p\) denotes the norm used to measure its size.
+</p>
+<p>Given a network and a specification, DNN verification algorithms yield one of three outcomes. An <i>adversarial result</i> returns the smallest perturbation \(\epsilon^*\) that causes a violation. If \(\epsilon^* \le \epsilon\), the specification fails; if \(\epsilon^* &gt; \epsilon\), it holds. A <i>counterexample result</i> identifies some \(\mathbf{x}^* \in \mathcal{X}\) such that \(f(\mathbf{x}^*) \notin \mathcal{Y}\), thereby refuting the specification. A <i>reachability result</i> computes the output set \(\mathcal{R}(\mathcal{X}, f) := \{f(\mathbf{x}) : \mathbf{x} \in \mathcal{X}\}\). If \(\mathcal{R}(\mathcal{X}, f) \subseteq \mathcal{Y}\), the specification is satisfied; otherwise, it is violated.
+</p>
+<p>Two primary classes of techniques have emerged for neural network verification: constraint-based and abstraction-based approaches.
+</p>
+<h3>Constraint-Based Verification</h3>
+<p>Specifications \(\phi\) are typically encoded as logical constraints expressed in first-order logic (FOL). Propositional logic (PL), a restricted subset of FOL, builds formulas from Boolean variables combined using standard connectives: and (\(\wedge\)), or (\(\vee\)), and not (\(\neg\)).
+</p>
+<p>To capture numerical properties of neural networks, PL is extended with arithmetic theories. A common example is linear real arithmetic, which expresses constraints as linear relations of the form:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \sum_{i=1}^n c_i x_i + b \bowtie 0 \;,
+\end{equation*}
+\]
+</p><p>where \(c_i, b \in \mathbb{R}\), \(x_i\) are real-valued variables, and \(\bowtie \in \{&lt;, \le, =, \ge, &gt;\}\).
+</p>
+<p>Consider a simple network with two inputs \(x_1\) and \(x_2\), a single neuron defined by \(t = 2x_1 + 8x_2\), and a ReLU activation. To verify that the network output is nonnegative for all inputs in \([0,1]^2\), the network is encoded as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \psi \triangleq t = 2x_1 + 8x_2 \wedge (t &gt; 0 \Rightarrow r = t) \wedge (t \leq 0 \Rightarrow r = 0),
+\end{equation*}
+\]
+</p><p>and the specification as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \phi \triangleq \forall x_1, x_2 \in [0,1] \;\; \psi \Rightarrow r \geq 0.
+\end{equation*}
+\]
+</p><p>The formula \(\psi\) includes ReLU activations encoded as implications, such as \((t &gt; 0 \Rightarrow r = t)\), which are logically equivalent to disjunctions like \((t \leq 0 \vee r = t)\). Although each individual literal is linear, the disjunctive structure makes the formula non-convex. Constraint-based methods convert such formulas into mixed logical–arithmetic constraint systems, which <a href="https://en.wikipedia.org/wiki/Satisfiability_modulo_theories" target=&ldquo;blank&rdquo;>SMT</a> and <a href="https://www.gurobi.com/resources/mixed-integer-programming-mip-a-primer-on-the-basics/" target=&ldquo;blank&rdquo;>MILP</a> solvers must evaluate by exhaustively exploring all ReLU activation patterns. As the number of ReLUs increases, the space of case splits grows exponentially, making complete verification NP-hard.
+</p>
+<h3>Abstraction-Based Verification</h3>
+<p>Abstraction-based methods improve scalability by evaluating the network over sets of inputs rather than individual points. Over-approximations of network behavior are computed using abstract domains, which propagate symbolic bounds through the computation. More specifically, given a region \(\mathcal{X}\), the verifier computes an over-approximation of \(f(\mathcal{X})\), the set of all possible outputs. For example, verifying \(f(\mathcal{X}) \subseteq \{\mathbf{y} \mid \text{class}(\mathbf{y}) = \text{&ldquo;dog&rdquo;}\}\) guarantees that all inputs \(\mathbf{x} \in \mathcal{X}\) are classified as &ldquo;dog.&rdquo; While efficient these methods are incomplete: not everything that is true has a proof, meaning the verifier does not always return a definitive &ldquo;yes&rdquo; or &ldquo;no&rdquo; answer. Nonetheless, they are sound — any property that is proven is guaranteed to be true.
+</p>
+<p>The interval domain is the simplest abstract domain, representing sets of real values with bounded intervals. For example, let \(g(\mathcal{X}) = \{x + 2 \mid x \in \mathcal{X}\}\) denote a function applied to a real-valued input set \(\mathcal{X}\). When \(\mathcal{X}\) is infinite, evaluating \(g\) concretely is intractable. Abstract interpretation replaces \(\mathcal{X}\) with an interval \([l, u]\) such that \(l, u \in \mathbb{R}\) and \(l \leq u\), encoding the set \(\{x \mid l \leq x \leq u\}\). The abstract version of the function, \(g^a([l, u]) = [l + 2, u + 2]\), operates directly on intervals and over-approximates the output of \(g\) on \(\mathcal{X}\).
+</p>
+<p>The principle illustrated by the scalar function \(g(x) = x + 2\) extends to the affine and activation functions that compose neural networks. Affine transformations appear in every linear layer, where the input is mapped to a weighted sum and bias. In the scalar case, an affine function takes the form \(f(x_1, \dots, x_n) = \sum_i c_i x_i + b\), with \(c_i \in \mathbb{R}\) and each \(x_i\) bounded in an interval \([l_i, u_i]\). The abstract evaluation over these intervals is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    f^a([l_1, u_1], \dots, [l_n, u_n]) = \left[ \sum_i l_i&rsquo; + b, \sum_i u_i&rsquo; + b \right],
+\end{equation*}
+\]
+</p><p>where \(l_i&rsquo; = \min(c_i l_i, c_i u_i)\) and \(u_i&rsquo; = \max(c_i l_i, c_i u_i)\). The tuple \(([l_1, u_1], \dots, [l_n, u_n])\) defines a hyperrectangle in \(\mathbb{R}^n\) representing all \(\mathbf{x}\) such that \(l_i \leq x_i \leq u_i\) for each coordinate \(i\).
+</p>
+<p>Activation functions follow each affine transformation and are typically applied elementwise. For any monotonically increasing activation function \(f\), the abstract evaluation over an input interval \([l, u]\) is given by \(f^a([l, u]) = [f(l), f(u)]\).
+</p>
+<p>Verification proceeds once input intervals have been propagated through the entire network. For instance, a specification might require that for inputs \(x_1 \in [2,6]\) and \(x_2 \in [8,12]\), the output satisfies \(y \in [0,100]\). Given the network below, a verifier can confirm that this condition holds.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/nn-verification/abstract_nn.png" alt="NN with Abstraction-Based Verification" width="450px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>While the interval domain has been applied to verify DNNs in complex settings such as image classification and natural language processing, it is non-relational — it fails to capture dependencies between input dimensions. This limitation often results in significant over-approximation of reachable sets. Relational domains such as neural <a href="https://verifieddeeplearning.com/" target=&ldquo;blank&rdquo;>zonotopes and neural polyhedra</a> can preserve input dependencies, yielding tighter bounds and improved verification precision.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="http://theory.stanford.edu/~barrett/pubs/LAL+21.pdf" target=&ldquo;blank&rdquo;>Algorithms for verifying deep neural networks</a> (2021)</dt>
+<dd><p>Changliu Liu, Tomer Arnon, Chris Lazarus, Christopher Strong, Clark Barrett, and Mykel J. Kochenderfer
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://verifieddeeplearning.com/" target=&ldquo;blank&rdquo;>Introduction to neural network verification</a> (2021)</dt>
+<dd><p>Aws Albarghouthi
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://blog.sigplan.org/2021/11/04/neural-network-verification-where-are-we-and-where-do-we-go-from-here/" target=&ldquo;blank&rdquo;>Neural network verification: Where are we and where do we go from here?</a> (2021)</dt>
+<dd><p>Aws Albarghouthi
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

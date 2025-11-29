@@ -1,0 +1,667 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Constrained Policy Optimization (CPO)</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html" class="current">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Constrained Policy Optimization (CPO)</h1>
+</div>
+<p><i>Revised August 21, 2025</i>
+</p>
+<p><i>The <a href="trpo.html" target=&ldquo;blank&rdquo;>TRPO</a> and <a href="constrained-mdps.html" target=&ldquo;blank&rdquo;>Constrained Markov Decision Processes</a> notes are optional but recommended background reading.</i>
+</p>
+<p>In <a href="glossary.html" target=&ldquo;blank&rdquo;>primal-dual methods</a> for <a href="constrained-mdps.html" target=&ldquo;blank&rdquo;>constrained MDPs</a>, the policy is influenced by the constraints only through the Lagrange multipliers. Because the primal and dual updates are coupled, intermediate policies can be infeasible due to insufficient penalization by the multipliers or from a policy that has not yet adapted to the updated penalties. Feasibility is guaranteed only at a saddle point \((\pi^*,\lambda^*)\), where the <a href="https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions" target=&ldquo;blank&rdquo;>KKT conditions</a> are satisfied.
+</p>
+<p>CPO, by contrast, enforces constraints at each policy update. It adopts the trust-region framework of <a href="trpo.html" target=&ldquo;blank&rdquo;>TRPO</a>, which restricts optimization to a parametric class \(\Pi_\theta\), updating from \(\pi_k\) within a local neighborhood:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \pi_{k+1} = \arg\max_{\pi \in \Pi_\theta} J(\pi) \quad \text{s.t.} \quad D(\pi, \pi_k) \le \delta \;,
+\end{equation*}
+\]
+</p><p>where \(D\) is a divergence measure and \(\delta &gt; 0\) bounds the step size. 
+</p>
+<p>In constrained MDPs, feasibility additionally requires \(J_{c_i}(\pi) \le l_i\) for \(i = 1,\dots,m\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:cmdp_update}
+    \pi_{k+1} = \arg\max_{\pi \in \Pi_\theta} J(\pi) \quad \text{s.t.} \quad J_{c_i}(\pi) \le l_i,\; D(\pi, \pi_k) \le \delta.
+\end{equation}
+\]
+</p><p>Feasibility in Equation \(\eqref{eq:cmdp_update}\) depends on the constraint returns of \(\pi\), which cannot be estimated directly from trajectories generated by \(\pi_k\). Constraint evaluation therefore requires <a href="off-policy-evaluation.html" target=&ldquo;blank&rdquo;>off-policy estimates</a> of \(J_{c_i}(\pi)\), which in high dimensions are computationally expensive and statistically high-variance. CPO thus replaces the true returns \(J\) and \(J_{c_i}\) with surrogate functions \(\tilde{J}\) and \(\tilde{J}_{c_i}\) computed from trajectories under \(\pi_k\). These surrogates preserve local accuracy for both objective and constraints, yielding an update rule with explicit bounds on return improvement and constraint satisfaction.
+</p>
+<h3>Defining Surrogate Objectives</h3>
+<p>Following <a href="trpo.html" target=&ldquo;blank&rdquo;>TRPO</a>, CPO constructs surrogate objectives from the performance difference lemma by replacing the exact expression with an approximation. Specifically, for two policies \(\pi\) and \(\pi^\prime\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    J(\pi^\prime) - J(\pi) = \frac{1}{1-\gamma} \mathbb{E}_{\substack{s \sim d^{\pi^\prime} \\ a \sim \pi^\prime}} [A^\pi(s,a)] \;,
+\end{equation*}
+\]
+</p><p>where \(1/(1-\gamma)\) scales the expected per-step advantage to the cumulative difference in discounted return, \(A^\pi\) is the advantage function of \(\pi\), and \(d^{\pi^\prime}\) is the discounted state distribution induced by \(\pi'\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    d^{\pi&rsquo;}(s) = (1-\gamma)\sum_{t=0}^\infty \gamma^t P(s_t = s \mid \pi&rsquo;) \;.
+\end{equation*}
+\]
+</p><p>Directly using \(d^{\pi&rsquo;}\) is intractable because it depends on the candidate policy \(\pi'\). As in <a href="trpo.html" target=&ldquo;blank&rdquo;>TRPO</a>, CPO therefore introduces a surrogate objective by replacing \(d^{\pi^\prime}\) with \(d^\pi\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    &amp;\frac{1}{1-\gamma} \mathbb{E}_{\substack{s \sim d^\pi \\ a \sim \pi^\prime}} [A^\pi(s,a)] \label{eq:surrogates-1} \\
+    &amp;\frac{1}{1-\gamma} \mathbb{E}_{\substack{s \sim d^\pi \\ a \sim \pi^\prime}} [A_{C_i}^\pi(s,a)] \;. \label{eq:surrogates-2} 
+\end{align}
+\]
+</p><p>These surrogates preserve local accuracy while depending only on trajectories from \(\pi\) and yield a lower bound on the true return difference and an upper bound on the true constraint return differences:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    J(\pi&rsquo;) - J(\pi) &amp;= \frac{1}{1-\gamma}\,\mathbb{E}_{\substack{s \sim d^{\pi&rsquo;} \\ a \sim \pi'}}[A^\pi(s,a)] &amp;&amp; \text{performance-difference identity} \nonumber \\
+    
+    &amp;= \frac{1}{1-\gamma}\Big(\mathbb{E}_{\substack{s \sim d^\pi \\ a \sim \pi'}}[A^\pi(s,a)] + (\mathbb{E}_{s \sim d^{\pi'}}-\mathbb{E}_{s \sim d^\pi})[\mathbb{E}_{a&rsquo; \sim \pi&rsquo;}[A^\pi(s,a&rsquo;)]]\Big) \nonumber  \\
+    
+    &amp;\ge \frac{1}{1-\gamma}\Big(\mathbb{E}_{\substack{s \sim d^\pi \\ a \sim \pi'}}[A^\pi(s,a)] - \|d^{\pi&rsquo;}-d^\pi\|_1\,\max_s|\mathbb{E}_{a&rsquo; \sim \pi&rsquo;}[A^\pi(s,a&rsquo;)]|\Big) &amp;&amp; \text{Holder inequality} \nonumber \\
+    
+    &amp;\ge \frac{1}{1-\gamma}\Big(\mathbb{E}_{\substack{s \sim d^\pi \\ a \sim \pi'}}[A^\pi(s,a)] - \frac{2\gamma}{1-\gamma}\,\epsilon^{\pi&rsquo;}\,\mathbb{E}_{s \sim d^\pi}[D_{TV}(\pi&rsquo; \| \pi)[s]]\Big)
+    &amp;&amp; \text{CPO theorem 1} \label{eq:policy-reward-surrogate} \\
+\end{align}
+\]
+</p><p>where \(\epsilon^{\pi^\prime} = \max_s \lvert \mathbb{E}_{a \sim \pi^\prime}[A^\pi(s,a)] \rvert\) and \(D_{TV}(\pi^\prime \| \pi)[s] = \frac{1}{2}\sum_a \lvert \pi^\prime(a \mid s) - \pi(a \mid s) \rvert\) is the total variational divergence between policies at state \(s\).
+</p>
+<p>Equation \(\eqref{eq:policy-reward-surrogate}\) establishes that the guaranteed improvement is bounded by the surrogate advantage minus a penalty proportional to both the maximal advantage estimation error and the divergence between \(\pi\) and \(\pi'\). An analogous construction gives a bound for the constraint returns. For each constraint \(C_i\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    J_{C_i}(\pi&rsquo;) - J_{C_i}(\pi) &amp;= \frac{1}{1-\gamma}\,\mathbb{E}_{\substack{s \sim d^{\pi&rsquo;} \\ a \sim \pi'}}[A_{C_i}^\pi(s,a)] \nonumber \\
+    
+    &amp;= \frac{1}{1-\gamma}\Big(\mathbb{E}_{\substack{s \sim d^\pi \\ a \sim \pi'}}[A_{C_i}^\pi(s,a)] + (\mathbb{E}_{s \sim d^{\pi'}}-\mathbb{E}_{s \sim d^\pi})[\mathbb{E}_{a&rsquo; \sim \pi&rsquo;}[A_{C_i}^\pi(s,a&rsquo;)]]\Big) \nonumber \\
+    
+    &amp;\le \frac{1}{1-\gamma}\Big(\mathbb{E}_{\substack{s \sim d^\pi \\ a \sim \pi'}}[A_{C_i}^\pi(s,a)] + \|d^{\pi&rsquo;}-d^\pi\|_1\,\max_s|\mathbb{E}_{a&rsquo; \sim \pi&rsquo;}[A_{C_i}^\pi(s,a&rsquo;)]|\Big) \nonumber \\
+    
+    &amp;\le \frac{1}{1-\gamma}\Big(\mathbb{E}_{\substack{s \sim d^\pi \\ a \sim \pi'}}[A_{C_i}^\pi(s,a)] + \frac{2\gamma}{1-\gamma}\,\epsilon_{C_i}^{\pi&rsquo;}\,\mathbb{E}_{s \sim d^\pi}[D_{TV}(\pi&rsquo; \| \pi)[s]]\Big) \;. \label{eq:policy-constraint-surrogate}
+\end{align}
+\]
+</p><h3>Trust Region Formulation</h3>
+<p>Equations \(\eqref{eq:policy-reward-surrogate}\) and \(\eqref{eq:policy-constraint-surrogate}\) show that the surrogates in Equations \(\eqref{eq:surrogates-1}\) and \(\eqref{eq:surrogates-2}\) are only first-order accurate near \(\pi\), with error that increases under policy shift through terms proportional to \(\mathbb{E}_{s \sim d^\pi}[D_{TV}(\pi&rsquo; \| \pi)[s]]\). For large divergence, the reward surrogate can overestimate true improvement and the constraint surrogate can underestimate true violation. Unconstrained maximization can therefore invalidate the \(d^\pi\) substitution and the local approximation by moving \(\pi'\) far from \(\pi\).
+</p>
+<p>Using the bounds in Equations \(\eqref{eq:policy-reward-surrogate}\) and \(\eqref{eq:policy-constraint-surrogate}\) as optimization objectives would restrict updates to the region where the first-order approximation holds, but would be impractical because the penalty term depends on \(\epsilon = \max_s \big| \mathbb{E}_{a \sim \pi&rsquo;}[A^\pi(s,a)] \big|\), which cannot be computed in practice. CPO thus introduces objectives derived from the bounds, replacing the intractable penalty with a tractable formulation parameterized by tunable coefficients \(\alpha_k\) and \(\beta_k^i\) yielding the update rule:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \pi_{k+1} &amp;= \arg\max_{\pi \in \Pi} \; \mathbb{E}_{\substack{s \sim d^{\pi_k} \\ a \sim \pi}} [A^{\pi_k}(s,a)]
+    - \alpha_k \mathbb{E}_{s \sim d^{\pi_k}}[D_{TV}(\pi \| \pi_k)[s]] \\
+    &amp;\text{s.t. } J_{C_i}(\pi_k) + \frac{1}{1-\gamma} \mathbb{E}_{\substack{s \sim d^{\pi_k} \\ a \sim \pi}} [A_{C_i}^{\pi_k}(s,a)]
+    + \beta_k^i \mathbb{E}_{s \sim d^{\pi_k}}[D_{TV}(\pi \| \pi_k)[s]] \leq l_i \;.
+\end{align*}
+\]
+</p><p>The factor \((1-\gamma)^{-1}\) vanishes in the objective but not in the constraint. In the objective it scales the bound uniformly, so the maximizer is unchanged and the factor can be dropped; constants are absorbed into \(\alpha_k\). In the constraint, \((1-\gamma)^{-1}\) appears on the right-hand side of the inequality that defines the feasible set. Removing it would shift the upper bound on \(J_{C_i}(\pi&rsquo;)\) and alter admissibility. The factor is therefore retained, with only the remaining constants absorbed into \(\beta_k^i\).
+</p>
+<p>Because horizon dependence remains through the \((1-\gamma)^{-1}\) term and bound-derived multipliers, updates are excessively conservative when \(\gamma \approx 1\). CPO therefore replaces the divergence penalties with an average-KL trust-region constraint, which limits policy shift without fixed horizon-dependent multipliers. As in TRPO, CPO defines the trust region using <a href="kl-divergence.html" target=&ldquo;blank&rdquo;>KL divergence</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}\label{eq:trust-region}
+    \pi_{k+1} &amp;= \arg\max_{\pi \in \Pi} \mathbb{E}_{\substack{s \sim d^{\pi_k} \\ a \sim \pi}} [A^{\pi_k}(s,a)] \\
+    &amp;\text{s.t. } J_{C_i}(\pi_k) + \frac{1}{1-\gamma} \mathbb{E}_{\substack{s \sim d^{\pi_k} \\ a \sim \pi}} [A_{C_i}^{\pi_k}(s,a)] \leq l_i \quad \forall i \nonumber \\
+    &amp;\quad \mathbb{E}_{s \sim d^{\pi_k}}[D_{KL}(\pi(\cdot|s) || \pi_k(\cdot|s))] \leq \delta \;, \nonumber
+\end{align}
+\]
+</p><p>where \(D_{KL}\) is KL divergence and \(\delta &gt; 0\) is the trust region radius.
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>KL Divergence Update Bounds</b>
+</p>
+<p>Equation \(\eqref{eq:policy-reward-surrogate}\) provides a lower bound on the performance difference between \(\pi_k\) and \(\pi_{k+1}\) in terms of total variation divergence. A corresponding bound can also be expressed in terms of KL divergence, which aligns with the trust region formulation in Equation \(\eqref{eq:trust-region}\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    J(\pi_{k+1}) - J(\pi_k) &amp;\geq \frac{1}{1-\gamma}\Big(\mathbb{E}_{\substack{s \sim d^{\pi_k} \\ a \sim \pi_{k+1}}}[A^{\pi_k}(s,a)] - \frac{2\gamma}{1-\gamma}\,\epsilon^{\pi_{k+1}}\,\mathbb{E}_{s \sim d^{\pi_k}}[D_{TV}(\pi_{k+1} \| \pi_k)[s]]\Big) &amp;&amp; \text{by Equation } \eqref{eq:policy-reward-surrogate} \nonumber \\
+
+    &amp;\geq \frac{1}{1-\gamma} \mathbb{E}_{\substack{s \sim d^{\pi_k} \\ a \sim \pi_{k+1}}} \Bigg[ A^{\pi_k}(s,a) \Bigg] - \frac{2\gamma}{(1-\gamma)^2}\,\epsilon^{\pi_{k+1}} \mathbb{E}_{s \sim d^{\pi_k}}[D_{TV}(\pi_{k+1} \| \pi_k)[s]]
+    &amp;&amp; \text{rearrange terms} \nonumber \\
+    
+    &amp;\geq \frac{1}{1-\gamma} \mathbb{E}_{\substack{s \sim d^{\pi_k} \\ a \sim \pi_{k+1}}}
+    \Bigg[ A^{\pi_k}(s,a) \Bigg] - \frac{2\gamma\epsilon^{\pi_{k+1}}}{(1-\gamma)^2} \sqrt{\frac{1}{2} \mathbb{E}_{s \sim d^{\pi_k}} \big[ D_{KL} (\pi_{k+1} || \pi_k)[s] \big]}
+    &amp;&amp; \text{by Pinsker's inequality } \label{eq:dtv-kl-corrected} \\
+
+    &amp;\geq \frac{1}{1-\gamma} \mathbb{E}_{\substack{s \sim d^{\pi_k} \\ a \sim \pi_{k+1}}}
+    \Bigg[ A^{\pi_k}(s,a) \Bigg] - \frac{2\gamma\epsilon^{\pi_{k+1}}}{(1-\gamma)^2}
+    \sqrt{\frac{\delta}{2}}
+    &amp;&amp; \text{Equation } \eqref{eq:trust-region} \text{ bounds avg. KL by } \delta \nonumber \\
+
+    &amp;\geq -\frac{2 \gamma \epsilon^{\pi_{k+1}}}{(1-\gamma)^2}
+    \sqrt{\frac{\delta}{2}}
+    &amp;&amp; \text{because } \mathbb{E}_{\substack{s \sim d^{\pi_k} \\ a \sim \pi_{k+1}}}[A^{\pi_k}(s,a)] \geq 0 \label{eq:relative-advantage} \\
+
+    &amp;= \frac{-\sqrt{2 \delta} \gamma \epsilon^{\pi_{k+1}}}{(1-\gamma)^2} \;. \nonumber
+\end{align}
+\]
+</p><p>In Equation \(\eqref{eq:dtv-kl-corrected}\), the expected total variation distance is bounded by the expected KL divergence via <a href="https://en.wikipedia.org/wiki/Pinsker%27s_inequality" target=&ldquo;blank&rdquo;>Pinsker's inequality</a>. Equation \(\eqref{eq:relative-advantage}\) holds because \(\pi_k\) is feasible for Equation \(\eqref{eq:trust-region}\), with \(D_{KL}(\pi_k \| \pi_k)=0&lt;\delta\). The objective evaluates to zero since the advantage of a policy relative to itself vanishes.
+</p>
+<p>An analogous argument yields an upper bound on the worst-case constraint violation:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    J_{C_i}(\pi_{k+1}) \leq l_i + \frac{\sqrt{2\delta} \gamma \epsilon_{C_i}^{\pi_{k+1}}}{(1-\gamma)^2} \;.
+\end{equation*}
+\]
+</p></div></div>
+<h3>Practical Algorithm</h3>
+<p>Directly solving the trust region problem in Equation \(\eqref{eq:trust-region}\) is computationally prohibitive for policies with high-dimensional parameterizations such as neural networks. As in TRPO, CPO thus approximates the objective and constraints by linearizing around \(\pi_{\theta_k}\) using a first-order Taylor expansion:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \theta_{k+1} = \text{arg} \max_{\theta} \quad &amp; g^\top (\theta-\theta_k) \label{eq:approx-cpo-1} \\
+    \text{s.t.} \quad &amp; c_i + b_i^\top (\theta-\theta_k) \leq 0 \quad i = 1, \dots, m \label{eq:approx-cpo-2} \\
+    &amp; \frac{1}{2}(\theta-\theta_k)^\top H(\theta-\theta_k) \leq \delta \;, \label{eq:approx-cpo-3}
+\end{align}
+\]
+</p><p>where \(g\) is the policy gradient of the surrogate objective, \(b_i\) is the gradient of the \(i^\text{th}\) surrogate constraint advantage, \(H\) is the Hessian of the KL divergence, and \(c_i = J_{C_i}(\theta_k) - l_i\).
+</p>
+<p>Equations \(\eqref{eq:approx-cpo-1}\) and \(\eqref{eq:approx-cpo-3}\) follow directly from the <a href="trpo.html" target=&ldquo;blank&rdquo;>approximations used in TRPO</a>. The cost constraint in \(\eqref{eq:approx-cpo-2}\) is derived by linearizing the surrogate cost-advantage term:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathbb{E}_{\substack{s \sim d^{\theta_k} \\ a \sim \pi_\theta}} \big[ A_{C_i}^{\theta_k}(s,a) \big] \;.
+\end{equation*}
+\]
+</p><p>More specifically, define:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L_{C_i}(\theta) = \mathbb{E}_{\substack{s \sim d^{\theta_k} \\ a \sim \pi_\theta}} \big[ A_{C_i}^{\theta_k}(s,a) \big].
+\end{equation*}
+\]
+</p><p>The full constraint is then:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    J_{C_i}(\theta_k) + L_{C_i}(\theta) \le l_i \; .
+\end{equation*}
+\]
+</p><p>While \(J_{C_i}(\theta_k)\) is a fixed constant at iteration \(k\), the term \(L_{C_i}(\theta)\) depends on the new policy \(\pi_\theta\) and cannot be evaluated exactly. To make the constraint tractable, \(L_{C_i}(\theta)\) is approximated by its first-order Taylor expansion around the current policy parameters \(\theta_k\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L_{C_i}(\theta) \approx L_{C_i}(\theta_k) 
+    + \nabla L_{C_i}(\theta)\big|_{\theta_k}^\top (\theta - \theta_k) \; .
+\end{equation*}
+\]
+</p><p>Since a policy’s advantage against itself is zero, \(L_{C_i}(\theta_k) = 0\). Thus the approximation reduces to \(b_i^\top (\theta - \theta_k)\), where \(b_i = \nabla L_{C_i}(\theta)\big|_{\theta_k}\).
+</p>
+<p>Substituting back into the constraint yields:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    J_{C_i}(\theta_k) + b_i^\top (\theta - \theta_k) &amp;\le l_i \\
+    J_{C_i}(\theta_k) - l_i + b_i^\top (\theta - \theta_k) &amp;\le 0 \\
+    c_i + b_i^\top (\theta - \theta_k) &amp;\le 0 \;.
+\end{align*}
+\]
+</p><h4>Solving the Dual Exactly</h4>
+<p>The linearized subproblem in Equations \(\eqref{eq:approx-cpo-1}–\eqref{eq:approx-cpo-3}\) is still a constrained quadratic program in a high-dimensional parameter space, which is difficult to solve directly. However, its structure admits a low-dimensional dual formulation: when the number of constraints \(m\) is small compared to the dimension of \(\theta\), the dual problem reduces to a convex program in only \(m+1\) variables. In such settings, the problem is tractable and the dual can be solved exactly.
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>The Following Dual Derivation Differs From That of the CPO Paper</b>
+</p>
+<p>In the <a href="https://arxiv.org/pdf/1705.10528.pdf" target=&ldquo;blank&rdquo;>CPO paper</a>, the dual objective is written as a maximization problem (Equation 11 in CPO). In standard duality theory, a maximization primal induces a minimization dual. The paper subsequently reformulates the dual as a maximization problem (Equation 12 in CPO) by negating all terms of the minimization dual. The closed-form solution presented in the paper is nonetheless derived from the minimization form. Furthermore, Equation 11 of the paper appears to contain an extraneous factor of 2. For these reasons, the dual and derivations there of, differ slightly from the expressions in the original CPO paper.
+</p>
+</div></div>
+<p>The dual is obtained by introducing Lagrange multipliers, with \(\lambda\) corresponding to the trust-region constraint and \(\nu_i\) to the \(i^\text{th}\) linear constraint:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:cpo-lag}
+    L(\theta, \lambda, \nu) = g^\top (\theta - \theta_k) - \sum_{i=1}^{m} \nu_i \left(c_i + b_i^\top (\theta - \theta_k) \right) - \lambda \left( \frac{1}{2} (\theta - \theta_k)^\top H (\theta - \theta_k) - \delta \right) \;.
+\end{equation}
+\]
+</p><p>By the <a href="https://en.wikipedia.org/wiki/Karush%E2%80%93Kuhn%E2%80%93Tucker_conditions" target=&ldquo;blank&rdquo;>KKT conditions</a>, optimality requires \(\nabla_\theta L(\theta,\lambda,\nu)=0\). Differentiating Equation \(\eqref{eq:cpo-lag}\) with respect to \(\theta\) yields:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \partial L/\partial \theta &amp;= 0 = g - \sum_{i=1}^{m} \nu_i b_i - \lambda H (\theta - \theta_k) \nonumber \\
+    &amp;= g - B \nu - \lambda H (\theta - \theta_k) \nonumber \\
+    \lambda H (\theta - \theta_k) &amp;= g - B \nu \nonumber \\
+    \theta - \theta_k &amp;= \frac{1}{\lambda} H^{-1} (g - B \nu) \nonumber \\
+    \theta &amp;= \frac{1}{\lambda} H^{-1} g - \frac{1}{\lambda} H^{-1} B \nu + \theta_k \;. \label{eq:cpo-theta}
+\end{align}
+\]
+</p><p>Substituting this definition of \(\theta\) into Equation \(\eqref{eq:cpo-lag}\) yields:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    L(\theta, \lambda, \nu) = &amp;g^\top \left(\frac{1}{\lambda} H^{-1} g - \frac{1}{\lambda} H^{-1} B \nu + \theta_k - \theta_k \right) &amp;&amp; \text{objective term} \\
+    &amp; \quad -\sum_{i=1}^{m} \nu_i \left(c_i + b_i^\top \left(\frac{1}{\lambda} H^{-1} g - \frac{1}{\lambda} H^{-1} B \nu + \theta_k - \theta_k \right) \right) &amp;&amp; \text{constraint term} \\
+    &amp; \quad -\lambda \left( \frac{1}{2} \left(\frac{1}{\lambda} H^{-1} g - \frac{1}{\lambda} H^{-1} B \nu + \theta_k - \theta_k \right)^\top H \left(\frac{1}{\lambda} H^{-1} g - \frac{1}{\lambda} H^{-1} B \nu + \theta_k - \theta_k \right) - \delta \right) &amp;&amp; \text{trust region term.}
+\end{align*}
+\]
+</p><p>We simplify each term separately using straightforward algebraic manipulation. Assume each \(b_i\) is a column vector, \(B = [b_1,\dots,b_m]\), \(r = B^\top H^{-1} g\) is a column vector, \(c = (c_1,\dots,c_m)\) is a column vector, and \(S = B^\top H^{-1} B\). Since \(H\) is symmetric, \(H^{-1} = H^{-\top}\) and transposition follows the reverse order of factors.
+</p>
+<p>Objective term:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    g^\top \left(\frac{1}{\lambda} H^{-1} g - \frac{1}{\lambda} H^{-1} B \nu + \theta_k - \theta_k \right)
+    &amp;= g^\top \left(\frac{1}{\lambda} H^{-1} g - \frac{1}{\lambda} H^{-1} B \nu \right) \\
+    &amp;= \frac{1}{\lambda} g^\top H^{-1} g - \frac{1}{\lambda} g^\top H^{-1} B \nu \\
+    &amp;= \color{red}{\frac{1}{\lambda} g^\top H^{-1} g - \frac{1}{\lambda} r^\top \nu}
+\end{align*}
+\]
+</p><p>Constraint term:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    -\sum_{i=1}^{m} \nu_i \left(c_i + b_i^\top \left(\frac{1}{\lambda} H^{-1} g - \frac{1}{\lambda} H^{-1} B \nu + \theta_k - \theta_k \right) \right)
+    &amp;= -\sum_{i=1}^{m} \nu_i \left(c_i + \frac{1}{\lambda} b_i^\top H^{-1} g - \frac{1}{\lambda} b_i^\top H^{-1} B \nu \right) \\
+    &amp;= -\left(\nu^\top c + \frac{1}{\lambda} \nu^\top B^\top H^{-1} g - \frac{1}{\lambda} \nu^\top B^\top H^{-1} B \nu \right) \\
+    &amp;= -\left(\nu^\top c + \frac{1}{\lambda} \nu^\top r - \frac{1}{\lambda} \nu^\top S \nu \right) \\
+    &amp;= \color{blue}{-\nu^\top c - \frac{1}{\lambda} r^\top \nu + \frac{1}{\lambda} \nu^\top S \nu}
+\end{align*}
+\]
+</p><p>Trust-region term:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    -\lambda \Bigg( \frac{1}{2} \left(\frac{1}{\lambda} H^{-1} g - \frac{1}{\lambda} H^{-1} B \nu \right)^\top 
+    H \left(\frac{1}{\lambda} H^{-1} g - \frac{1}{\lambda} H^{-1} B \nu \right) - \delta \Bigg)
+    &amp;= -\lambda \Bigg( \frac{1}{2\lambda^2} \left( H^{-1} (g - B \nu) \right)^\top 
+    H \left( H^{-1} (g - B \nu) \right) - \delta \Bigg) \\
+
+    &amp;= -\lambda \Bigg( \frac{1}{2\lambda^2} (g - B \nu)^\top (H^{-1})^\top H H^{-1} (g - B \nu) - \delta \Bigg) \\
+    &amp;= -\lambda \Bigg( \frac{1}{2\lambda^2} (g - B \nu)^\top H^{-1} (g - B \nu) - \delta \Bigg) \\
+    &amp;= -\frac{1}{2\lambda} (g - B \nu)^\top H^{-1} (g - B \nu) + \lambda\delta \\
+    &amp;= -\frac{1}{2\lambda} \Big( g^\top H^{-1}g - 2 g^\top H^{-1}B\nu + \nu^\top B^\top H^{-1}B\nu \Big) + \lambda\delta \\
+    &amp;= -\frac{1}{2\lambda} g^\top H^{-1} g + \frac{1}{\lambda} g^\top H^{-1} B \nu - \frac{1}{2\lambda} \nu^\top B^\top H^{-1} B \nu + \lambda \delta \\
+    &amp;= \color{green}{-\frac{1}{2\lambda} g^\top H^{-1} g + \frac{1}{\lambda} r^\top \nu - \frac{1}{2\lambda} \nu^\top S \nu + \lambda \delta}
+\end{align*}
+\]
+</p><p>Combining the terms and simplifying gives:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    L(\lambda, \nu) &amp;= \color{red}{\frac{1}{\lambda} g^\top H^{-1} g - \frac{1}{\lambda} r^\top \nu}
+    \color{blue}{-\nu^\top c - \frac{1}{\lambda} r^\top \nu + \frac{1}{\lambda} \nu^\top S \nu}
+    \color{green}{-\frac{1}{2\lambda} g^\top H^{-1} g + \frac{1}{\lambda} r^\top \nu - \frac{1}{2\lambda} \nu^\top S \nu + \lambda \delta} \nonumber \\
+    
+    &amp;= \left(\frac{1}{\lambda} g^\top H^{-1} g -\frac{1}{2\lambda} g^\top H^{-1} g \right)
+    + \left(- \frac{1}{\lambda} r^\top \nu - \frac{1}{\lambda} r^\top \nu + \frac{1}{\lambda} r^\top \nu \right)
+    + \left( \frac{1}{\lambda} \nu^\top S \nu - \frac{1}{2\lambda} \nu^\top S \nu \right)
+    -\nu^\top c  + \lambda \delta \nonumber \\
+    &amp;= \frac{1}{2\lambda} g^\top H^{-1} g - \frac{1}{\lambda} r^\top \nu + \frac{1}{2\lambda} \nu^\top S \nu -\nu^\top c  + \lambda \delta \nonumber \\
+    &amp;= \frac{1}{2\lambda} \left( g^\top H^{-1} g - 2 r^\top \nu + \nu^\top S \nu \right) -\nu^\top c  + \lambda \delta \label{eq:cpo-dual}
+\end{align}
+\]
+</p><p>The dual problem involves only the variables \((\lambda,\nu)\). The associated primal iterate \(\theta\) is obtained by evaluating Equation \(\eqref{eq:cpo-theta}\) at the optimal dual variables \((\lambda^*,\nu^*)\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:optimal-primal}
+    \theta^* = \theta_k + \tfrac{1}{\lambda^*} H^{-1}(g - B\nu^*) .
+\end{equation}
+\]
+</p><p>When there is a single constraint, the dual problem admits closed-form expressions for the optimal multipliers \((\lambda^*,\nu^*)\). In this case, the dual objective reduces to:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \mathcal{D}^* &amp;= \min_{\substack{\lambda \geq 0 \\ \nu \geq 0}} \frac{1}{2\lambda} \left( g^\top H^{-1} g - 2 r \nu + \nu s \nu \right) - \nu c + \lambda \delta &amp;&amp; \text{by Equation } \eqref{eq:cpo-dual} \\
+    &amp;= \min_{\substack{\lambda \geq 0 \\ \nu \geq 0}} \frac{1}{2\lambda} \left( q - 2 r \nu + \nu^2 s \right) - \nu c + \lambda \delta
+\end{align*}
+\]
+</p><p>where \(q = g^\top H^{-1} g\), \(r = b^\top H^{-1} g\), and \(s = b^\top H^{-1} b\). With a single constraint, \(s\), \(r\), \(\lambda\), and \(\nu\) are scalars.  
+</p>
+<p>To find the optimal \(\nu\), differentiate \(\mathcal{D}^*\) with respect to \(\nu\), set the result to zero, and solve:  
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \frac{\partial \mathcal{D}}{\partial \nu} &amp;= \frac{-2r + 2s \nu}{2\lambda} - c = 0 \\
+    \frac{-r + s \nu}{\lambda} - c &amp;= 0 \\
+    \frac{-r + s \nu}{\lambda} &amp;= c \\
+    -r + s \nu &amp;= \lambda c \\
+    s \nu &amp;= \lambda c + r \\
+    \nu &amp;= \frac{\lambda c + r}{s}.
+\end{align*}
+\]
+</p><p>Substituting this expression into \(\mathcal{D}^*\) requires considering two regimes: \((\lambda c + r)/s &gt; 0\) and \((\lambda c + r)/s \leq 0\).
+</p>
+<p><i>1.) For \((\lambda c + r)/s &gt; 0\):</i>
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \mathcal{D}^* &amp;= \min_{\substack{\lambda \geq 0 \\ \nu \geq 0}} \frac{1}{2\lambda} \left( q - 2r \nu + \nu^2 s \right) -\nu c + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q - 2r \left( \frac{\lambda c + r}{s} \right) + \left( \frac{\lambda c + r}{s} \right)^2 s \right) - \left( \frac{\lambda c + r}{s} \right) c + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q - \frac{2r\lambda c + 2r^2}{s} + \left( \frac{\lambda c + r}{s} \right)^2 s \right) - \left( \frac{\lambda c + r}{s} \right) c + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q - \frac{2r\lambda c + 2r^2}{s} +  \frac{\left(\lambda c + r\right)^2}{s} \right) - \left( \frac{\lambda c + r}{s} \right) c + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q - \frac{2r\lambda c + 2r^2}{s} +  \frac{\lambda^2 c^2 + 2 \lambda cr +r^2}{s} \right) - \left( \frac{\lambda c + r}{s} \right) c + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q + \frac{-2r\lambda c - 2r^2}{s} +  \frac{\lambda^2 c^2 + 2 \lambda cr +r^2}{s} \right) - \left( \frac{\lambda c + r}{s} \right) c + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q + \frac{-2r\lambda c - 2r^2 + \lambda^2 c^2 + 2 \lambda cr +r^2}{s} \right) - \left( \frac{\lambda c + r}{s} \right) c + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q + \frac{\lambda^2 c^2 - r^2}{s} \right) - \left( \frac{\lambda c + r}{s} \right) c + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q + \frac{\lambda^2 c^2 - r^2}{s} \right) - \frac{\lambda c^2 + rc}{s} + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q + \frac{\lambda^2 c^2}{s} - \frac{r^2}{s} \right) - \frac{\lambda c^2 + rc}{s} + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q - \frac{r^2}{s} \right) + \frac{1}{2\lambda}\left(\frac{\lambda^2 c^2}{s} \right) - \frac{\lambda c^2 + rc}{s} + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q - \frac{r^2}{s} \right) + \frac{\lambda c^2}{2s} - \frac{\lambda c^2 + rc}{s} + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q - \frac{r^2}{s} \right) + \frac{\lambda c^2}{2s} - \frac{\lambda c^2}{s} - \frac{rc}{s} + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q - \frac{r^2}{s} \right) - \frac{\lambda c^2}{2s} - \frac{rc}{s} + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q - \frac{r^2}{s} \right) - \lambda \left(\frac{c^2}{2s} - \delta \right) - \frac{rc}{s} \;.
+\end{align*}
+\]
+</p><p>Since \(q - r^2/s \ge 0\) by <a href="https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality" target=&ldquo;blank&rdquo;>Cauchy–Schwarz</a>, this expression is well-defined.
+</p>
+<p><i>2.) For \((\lambda c + r)/s \leq 0\):</i>
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \mathcal{D}^* &amp;= \min_{\lambda \geq 0} \frac{1}{2\lambda} \left( q - 2r \cdot 0 + 0 \cdot s \right) - 0 \cdot c + \lambda \delta \\
+    &amp;= \min_{\lambda \geq 0} \frac{q}{2\lambda} + \lambda \delta.
+\end{align*}
+\]
+</p><p>The complete dual is therefore  
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:complete-dual}
+    \mathcal{D}^* = 
+    \min_{\lambda \geq 0}
+    \begin{cases}
+        \dfrac{1}{2\lambda}\left( q - \dfrac{r^2}{s} \right) - \lambda\left(\dfrac{c^2}{2s} - \delta\right) - \dfrac{rc}{s}, &amp; \lambda \in \Lambda_a, \\[1.25ex]
+        \dfrac{q}{2\lambda} + \lambda \delta, &amp; \lambda \in \Lambda_b,
+    \end{cases}
+\end{equation}
+\]
+</p><p>with \(\Lambda_a = \{\lambda \mid \lambda c + r &gt; 0, \lambda \geq 0\}\) and \(\Lambda_b = \{\lambda \mid \lambda c + r \leq 0, \lambda \geq 0\}\). If \(c &lt; 0\), then \(\Lambda_a = [0, -r/c)\) and \(\Lambda_b = [-r/c, \infty)\). If \(c &gt; 0\), then \(\Lambda_a = (\max(0, -r/c), \infty)\) and \(\Lambda_b = [0, -r/c]\).
+</p>
+<h4>Trust Region Intersection</h4>
+<p>The term \(c^2/(2s) - \delta\) in Equation \(\eqref{eq:complete-dual}\) characterizes whether the linear constraint intersects the quadratic trust region. An intersection exists if there is \(x = (\theta - \theta_k)\) satisfying \(c + b^\top x = 0\) with \(x^\top H x \le \delta\). This condition can be verified by solving:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    x^* &amp;= \arg \min_x \ \frac{1}{2} x^\top H x \quad \nonumber \\
+    &amp;\text{s.t. } \quad c + b^\top x = 0 \qquad \text{cf. Equation} \eqref{eq:approx-cpo-2} \label{eq:constraint-intersect}
+\end{align}
+\]
+</p><p>and checking whether \(\frac{1}{2}{x^*}^\top H x^* \le \delta\) (cf. Equation \(\eqref{eq:approx-cpo-3}\)).
+</p>
+<p>Equation \(\eqref{eq:constraint-intersect}\) can be solved using the Lagrangian:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L(x, \lambda) = \frac{1}{2} x^\top H x - \lambda (c + b^\top x) \;.
+\end{equation*}
+\]
+</p><p>First-order conditions yield:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \frac{\partial L}{\partial x} &amp;= Hx - \lambda b = 0 \nonumber \\
+    &amp;\Rightarrow x^* = \lambda H^{-1} b \label{eq:fo-x} \;,
+\end{align}
+\]
+</p><p>and
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}
+    \frac{\partial L}{\partial \lambda} = -c - b^\top x = 0 \label{eq:fo-lam} \;.
+\end{equation}
+\]
+</p><p>Substituting Equation \(\eqref{eq:fo-x}\) into Equation \(\eqref{eq:fo-lam}\) gives:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    -c - b^\top(\lambda H^{-1} b) &amp;= 0 \\
+    -\lambda b^\top H^{-1} b &amp;= c \\
+    -\lambda s &amp;= c \\
+    \lambda &amp;= \frac{-c}{s} \;.
+\end{align*}
+\]
+</p><p>Then, by substituting \(\lambda = -c/s\) into \(\eqref{eq:fo-x}\), \(x^*\) is defined as:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    x^* = \frac{-c}{s} H^{-1} b \;,
+\end{align*}
+\]
+</p><p>The corresponding quadratic value (cf. Equation \(\eqref{eq:approx-cpo-3}\)) is:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+     \frac{1}{2} \left( \frac{-c H^{-1} b}{s} \right)^\top H \left( \frac{-c H^{-1} b}{s} \right)
+     &amp;= \frac{c^2}{2s^2} \left( H^{-1} b \right)^\top H \left( H^{-1} b \right) \\
+     &amp;= \frac{c^2}{2s^2} b^\top H^{-1} b = \frac{c^2}{2s^2} s = \frac{c^2}{2s} \;.
+\end{align*}
+\]
+</p><p>If \(c^2/(2s) \leq \delta\), the plane intersects the trust region. If \(c^2/(2s) - \delta &gt; 0\) with \(c &lt; 0\), then \(x^*\) lies outside the trust region but the linear constraint is satisfied for the current step, so the trust region is contained within the feasible halfspace and the constraint is redundant for the current optimization step. If \(c^2/(2s) - \delta &gt; 0\) with \(c &gt; 0\), the trust region does not intersect the feasible half-space; there is no policy \(\theta\) within the trust region that satisfies the linearized constraint.
+</p>
+<p>The subsequent analysis considers the nontrivial regime \(c^2/(2s) \leq \delta\), where the plane intersects the trust region and the dual problem must be solved. Minimization of the piecewise dual (Equation \(\eqref{eq:complete-dual}\)) is required. Each segment of this objective (momentarily ignoring the constant term \(-(rc)/s\) in the first segment, which does not affect the location of the minimum) reduces to the generic form:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:generic-cpo-exp}
+    \min_{\lambda \geq 0} f(\lambda) \;=\; \frac{1}{2\lambda}A \;+\; \lambda B \;.
+\end{equation}
+\]
+</p><p>The minimizer of Equation \(\eqref{eq:generic-cpo-exp}\) is obtained by solving the first-order optimality condition. Differentiating \(f(\lambda)\) gives:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \frac{d f}{d \lambda} \;=\; B - \frac{A}{2\lambda^2} \;,
+\end{equation*}
+\]
+</p><p>The first-order condition yields:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+     B - \frac{A}{2\lambda^2} &amp;= 0 \\
+     2B \lambda^2 &amp;= A \\
+     \lambda^2 &amp;= \frac{A}{2B} \\
+     \lambda^* &amp;= \sqrt{\frac{A}{2B}} \;.
+\end{align*}
+\]
+</p><p>Substitution into Equation \(\eqref{eq:generic-cpo-exp}\) gives \(f(\lambda^*) = \sqrt{2}\sqrt{AB}\).
+</p>
+<p>This closed-form solution applies to each segment of the piecewise dual.
+</p>
+<p>For the <i>first</i> segment define \(A\) and \(B\) as:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+     &amp;\frac{1}{2\lambda} \left( q - \frac{r^2}{s} \right) - \lambda \left(\frac{c^2}{2s} - \delta \right) - \frac{rc}{s} \\
+     &amp;\quad \Rightarrow A = q - \frac{r^2}{s}, \qquad B = \delta - \frac{c^2}{2s} \;,
+\end{align*}
+\]
+</p><p>with the term \(-(rc)/s\) deferred for later. 
+</p>
+<p>The optimal multiplier is thus:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+     \lambda_a = \sqrt{\frac{q - r^2/s}{2 \delta - c^2/s}} \;.
+\end{equation*}
+\]
+</p><p>For the <i>second</i> segment:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+     &amp;\frac{1}{2\lambda} q + \lambda \delta \\
+     &amp;\quad \Rightarrow A = q, \qquad B = \delta \;,
+\end{align*}
+\]
+</p><p>with solution:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+     \lambda_b = \sqrt{\frac{q}{2 \delta}} \;.
+\end{equation*}
+\]
+</p><p>The candidate minimizers \(\lambda_a\) and \(\lambda_b\) must be projected onto their respective feasible sets \(\Lambda_a\) and \(\Lambda_b\). For any \(x \in \mathbb{R}\) and interval \([a,b] \subset \mathbb{R}\), the projection operator is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    Proj(x,[a,b]) = \max(a,\min(b,x)).
+\end{equation*}
+\]
+</p><p>Accordingly, \(\lambda_a^* = Proj(\lambda_a,\Lambda_a)\) and \(\lambda_b^* = Proj(\lambda_b,\Lambda_b)\). 
+</p>
+<p>Both \(\lambda_a^*\) and \(\lambda_b^*\) satisfy feasibility, but convexity ensures that only the candidate achieving the smaller dual objective value is optimal. The minimizer is therefore identified by evaluating the dual objective at both candidates:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \lambda^* =
+    \begin{cases}
+        \lambda_a^* &amp; \text{if } f_a(\lambda_a^*) - \tfrac{rc}{s} \;\leq\; f_b(\lambda_b^*) \\
+        \lambda_b^* &amp; \text{otherwise.}
+    \end{cases}
+\end{align*}
+\]
+</p><h4>Ensuring Per-Step Feasibility</h4>
+<p>Errors arising from function approximation or Taylor expansion may render the CPO update infeasible. With a single constraint, feasibility is restored by a recovery step that enforces a strict decrease in the constraint value:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \theta^* = \theta_k - \sqrt{\tfrac{2 \delta}{b^\top H^{-1} b}}\, H^{-1} b \; .
+\end{equation*}
+\]
+</p><p>This step follows the derivation in <a href="trpo.html" target=&ldquo;blank&rdquo;>TRPO</a> and can be expressed as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \theta^* = \theta_k + \beta d, 
+    \quad 
+    d = -H^{-1} b, 
+    \quad 
+    \beta = \sqrt{\tfrac{2\delta}{b^\top H^{-1} b}} \; .
+\end{equation*}
+\]
+</p><p>Here \(\beta\) is chosen so that the quadratic KL approximation\(\tfrac{1}{2}(\theta - \theta_k)^\top H (\theta - \theta_k)\) equals \(\delta\), ensuring that the update remains within the trust region while decreasing the linearized constraint violation. The matrix \(H\) modulates the step: large curvature (large eigenvalues of \(H\)) yields smaller updates, while small curvature yields larger updates. Since \(d^\top b &lt; 0\), the step strictly reduces the constraint violation.  
+</p>
+<p>Unlike the primal update in Equation \(\eqref{eq:optimal-primal}\), which balances objective improvement with feasibility, the recovery step is corrective only; its role is to restore feasibility, with no guarantee of improving the objective.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1705.10528" target=&ldquo;blank&rdquo;>Constrained Policy Optimization</a>, International conference on machine
+learning (2017)</dt>
+<dd><p>Joshua Achiam, David Held, Aviv Tamar, and Pieter Abbeel
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

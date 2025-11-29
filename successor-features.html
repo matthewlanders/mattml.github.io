@@ -1,0 +1,408 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Successor Features</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html" class="current">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Successor Features</h1>
+</div>
+<p><i>Revised August 28, 2025</i>
+</p>
+<p><i>The <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Value Functions and Policies</a> and <a href="policy-and-value-iteration-proofs.html" target=&ldquo;blank&rdquo;>Policy and Value Iteration Proofs</a> notes are optional but recommended background reading.</i>
+</p>
+<p><a href="glossary.html" target=&ldquo;blank&rdquo;>Transfer learning</a> refers to leveraging knowledge acquired in a general setting to improve performance on a more specialized task. Formally, let \(\mathcal{O}\) and \(\mathcal{O}'\) be sets of tasks with \(\mathcal{O}&rsquo; \subset \mathcal{O}\), and let \(o\) denote a task. Transfer occurs if training on \(\mathcal{O}\) yields performance on \(o\) that is never worse, and sometimes strictly better, than training only on \(\mathcal{O}'\).
+</p>
+<p>When tasks share dynamics but differ in rewards, the expected one-step reward for transition \((s,a)\) admits the parameterization:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:parameterized-reward}
+    R(s,a) = \phi(s,a)^\top \mathbf{w},
+\end{equation}
+\]
+</p><p>where \(\phi(s,a) \in \mathbb{R}^d\) are the features of \((s,a)\) and \(\mathbf{w} \in \mathbb{R}^d\) is a weight vector. This representation is fully general — by choosing \(\phi(s,a)\) as a one-hot indicator vector for the state–action pair \((s,a)\), any reward function can be recovered exactly by setting the corresponding component of \(\mathbf{w}\) to \(R(s,a)\).
+</p>
+<p>This parameterization isolates variation in the reward function. If all other components of the <a href="mdps.html" target=&ldquo;blank&rdquo;>MDP</a> are fixed, the transfer problem reduces to fixing \(\phi\) and allowing any \(\mathbf{w}\) to induce a new MDP:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \mathcal{M}^\phi = \{ \mathcal{M}(\mathcal{S}, \mathcal{A}, \mathbf{P}, R, \gamma) \mid R(s,a) = \phi(s,a)^\top \mathbf{w} \} \;.
+\end{equation*}
+\]
+</p><p>Solving tasks in \(\mathcal{M}^\phi\) admits a generalization of the <a href="policy-and-value-iteration-proofs.html" target=&ldquo;blank&rdquo;>policy improvement theorem</a>, called <i>Generalized Policy Improvement</i>, which states that acting greedily with respect to the value function of a policy \(\pi\) under a new reward function yields a policy \(\pi'\) that is no worse than \(\pi\) for that reward function. For a set of policies, acting greedily with respect to the pointwise maximum of their value functions yields a policy no worse than any in the set.
+</p>
+<h3>Bounding Transfer Error</h3>
+<p>Consider a set of reinforcement learning tasks that differ only in their reward functions, each linear in a feature vector \(\boldsymbol\phi(s,a)\) (Equation \(\eqref{eq:parameterized-reward}\)). For a target task \(\mathcal{M}_i\), the suboptimality of a transferred policy \(\pi\) relative to the optimal policy \(\pi_i^*\) can be bounded by separating <i>representation error</i> from <i>transfer error</i>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    Q_i^*(s,a) - Q_i^\pi(s,a) = \color{red}{\max_j Q_i^{\pi_j^*}(s,a) - Q_i^\pi(s,a)} + \color{blue}{Q_i^*(s,a) - \max_j Q_i^{\pi_j^*}(s,a)} \;.
+\end{equation*}
+\]
+</p><p>The representation gap (in blue) measures the suboptimality of the best available source policy in the target task while the transfer gap (in red) measures the additional loss incurred when combining source policies.
+</p>
+<h4>Bounding the Transfer Gap</h4>
+<p>The Transfer Gap is bounded using Generalized Policy Improvement (GPI). A GPI policy is constructed from a set of value function approximations \(\{\hat Q_i^{\pi_j^*}\}\), where \(\hat Q_i^{\pi_j^*}\) approximates the value of a source policy \(\pi_j^*\) in the target task \(\mathcal{M}_i\) and satisfies a uniform error bound \(\lvert Q_i^{\pi_j^*}(s,a)-\hat Q_i^{\pi_j^*}(s,a)\rvert \le \epsilon\). The policy acts greedily with respect to the maximum of these approximations:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \pi(s) \in \arg\max_a \max_j \hat Q_i^{\pi_j^*}(s,a) \;.
+\end{equation*}
+\]
+</p><p>Let \(Q_{\max}(s,a)=\max_j Q_i^{\pi_j^*}(s,a)\) and \(\hat Q_{\max}(s,a)=\max_j \hat Q_i^{\pi_j^*}(s,a)\). Define the <a href="policy-and-value-iteration-proofs.html" target=&ldquo;blank&rdquo;>Bellman operator</a> for policy \(\pi\) in the target task as \((T_i^\pi Q)(s,a)=R_i(s,a)+\gamma \mathbb E_{s&rsquo;}[Q(s&rsquo;,\pi(s&rsquo;))]\). Applying \(T_i^\pi\) to \(\hat Q_{\max}\) gives:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    (T_i^\pi \hat Q_{\max})(s,a)
+    &amp;= R_i(s,a) + \gamma\,\mathbb E_{s&rsquo;}[\max_b \hat Q_{\max}(s&rsquo;,b)] &amp;&amp; \text{definition of }\pi \nonumber \\
+    &amp;\ge R_i(s,a) + \gamma\,\mathbb E_{s&rsquo;}[\hat Q_i^{\pi_j^*}(s&rsquo;, \pi_j^*(s&rsquo;))] &amp;&amp; \text{for any } j \nonumber \\
+    &amp;\ge R_i(s,a) + \gamma\,\mathbb E_{s&rsquo;}[Q_i^{\pi_j^*}(s&rsquo;, \pi_j^*(s&rsquo;))] - \gamma\epsilon &amp;&amp; \text{uniform error bound} \nonumber \\
+    &amp;= Q_i^{\pi_j^*}(s,a) - \gamma\epsilon &amp;&amp; \text{since } Q_i^{\pi_j^*} \text{ is the fixed point of } T_i^{\pi_j^*} \nonumber \\
+    &amp;\ge \max_j Q_i^{\pi_j^*}(s,a) - \gamma\epsilon &amp;&amp; \text{since inequality holds for all } j \nonumber \\
+    &amp;\ge \hat Q_{\max}(s,a) - (1+\gamma)\epsilon &amp;&amp; \text{since }\hat Q_{\max}\ge \max_j Q_i^{\pi_j^*} - \epsilon . \label{eq:bellman-application}
+\end{align}
+\]
+</p><p>Since \(T_i^\pi\) is a \(\gamma\)-contraction, iterative application of the inequality in Equation \(\eqref{eq:bellman-application}\) gives:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    (T_i^\pi)^k \hat Q_{\max}(s,a)
+    &amp;\ge \hat Q_{\max}(s,a) - \Big(\sum_{t=0}^{k-1}\gamma^t\Big)(1+\gamma)\epsilon \\
+    &amp;= \hat Q_{\max}(s,a) - \frac{1-\gamma^k}{1-\gamma}(1+\gamma)\epsilon .
+\end{align*}
+\]
+</p><p>Taking the limit as \(k \to \infty\) yields:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    Q_i^\pi(s,a) &amp;\ge \hat Q_{\max}(s,a) - \frac{1+\gamma}{1-\gamma}\epsilon \\
+    &amp;\ge (Q_{\max}(s,a) - \epsilon) - \frac{1+\gamma}{1-\gamma}\epsilon &amp;&amp; \text{by the uniform error bound} \\
+    &amp;= Q_{\max}(s,a) - \left(\frac{1+\gamma}{1-\gamma}\epsilon + \epsilon\right) \\
+    &amp;= Q_{\max}(s,a) - \left(\frac{1+\gamma}{1-\gamma} + 1\right)\epsilon \\
+    &amp;= Q_{\max}(s,a) - \left(\frac{1+\gamma}{1-\gamma} + \frac{1-\gamma}{1-\gamma} \right)\epsilon \\
+    &amp;= Q_{\max}(s,a) - \left(\frac{(1+\gamma) + (1-\gamma)}{1-\gamma} \right) \epsilon \\
+    &amp;= Q_{\max}(s,a) - \frac{2\epsilon}{1-\gamma} \\
+    &amp;= \max_j Q_i^{\pi_j^*}(s,a) - \frac{2\epsilon}{1-\gamma} \;.
+\end{align*}
+\]
+</p><p>Rearranging this inequality bounds the transfer gap:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:transfer-bound}
+    \max_j Q_i^{\pi_j^*}(s,a) - Q_i^\pi(s,a) \le \color{red}{\frac{2\epsilon}{1-\gamma}} \;.
+\end{equation}
+\]
+</p><h4>Bounding the Representation Gap</h4>
+<p>The representation gap is bounded by analyzing the effect of reward function perturbations on value functions. Let \(\delta_{ij}=\max_{s,a}\lvert R_i(s,a)-R_j(s,a)\rvert\) be the maximum reward difference between tasks \(i\) and \(j\). For any policy \(\pi\), the difference between its value functions in tasks \(i\) and \(j\) is bounded:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \lVert Q_i^\pi - Q_j^\pi \rVert_\infty \le \frac{\delta_{ij}}{1-\gamma} \;,
+\end{equation*}
+\]
+</p><p>which follows from <a href="policy-and-value-iteration-proofs.html" target=&ldquo;blank&rdquo;>the contraction mapping theorem applied to the Bellman operators</a> \(T_i^\pi\) and \(T_j^\pi\).
+</p>
+<p>The same logic extends to the optimal value functions:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \lVert Q_i^* - Q_j^* \rVert_\infty \le \frac{\delta_{ij}}{1-\gamma} .
+\end{equation*}
+\]
+</p><p>The suboptimality of a source policy \(\pi_j^*\) in the target task \(i\) is then bounded by combining these results:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    Q_i^*(s,a) - Q_i^{\pi_j^*}(s,a)
+    &amp;= \big(Q_i^*(s,a) - Q_j^*(s,a)\big)
+     + \big(Q_j^{\pi_j^*}(s,a) - Q_i^{\pi_j^*}(s,a)\big) \\
+    &amp;\le \frac{\delta_{ij}}{1-\gamma} + \frac{\delta_{ij}}{1-\gamma}
+     = \frac{2\delta_{ij}}{1-\gamma} .
+\end{align*}
+\]
+</p><p>The representation gap is determined by the best-performing source policy in the target task:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:representation-bound}
+    Q_i^*(s,a) - \max_j Q_i^{\pi_j^*}(s,a)
+    = \min_j \big(Q_i^*(s,a) - Q_i^{\pi_j^*}(s,a)\big)
+    \le \color{blue}{\min_j \frac{2\delta_{ij}}{1-\gamma}} \;.
+\end{equation}
+\]
+</p><h4>Transfer Performance Guarantee</h4>
+<p>Combining the bounds on the representation gap (Equation \(\eqref{eq:representation-bound}\)) and the transfer gap (Equation \(\eqref{eq:transfer-bound}\)) yields the complete performance guarantee:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    Q_i^*(s,a) - Q_i^\pi(s,a)
+    &amp; = \color{red}{ \left(\max_j Q_i^{\pi_j^*}(s,a) - Q_i^\pi(s,a)\right) }
+    + \color{blue}{ \left(Q_i^*(s,a) - \max_j Q_i^{\pi_j^*}(s,a)\right) }\\
+    &amp;\le \color{red}{ \frac{2\epsilon}{1-\gamma} } + \color{blue}{ \frac{2}{1-\gamma}\min_j \delta_{ij} } \\
+    &amp;= \frac{2}{1-\gamma}\left(\min_j \delta_{ij} + \epsilon\right).
+\end{align*}
+\]
+</p><p>Under the assumption of linear rewards, \(R_k(s,a)=\phi(s,a)^\top \boldsymbol w_k\), the reward difference \(\delta_{ij}\) is bounded by the <a href="https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality" target=&ldquo;blank&rdquo;>Cauchy-Schwarz inequality</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \delta_{ij} = \max_{s,a}\lvert \phi(s,a)^\top(\boldsymbol w_i-\boldsymbol w_j)\rvert
+    \le \phi_{\max}\lVert \boldsymbol w_i - \boldsymbol w_j \rVert \;,
+\end{equation*}
+\]
+</p><p>where \(\phi_{\max}=\max_{s,a}\lVert \phi(s,a)\rVert\).
+</p>
+<p>Substituting this bound for \(\delta_{ij}\) yields:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:final-guarantee}
+    Q_i^*(s,a) - Q_i^\pi(s,a)
+    \le \frac{2}{1-\gamma}\Big(\phi_{\max}\min_j \lVert \boldsymbol w_i - \boldsymbol w_j\rVert + \epsilon\Big) .
+\end{equation}
+\]
+</p><h3>Successor Features</h3>
+<p>Equation \(\eqref{eq:final-guarantee}\) guarantees that GPI transfer to a new task \(\mathcal{M}_{n+1}\) with performance bounded by the distance to the closest source task in reward-parameter space and by the uniform error of the value function approximations. Direct application of GPI, however, requires computation of each \(\pi_1^*, \pi_2^*, \dots, \pi_n^*\). Efficient transfer therefore depends on a representation that allows action values to be estimated without explicitly solving for every source policy. Successor Features provide such a representation.
+</p>
+<p>With feature basis \(\phi\), the <a href="value-functions-and-policies.html" target=&ldquo;blank&rdquo;>Q-function</a> decomposes as:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    Q_\pi(s,a) &amp;= \mathbb{E}_\pi \Bigg[ \sum_{k=0}^{\infty} \gamma^k R_{k+1} \,\Big|\, s_0=s, a_0=a \Bigg] \nonumber \\
+    &amp;= \mathbb{E}_\pi \Bigg[ \sum_{k=0}^{\infty} \gamma^k \phi(s_k,a_k)^\top \mathbf{w} \,\Big|\, s_0=s, a_0=a \Bigg] \nonumber \\
+    &amp;= \mathbb{E}_\pi \Bigg[ \sum_{k=0}^{\infty} \gamma^k \phi(s_k,a_k) \,\Big|\, s_0=s, a_0=a \Bigg]^\top \mathbf{w} \nonumber \\
+    &amp;= \psi^\pi(s,a)^\top \mathbf{w} \label{eq:q-with-sf} \;,
+\end{align}
+\]
+</p><p>where \(\psi^\pi(s,a)\) are the <i>successor features</i> under \(\pi\) starting from \((s,a)\). If \(\mathcal{S}\) and \(\mathcal{A}\) are finite and small, and \(\phi\) is defined as a one-hot encoding of \(\mathcal{S}\times\mathcal{A}\), then \(\mathbf{w}\in\mathbb{R}^{\lvert\mathcal{S}\rvert \times \lvert\mathcal{A}\rvert}\) is a vector representation of the reward function and \(\psi^\pi(s,a)\) is the discounted count, under \(\pi\), of visits to each state–action pair.
+</p>
+<p>For the below trajectory:
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/sfs/sf-example.png" alt="multi-state MDP" width="550px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>with a one-hot feature representation, each state–action pair corresponds to a canonical basis vector in \(\mathbb{R}^6\). For example, using the lexicographic order \((s_1,a_1),(s_1,a_2),(s_2,a_1),(s_2,a_2),(s_3,a_1),(s_3,a_2)\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \boldsymbol\phi(s_1,a_1) &amp;= [1,0,0,0,0,0]^\top \\
+    \boldsymbol\phi(s_2,a_1) &amp;= [0,0,1,0,0,0]^\top \;.
+\end{align*}
+\]
+</p><p>SFs compute the value function via the inner product in Equation \(\eqref{eq:q-with-sf}\):
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \boldsymbol\psi^\pi(s_1,a_1) &amp;= [1, 0.73, 0.9, 0, 0, 1.47]^\top, \\
+    \mathbf{w} &amp;= [2, 1, 5, 0, 0, 3]^\top, \\
+    Q_\pi(s_1,a_1) &amp;= \boldsymbol\psi^\pi(s_1,a_1)^\top \mathbf{w} = 11.64 \;.
+\end{align*}
+\]
+</p><p>This makes explicit that \(Q_\pi\) decomposes into \(\mathbf{w}\), which depends only on rewards, and the discounted feature sequence \(\psi^\pi\), which depends only on the dynamics and policy.
+</p>
+<h3>SFs Using Function Approximation</h3>
+<p>In the tabular case \(\phi\) encoded each state–action pair as a one-hot vector and \(\mathbf{w}\) represented the full reward function. In large state or action spaces explicit representations are infeasible, and one or both components must be estimated.
+</p>
+<h4>Learning a Reward Model</h4>
+<p>The reward model \(\mathbf{w}\) can be estimated with supervised regression by minimizing the squared error:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L^\text{w}(\hat{\mathbf{w}}) = \mathbb{E}_{s,a}\Big[\big(\phi(s,a)^\top \hat{\mathbf{w}} - R(s,a)\big)^2\Big] \;,
+\end{equation*}
+\]
+</p><p>where the expectation is taken with respect to a visitation distribution over state–action pairs.
+</p>
+<h4>Learning a SF Model</h4>
+<p>Because \(\psi^\pi\) is the expected discounted sum of \(\phi\) under \(\pi\), it satisfies a <a href="glossary.html" target=&ldquo;blank&rdquo;>Bellman equation</a> with \(\phi\) as the immediate reward proxy:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \psi^\pi(s,a) = \phi(s,a) + \gamma \,\mathbb{E}\big[\psi^\pi(s&rsquo;,\pi(s&rsquo;)) \mid s,a\big] .
+\end{equation*}
+\]
+</p><p>Any RL algorithm can therefore be applied to compute \(\psi^\pi\). For example, parameterizing \(\psi^\pi\) with \(\theta\) yields a temporal-difference loss analogous to that used in <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>deep Q-learning</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    Y &amp;= \phi(s,a) + \gamma \,\hat{\psi}^\pi(s&rsquo;,\pi(s&rsquo;);\theta) \nonumber \\
+    L^{SF}(\hat{\psi}^\pi_{\theta}) &amp;= \mathbb{E}_{s,a}\Big[\big(Y - \hat{\psi}^\pi(s,a;\theta)\big)^2\Big] \;.
+\end{align*}
+\]
+</p><p>As in deep Q-learning, stability is improved by introducing a target network. The loss then becomes:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    L^{SF}(\hat{\psi}^\pi_\theta) =
+    \mathbb{E}\Big[\big(\phi(s,a) + \gamma \hat{\psi}^\pi(s&rsquo;,\pi(s&rsquo;);\theta^-)
+    - \hat{\psi}^\pi(s,a;\theta)\big)^2\Big] \;,
+\end{equation*}
+\]
+</p><p>where \(\theta^-\) are the parameters of a target network held fixed during updates and periodically synchronized with \(\theta\).
+</p>
+<p>Parameters \(\theta\) are updated to minimize \(L^{SF}\) with <a href="glossary.html" target=&ldquo;blank&rdquo;>semi-gradient</a> descent:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \Delta \theta &amp;= -\alpha \nabla_{\theta} L^{SF} \\
+    &amp;= \alpha \Big[Y - \hat{\psi}^\pi(s,a;\theta)\Big] \nabla_{\theta}\hat{\psi}^\pi(s,a;\theta) &amp;&amp; \text{by the chain rule.}
+\end{align*}
+\]
+</p><h4>Learning \(\phi\)</h4>
+<p>A feature map \(\phi\) satisfying Equation \(\eqref{eq:parameterized-reward}\) can be estimated through multi-task regression. Let \(\hat{\mathcal{M}} = \{M_1,\dots,M_D\} \subset \mathcal{M}^\phi\) denote base tasks with reward functions \(R_i\). For each task the approximation problem is defined as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \hat{\phi}(s,a)^\top \hat{\mathbf{w}}_i \approx R_i(s,a), \qquad i=1,\dots,D .
+\end{equation*}
+\]
+</p><p>Alternatives include constructing features with <a href="https://arxiv.org/pdf/1606.02396.pdf" target=&ldquo;blank&rdquo;>autoencoders</a> or embedding their estimation in <a href="https://arxiv.org/pdf/2001.04025.pdf" target=&ldquo;blank&rdquo;>networks</a> that simultaneously learn successor features.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/sfs/sfs-with-gpi.png" alt="successor features with GPI pseudocode CMDP" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>Consider the <a href="https://gymnasium.farama.org/environments/mujoco/reacher/" target=&ldquo;blank&rdquo;>reacher</a> environment, where the objective is to position the end effector of a two-joint robotic arm at a target. The state space is \(\mathcal{S}\subset\mathbb{R}^4\), comprising the joint angles and angular velocities. The action space is \(\mathcal{A}=\{-1,0,1\}^2\), giving nine discrete actions. The reward at each step is \(1-\delta\), where \(\delta\) is the Euclidean distance between the end effector and the target.
+</p>
+<p>In this setting the feature vector \(\phi\in\mathbb{R}^n\) is given (i.e., not learned), with components equal to \(1-\delta\) for a fixed set of \(n\) candidate target locations. For example, with twelve targets, four may be designated for training and eight for testing, yielding \(\phi\in\mathbb{R}^{12}\). A <a href="double-q-learning.html" target=&ldquo;blank&rdquo;>DQN</a> parameterized by \(\theta\) produces an output matrix \(\hat{\Psi}\in\mathbb{R}^{9\times 12}\) in which the \(a^\text{th}\) row approximates \(\psi^\pi(s,a)\) for \(a\in\mathcal{A}\). For a given task \(t\), let \(\mathbf{w}_t\in\mathbb{R}^{12}\) denote the corresponding one-hot vector. As in the finite case, \(\mathbf{w}_t\) is specified rather than learned. The value for action \(a\) is then given by \(\hat\psi(s,a)^\top \mathbf{w}_t\).
+</p>
+<h3>Limitations</h3>
+<p>The linear reward parameterization in Equation \(\eqref{eq:parameterized-reward}\) restricts the class of environments that can be represented. When reward functions deviate from this structure the learned features fail to generalize and transfer performance degrades. Even when rewards are linear, transfer is limited because successor features are coupled to the policies under which they are learned. In a new MDP with shared dynamics, previously learned successor features \({\psi^{\pi_j}}\) can be reused to compute value functions under the new reward and, via GPI, to construct a zero-shot policy with a transfer performance guarantee. However, this policy is constrained by the source policies \({\pi_j}\): improving beyond the best GPI policy typically requires further learning and adapting the successor features toward the optimal policy in the new environment. SFs can also suffer from scalability issues — a distinct set of successor features must be maintained for each task, so the representation grows linearly with the number of tasks.
+</p>
+<p>Continuous action spaces present the sharpest limitation. In discrete \(\mathcal{A}\) the greedy policy is obtained by evaluating:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    a^*(s) = \arg\max_{b \in \mathcal{A}} Q(s,b)
+\end{equation*}
+\]
+</p><p>once \(Q(s,a)=\psi^\pi(s,a)^\top \mathbf{w}\) is known. In continuous \(\mathcal{A}\) the greedy step requires solving:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    a^*(s) = \arg\max_{a \in \mathcal{A}} \psi^\pi(s,a)^\top \mathbf{w} \;,
+\end{equation*}
+\]
+</p><p>a non-convex optimization at each decision point, which prevents direct recovery of a policy from the successor feature representation.
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1708.00102.pdf" target=&ldquo;blank&rdquo;>Advantages and Limitations of using Successor Features for Transfer in Reinforcement Learning</a>, International Conference on Machine Learning (2017)</dt>
+<dd><p>Lucas Lehnert, Stefanie Tellex, and Michael L Littman
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1606.05312.pdf" target=&ldquo;blank&rdquo;>Successor features for transfer in reinforcement learning</a>, Advances in neural information processing systems (2017)</dt>
+<dd><p>André Barreto, Will Dabney, Rémi Munos, Jonathan J Hunt, Tom Schaul, Hado P van Hasselt, and David Silver
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://baicsworkshop.github.io/pdf/BAICS_31.pdf" target=&ldquo;blank&rdquo;>Probabilistic Successor Features Allow for Flexible Behaviour</a> International Conference on Learning Representations (2020)</dt>
+<dd><p>Jesse P. Geerts, Neil Burgess, and Kimberly L. Stachenfeld
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1901.10964.pdf" target=&ldquo;blank&rdquo;>Transfer in Deep Reinforcement Learning Using Successor Features and Generalised Policy Improvement</a>, International Conference on Machine Learning (2018)</dt>
+<dd><p>André Barreto, Diana Borsa, John Quan, Tom Schaul, David Silver, Matteo Hessel, Daniel Mankowitz, Augustin Žídek, and Rémi Munos
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

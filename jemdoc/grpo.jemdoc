@@ -1,0 +1,111 @@
+# jemdoc: menu{MENU}{grpo.html}
+= Group Relative Policy Optimization (GRPO)
+
+/Revised February 22, 2025/
+
+/The [ppo.html PPO note] is optional but recommended background reading./
+
+Training large language models typically involves three stages: pre-training, supervised fine-tuning (SFT), and reinforcement learning from human feedback (RLHF). During pre-training, a [transformer.html transformer] models the distribution of tokens over a vast corpus of text (e.g., internet data). SFT then refines the model using a curated dataset of high-quality human-written demonstrations. Finally, reinforcement learning (RL) aligns the model with human preferences.
+
+To optimize the model via RL, a reward model $R$ is trained to evaluate model-generated responses. For text generation tasks, $R$ is often learned using pairwise comparisons, where human labelers rank outputs for the same prompt. In other settings, human oversight is not required. In mathematical reasoning, for example, correctness alone determines rewards: matching the solution yields a high reward; otherwise, the reward is low. With $R$ learned, the model is optimized via RL, with [ppo.html Proximal Policy Optimization] (PPO) widely used for its stability and efficiency:
+
+\(
+\begin{equation}\label{eq:ppo}
+    J_\text{PPO}(\theta) = \mathbb{E}_{q \sim P(Q), o \sim \pi_{\theta_\text{old}}} \left[ \frac{1}{|o|} \sum_{t=1}^{|o|} \min \left[ \frac{\pi(o_t \mid q, o_{<t}; \theta)}{\pi(o_t \mid q, o_{<t}; \theta_\text{old})} A_t, \text{clip} \left( \frac{\pi(o_t \mid q, o_{<t}; \theta)}{\pi(o_t \mid q, o_{<t}; \theta_\text{old})}, 1-\epsilon, 1+\epsilon \right) A_t \right] \right] \;,
+\end{equation}
+\)
+where $\theta$ are the current policy parameters, $\theta_\text{old}$ are the previous policy parameters, $q$ is a prompt drawn from the dataset $P(Q)$, and $o$ is an output sampled from the old policy $\pi_{\theta_\text{old}}$. The clipping hyperparameter $\epsilon$ stabilizes training (see the [ppo.html PPO note] for details).
+
+=== Advantage estimation
+
+Like other [actor-critic.html actor-critic] methods, PPO computes the advantage term in Equation $\eqref{eq:ppo}$ using rewards ${r_{\geq t}}$ and a learned value function $V_\psi$. However, training $V_\psi$ in LLMs presents two challenges. First, the value function's large parameter space makes training computationally expensive and memory-intensive. Second, the mismatch between dense advantage estimates (required per-token) and sparse rewards (provided end-of-sequence) forces $V_\psi$ to infer token-level values from limited feedback, destabilizing training. Group Relative Policy Optimization (GRPO) removes the value function and instead estimates advantages through group-based comparisons.
+
+==== Group-based advantage estimation via Outcome Supervision RL
+
+Under /outcome supervision RL/, the LLM generates a /group/ of $G$ outputs $\{o_1, o_2, \dots, o_G\}$ for a prompt $q$. Each output $o_j$ is assigned a score, producing $G$ rewards $\mathbf{r} = \{R(q, o_1), R(q, o_2), \dots, R(q, o_G) \} = \{r_1, r_2, \dots, r_G \}$. These rewards are then normalized by subtracting the group mean and dividing by the standard deviation:
+
+\(
+\begin{align*}
+	&\hat{A}_i = \hat{r}_i = \frac{r_i - \mu}{\sigma} \;, \\
+	&\text{where}  \quad \mu = \frac{1}{G} \sum_{j=1}^G r_j, \quad \sigma = \sqrt{\frac{1}{G} \sum_{j=1}^G \left(r_j - \mu\right)^2} \;.
+\end{align*}
+\)
+
+This normalization ensures rewards are measured relative to other outputs rather than absolute values, eliminating the need for a separate value function and stabilizing the RL updates.
+
+==== Group-based advantage estimation via Process Supervision RL
+
+Under /process supervision RL/, the model receives partial rewards after each step (e.g., each line or chain-of-thought block) rather than waiting for an entire answer to generate. More formally, suppose the $i$-th answer consists of $K_i$ steps, ending at token indices $\{\text{index}^{(1)}_i, \dots, \text{index}^{(K_i)}_i\}$. The reward model assigns a score to each step, with these scores normalized across the group (similar to $\mu$ and $\sigma$ in outcome supervision). More formally, denote the normalized stepwise scores as:
+
+\(
+\begin{equation*}
+	\hat{r}_{i,1}, \hat{r}_{i,2}, \ldots, \hat{r}_{i,K_i} \;,
+\end{equation*}
+\)
+where each $\hat{r}_{i,j}$ corresponds to the $j$-th step of answer $i$:
+
+\(
+\begin{align*}
+	&\hat{r}_{i,j} = \frac{r_{i,j} - \mu}{\sigma} \;, \\
+	&\text{where} \quad \mu = \frac{1}{\sum_{a=1}^{G} K_a} \sum_{a=1}^{G} \sum_{b=1}^{K_a} r_{a,b}, \quad
+	\sigma = \sqrt{\frac{1}{\sum_{a=1}^{G} K_a} \sum_{a=1}^{G} \sum_{b=1}^{K_a} \left(r_{a,b} - \mu\right)^2}.
+\end{align*}
+\)
+
+Then the advantage for a token $o_{i,t}$ is the sum of the current and *all future* step-level rewards within the same answer:  
+
+\(
+\begin{equation*}
+	A_{i,t} = \sum_{\text{index}^{(j)}_i \geq t} \hat{r}_{i,j} \;.
+\end{equation*}
+\)
+
+=== Updating the model
+
+Using either advantage estimation method, the model parameters are updated to increase the likelihood of higher scores:
+
+\(
+\begin{equation*}
+    J_\text{GRPO}(\theta) = \mathbb{E}_{q \sim P(Q), \{o\}_{i=1}^G \sim \pi_{\theta_\text{old}}} \left[ \frac{1}{G} \sum_{i=1}^G \frac{1}{|o_i|} \sum_{t=1}^{|o_i|} \left( \min \left[ \frac{\pi(o_{i,t} \mid q, o_{i, <t}; \theta)}{\pi(o_{i,t} \mid q, o_{i, <t}; \theta_\text{old})} \hat{A}_{i,t}, \text{clip} \left( \frac{\pi(o_{i,t} \mid q, o_{i, <t}; \theta)}{\pi(o_{i,t} \mid q, o_{i, <t}; \theta_\text{old})}, 1-\epsilon, 1+\epsilon \right) \hat{A}_{i,t} \right] \right) \right]\;.
+\end{equation*}
+\)
+
+Note that in outcome supervision $A_{i,t} = A_i$ because rewards are assigned only at the end of an answer.
+
+=== KL divergence penalty
+
+To prevent over-optimization of the reward model in LLMs (i.e., to prevent the model's responses from deviating too far from the initial pre-trained model), a per-token [kl-divergence.html KL divergence] penalty is applied:
+
+\(
+\begin{equation}\label{eq:kl-penalty}
+	r_t = R(q, o_{\leq t}; \psi) - \beta \log \frac{\pi(o_t \mid q, o_{<t}; \theta)}{\pi(o_t \mid q, o_{<t}; \theta_\text{ref})} \;,
+\end{equation}
+\)
+where $\pi_{\theta_\text{ref}}$ is a reference model, typically the initial SFT model, and $\beta$ controls the KL divergence penalty strength.
+
+To simplify the advantage estimation $\hat{A}$ and improve stability, GRPO shifts the KL divergence penalty from the reward function (Equation $\eqref{eq:kl-penalty}$) to the loss function:
+
+\(
+\begin{equation*}
+    J_\text{GRPO}(\theta) = \mathbb{E}_{q \sim P(Q), \{o\}_{i=1}^G \sim \pi_{\theta_\text{old}}} \left[ \frac{1}{G} \sum_{i=1}^G \frac{1}{|o_i|} \sum_{t=1}^{|o_i|} \left( \min \left[ \frac{\pi(o_{i,t} \mid q, o_{i, <t}; \theta)}{\pi(o_{i,t} \mid q, o_{i, <t}; \theta_\text{old})} \hat{A}_{i,t}, \text{clip} \left( \frac{\pi(o_{i,t} \mid q, o_{i, <t}; \theta)}{\pi(o_{i,t} \mid q, o_{i, <t}; \theta_\text{old})}, 1-\epsilon, 1+\epsilon \right) \hat{A}_{i,t} \right] - \beta D_{KL} \left[ \pi_\theta || \pi_{\theta_\text{ref}} \right] \right) \right] \;,
+\end{equation*}
+\)
+where KL divergence is estimated using:
+
+\(
+\begin{equation*}
+	D_{KL} \left[ \pi_\theta || \pi_{\theta_\text{ref}} \right] = \frac{\pi(o_{i,t} \mid q, o_{i, <t}; \theta_\text{ref})}{\pi(o_{i,t} \mid q, o_{i, <t}; \theta)} - \log \frac{\pi(o_{i,t} \mid q, o_{i, <t}; \theta_\text{ref})}{\pi(o_{i,t} \mid q, o_{i, <t}; \theta)} - 1 \;,
+\end{equation*}
+\)
+
+which is an [glossary.html unbiased estimator] that is guaranteed to be non-negative.
+
+=== Iterative RL with GRPO
+
+Even in mathematical reasoning tasks, where rewards primarily reflect correctness, the reward model can become stale as the policy evolves. Math problems often require scoring along a continuum, accounting for partial solutions and intermediate steps rather than binary correctness. As the policy model discovers new reasoning strategies or solution formats, the reward model's ability to assess both chain-of-thought processes and final expressions may degrade unless it is exposed to these emerging patterns. To prevent this mismatch, new answers are sampled from the latest policy model and stored in a [glossary.html replay buffer], which also retains a smaller fraction (10% in the [https://arxiv.org/pdf/2402.03300 original paper]) of past training data. The reward model is then updated using this buffer. The policy model is trained for $M$ iterations with the updated reward model before the cycle repeats.
+
+=== References
+
+: {[https://arxiv.org/pdf/2402.03300 DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models] (2024)} Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Zhang, Mingchuan Zhang, Y.K. Li, Y. Wu,  and Daya Guo
+
+: {[https://arxiv.org/pdf/2501.12948 DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning] (2025)} DeepSeek-AI

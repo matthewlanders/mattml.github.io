@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Deep Q-learning</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html" class="current">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Deep Q-learning</h1>
+</div>
+<p><i>Revised December 18, 2024</i>
+</p>
+<p><i>The <a href="model-free-control.html" target=&ldquo;blank&rdquo;>Model Free Control note</a> is optional but recommended background reading.</i>
+</p>
+<p><a href="model-free-control.html" target=&ldquo;blank&rdquo;>Classical RL approaches</a>, commonly called <i><a href="glossary.html" target=&ldquo;blank&rdquo;>tabular methods</a></i>, maintain a lookup table of values for each state or state-action pair to facilitate necessary updates. For instance, the Q-learning update rule:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    Q(s_t, a_t) \gets Q(s_t, a_t) + \alpha \left[ r_{t+1} + \gamma \max_{a&rsquo;} Q(s_{t+1}, a&rsquo;) - Q(s_t, a_t) \right] \;,
+\end{equation*}
+\]
+</p><p>requires access to both the current state-action value \(Q(s_t, a_t)\) and the maximum value over the next state's actions \(\max_{a&rsquo;}Q(s_{t+1}, a&rsquo;)\).
+</p>
+<p>However, explicitly learning and storing values for every state-action pair is often infeasible. For example, modeling chess requires approximately \(10^{43}\) states, while Go has roughly \(10^{170}\) states. We thus need methods capable of generalizing values from an agent's experience in a limited subset of the state space. Suitable approaches must satisfy several requirements imposed by the RL problem setting. For instance, methods must learn incrementally from data and handle non-stationary target functions — functions that change over time, such as those in <a href="glossary.html" target=&ldquo;blank&rdquo;>temporal-difference</a> (TD) learning due to <a href="glossary.html" target=&ldquo;blank&rdquo;>bootstrapping</a>.
+</p>
+<p><a href="prediction-with-function-approximation.html" target=&ldquo;blank&rdquo;>Linear methods</a>, which represent a state's value as a weighted sum of features, are among the approaches that satisfy these criteria. However, linear methods require an expert to explicitly define the feature set, a task that is often challenging in practice. <i>Deep reinforcement learning</i> (DRL) methods, by contrast, use deep neural networks (DNNs) to approximate the value function, eliminating the need for manual feature engineering. By using DNNs to discover low-dimensional representations of high-dimensional state spaces, DRL approaches can effectively operate in environments with infinitely large input spaces.
+</p>
+<h3>Deep Q-learning</h3>
+<p><i>Deep Q-learning</i>, a fundamental DRL approach, extends <a href="model-free-control.html" target=&ldquo;blank&rdquo;>tabular Q-learning</a> by replacing direct access to precomputed Q-values stored in a lookup table with approximation via a DNN. Specifically, a <i>deep Q-network</i> (DQN) takes a state \(s_t\) as  input and outputs the estimated Q-values for all possible actions in that state \(f : s_t \rightarrow \left( Q(s_t, a_1), \dots, Q(s_t, a_n) \right)\).
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/deep-q-learning/dqn.png" alt="Deep Q Network" width="450px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<table id="caption">
+<tr class="r1"><td class="c1">For an environment where \(s_t \in \mathbb{R}^2\) and there are four possible actions, a DQN maps the input state to a four-dimensional output: \(f : s_t \rightarrow \mathbb{R}^4\). Each component of this output corresponds to the estimated Q-value of one of the possible actions in the given state.
+</td></tr></table>
+<p>The learning procedure for deep Q-learning is largely identical to that of other <a href="off-policy-control-with-function-approximation.html" target=&ldquo;blank&rdquo;>off-policy control methods using function approximation</a>. Specifically, the DQN \(Q(\theta)\) is parameterized by a column vector \(\theta \in \mathbb{R}^d\), and \(Q(\theta)\) is differentiable with respect to \(\theta\) for all states \(s \in \mathcal{S}\).
+</p>
+<p>The parameters \(\theta\) are optimized using a stochastic gradient-descent-like (SGD) procedure — recall that this is technically <a href="glossary.html" target=&ldquo;blank&rdquo;>semi-gradient descent</a> as we ignore the gradient of the target term \(\gamma \max_{a&rsquo;} Q(s&rsquo;,a&rsquo;;\theta)\) and differentiate only w.r.t. \(Q(s,a;\theta)\) — to minimize squared <a href="glossary.html" target=&ldquo;blank&rdquo;>temporal difference (TD) error</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \delta = r + \gamma \max_{a&rsquo;} Q(s&rsquo;, a&rsquo;; \theta) - Q(s, a; \theta) \;.
+\end{equation*}
+\]
+</p><p>SGD iteratively adjusts \(\theta\) in the direction that minimizes the square of this error most quickly (i.e., steepest descent). Specifically, the update rule is:
+</p>
+<p style="text-align:center">
+\[
+\begin{aligned}
+    \theta_{t+1} &amp;= \theta_t - \frac{1}{2} \alpha \nabla \left[ r + \gamma \max_{a&rsquo;} Q(s&rsquo;, a&rsquo;; \theta) - Q(s, a; \theta) \right]^2 \\
+    &amp;= \theta_t + \alpha \left[ r + \gamma \max_{a&rsquo;} Q(s&rsquo;, a&rsquo;; \theta) - Q(s, a; \theta) \right] \nabla Q(s, a; \theta) &amp;&amp; \text{by the chain rule,}
+\end{aligned}
+\]
+</p><p>where \(\theta_t\) is the weight vector at time step \(t\), \(\alpha\) is the <a href="glossary.html" target=&ldquo;blank&rdquo;>step-size parameter</a>, and \(\nabla Q(s, a; \theta)\) is the column vector of partial derivatives (see <a href="backpropagation.html" target=&ldquo;blank&rdquo;>backpropagation note</a> for details):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \nabla Q(s,a;\theta) = \left[\frac{\partial Q(s, a; \theta)}{\partial \theta_1}, \frac{\partial Q(s, a; \theta)}
+    {\partial \theta_2}, \dots, \frac{\partial Q(s, a; \theta)}{\partial \theta_d}\right]^\top \;.
+\end{equation*}
+\]
+</p><div class="infoblock">
+<div class="blockcontent">
+<p><b>Order of Terms in Loss Calculation</b>
+</p>
+<p>On initial inspection, it may appear that the order of terms in the loss function is inconsequential, as squaring the difference between the target \(Y = r + \gamma \max_{a&rsquo;} Q(s&rsquo;, a&rsquo;; \theta)\) and the prediction \(Q(s, a; \theta)\) appears commutative:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+\left[ Y - Q(s, a; \theta) \right]^2 = \left[ Q(s, a; \theta) - Y \right]^2.
+\end{align*}
+\]
+</p><p>A closer examination, however, reveals a subtle difference when computing the gradient:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \frac{1}{2} \nabla_{\theta} \left[ Q(s, a; \theta) - Y \right]^2
+    &amp;= \left[ Q(s, a; \theta) - Y \right] \nabla_{\theta} Q(s, a; \theta), \\
+    \frac{1}{2} \nabla_{\theta} \left[ Y - Q(s, a; \theta) \right]^2
+    &amp;= \left[ Y - Q(s, a; \theta) \right] \nabla_{\theta} \left( \color{red}{-}Q(s, a; \theta) \right).
+\end{align*}
+\]
+</p><p>The negation in the second expression arises from the chain rule. Since the gradient is taken with respect to \(\theta\), differentiating the term \(-Q(s, a; \theta)\) introduces a negative sign.
+</p>
+<p>The equality between \(\left[ Q(s, a; \theta) - Y \right] \nabla_{\theta} Q(s, a; \theta)\) and \(\left[ Y - Q(s, a; \theta) \right] \nabla_{\theta} \left( \color{red}{-}Q(s, a; \theta) \right)\) becomes clear when we explicitly distribute the implicit \(-1\) in the second equation:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \left[ Y - Q(s, a; \theta) \right] \nabla_{\theta} -Q(s, a; \theta)
+    &amp;= \left[ Y - Q(s, a; \theta) \right] \cdot (-1) \cdot \nabla_{\theta} Q(s, a; \theta) \\
+    &amp;= \left[ Q(s, a; \theta) - Y \right] \nabla_{\theta} Q(s, a; \theta).
+\end{align*}
+\]
+</p><p>This does not imply that one ordering of terms is inherently better than the other. However, it does influence the operator used when updating the parameters. Specifically, if the loss is defined as \((\text{prediction} - \text{target})^2\), the parameter update rule is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \theta \gets \theta - \alpha \left[ Q(s, a; \theta) - Y \right] \nabla_{\theta} Q(s, a; \theta).
+\end{equation*}
+\]
+</p><p>If the loss is defined as \((\text{target} - \text{prediction})^2\), the implicit \(-1\) must be accounted for in the gradient, leading to:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \theta &amp;\gets \theta \color{red}{-} \alpha \left[ Y - Q(s, a; \theta) \right] \nabla_{\theta} \left( \color{red}{-}Q(s, a; \theta) \right) \\
+    &amp;= \theta \color{red}{+} \alpha \left[ Y - Q(s, a; \theta) \right] \nabla_{\theta} Q(s, a; \theta).
+\end{align*}
+\]
+</p><p>In summary, while the loss can be expressed as either \((\text{target} - \text{prediction})^2\) or \((\text{prediction} - \text{target})^2\), care must be taken to apply the appropriate sign in the update rule. This ensures \(\theta\) is adjusted in the direction of steepest <b>descent</b> rather than <b>ascent</b>.
+</p>
+</div></div>
+<table class="imgtable"><tr><td>
+<img src="static/images/deep-q-learning/deep-q-learning.png" alt="Deep Q learning pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>Notice the similarity of this implementation to that of <a href="pseudocode.html" target=&ldquo;blank&rdquo;>tabular Q-learning</a>.
+</p>
+<h3>Experience Replay</h3>
+<p>A severe limitation arises from updating \(\theta\) one transition at a time. Consecutive states, \(s_t\) and \(s_{t+1}\), are often highly similar and correlated, violating the independent and identically distributed (i.i.d.) assumption typically required for stochastic gradient methods. As a consequence, the model locally overfits to the most recent transitions. This creates a critical problem at the start of a new episode: the model, having been overly influenced by the transitions at the end of the previous episode, performs poorly in the early states of a new episode. This phenomenon, referred to as <i>catastrophic forgetting</i>, is particularly pronounced when the states encountered early in an episode differ significantly from those observed later.
+</p>
+<p>Experience replay mitigates the correlation among samples by introducing a <i>replay buffer</i> \(\mathcal{D}\), in which transitions \((s, a, r, s&rsquo;, d)\) (where \(d\) is a terminal signal or &ldquo;done&rdquo; flag) are stored for training. To populate the buffer, transitions are collected from the environment using an initial (arbitrary) policy and an action-selection strategy (e.g., \(\epsilon\)-greedy). Once the replay buffer contains transitions, mini-batches of data are randomly sampled from \(\mathcal{D}\) in an i.i.d. manner. These mini-batches are used to update the parameters \(\theta\), resulting in a new policy. This updated policy is then used to gather additional transitions, which are added to \(\mathcal{D}\). The process repeats for a specified number of iterations.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/deep-q-learning/deep-q-learning-with-experience-replay.png" alt="Deep Q learning with experience replay pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<p>In addition to resolving the issue of correlated samples, replay buffers offer several other benefits. For example, they reduce the variance of the gradient by enabling updates based on mini-batches of transitions rather than single samples. They also improve sample efficiency by allowing the agent to learn from the same transition multiple times.
+</p>
+<h3>Target Networks</h3>
+<p>A final issue arises due to the constant change in target values. In standard supervised regression — such as predicting the value of a home — the target value (i.e., the actual value of the home) remains fixed and unaffected by updates to the model during training. In a DQN, however, the target \(Y\) depends on the model itself through the term \(\max_{a&rsquo;} Q(s&rsquo;, a&rsquo;; \theta)\). As a result, each gradient update modifies the model, which in turn changes the target values.
+</p>
+<p>To address the moving target problem, we introduce a second DQN \(Q(\theta^-)\) parameterized by a separate set of parameters, \(\theta^-\). The target is computed using \(Q(\theta^-)\), while the primary DQN's parameters, \(\theta\), are updated during training. By decoupling the target computation from the updates to \(\theta\), the target becomes much slower-moving (piecewise constant between target updates). However, if the target \(Q(\theta^-)\) is inaccurate, the model will update its parameters toward incorrect Q-values. Thus, we periodically update \(\theta^-\) by setting it equal to \(\theta\). This approach stabilizes the target while ensuring that the model continues to improve its Q-value estimates.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/deep-q-learning/deep-q-learning-with-experience-replay-and-target-network.png" alt="Deep Q learning with experience replay and target network pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<h3>References</h3>
+<dl>
+<dt><a href="https://arxiv.org/pdf/1806.09460.pdf" target=&ldquo;blank&rdquo;>A tour of reinforcement learning: The view from continuous control</a> (2018)</dt>
+<dd><p>
+Benjamin Recht
+</p></dd>
+</dl>
+<dl>
+<dt><a href="http://incompleteideas.net/book/the-book-2nd.html" target=&ldquo;blank&rdquo;>Reinforcement Learning: An Introduction</a>
+(2018)</dt>
+<dd><p>Richard S. Sutton and Andrew G. Barto
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.gwern.net/docs/reinforcement-learning/model-free/2017-arulkumaran.pdf" target=&ldquo;blank&rdquo;>Deep reinforcement learning: A brief survey</a>
+(2017)</dt>
+<dd><p>Kai Arulkumaran, Marc Peter Deisenroth, Miles Brundage, and Anil Anthony Bharath
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://tromp.github.io/go/gostate.pdf" target=&ldquo;blank&rdquo;>Combinatorics of Go</a> (2018)</dt>
+<dd><p>John Tromp &amp; Gunnar Farnebäck
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.davidsilver.uk/teaching/" target=&ldquo;blank&rdquo;>Value Function Approximation</a>,
+Lectures on Reinforcement Learning (2015)</dt>
+<dd><p>David Silver
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.nature.com/articles/nature14236" target=&ldquo;blank&rdquo;>Human-level control through deep reinforcement learning</a> (2016)</dt>
+<dd><p>
+Volodymyr Mnih, Koray Kavukcuoglu, David Silver, Andrei A. Rusu, Joel Veness, Marc G. Bellemare, Alex Graves,
+Martin Riedmiller, Andreas K. Fidjeland, Georg Ostrovski, Stig Petersen, Charles Beattie, Amir Sadik,
+Ioannis Antonoglou, Helen King, Dharshan Kumaran, Daan Wierstra, Shane Legg, and Demis Hassabis
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://rail.eecs.berkeley.edu/deeprlcourse/static/slides/lec-8.pdf" target=&ldquo;blank&rdquo;>Deep RL with Q-Functions</a> (2022)</dt>
+<dd><p>Sergey Levine
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://danieltakeshi.github.io/2019/02/09/batch-constrained-deep-rl/" target=&ldquo;blank&rdquo;>Batch Constrained Deep Reinforcement Learning</a>
+(2019)</dt>
+<dd><p>Daniel Seita
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

@@ -1,0 +1,21 @@
+# jemdoc: menu{MENU}{drl-verification.html}
+= DRL Verification
+
+/Revised June 23, 2025/
+
+/The [nn-verification.html Neural Network Verification note] is optional but recommended background reading./
+
+Although deep reinforcement learning (DRL) algorithms are built using deep neural networks (DNNs), the verification of such systems introduces challenges that differ fundamentally from those in conventional [nn-verification.html DNN verification]. DRL methods are designed for sequential decision making, requiring the DNN to select an action at every timestep $t \in \mathcal{T}$ during an episode. Standard deep learning tasks, by contrast, typically involve a single forward pass. Thus, although scalability is already a critical obstacle in DNN verification, the problem is compounded in the DRL setting.
+
+In image classification, for example, robustness verification asserts that small input perturbations (e.g., slight changes in pixel brightness) do not affect the network's prediction. This guarantee must hold for only one network invocation. DRL robustness, by contrast, demands that such invariance be ensured at every timestep. For instance, verifying that a self-driving car never changes its action under perturbed sensor readings requires proving that the DNN outputs identical actions for both perturbed and unperturbed inputs at /every/ decision point. This multiplies the verification burden. Verifying $t$ consecutive invocations of a DNN with $n$ nodes is equivalent to encoding a single network of size $t \cdot n$ into the verification engine. Since the verification problem is [nn-verification.html NP-complete], the worst-case complexity grows from $2^n$ to $2^{t \cdot n}$.
+
+Moreover, in DRL the output of one network invocation directly influences the inputs to subsequent invocations. Verification must therefore reason over trajectories rather than isolated outputs. For instance, certifying that a self-driving car reaches its destination safely requires proving that the /entire/ sequence of actions leads to a safe outcome. Verifying such temporally extended properties necessitates tools beyond those used for single-step DNN verification.
+
+Finally, DRL agents often operate under stochastic dynamics, arising from randomness in the policy, uncertainty in the environment, and other sources of nondeterminism. Verification must therefore account for distributions over possible outcomes. Returning to the self-driving car example: even if a learned policy prescribes proceeding at a green light, sensor noise or perception failures might cause the car to misinterpret the signal. Proving safety in such settings requires guarantees over all relevant probabilistic transitions, not just deterministic execution traces.
+
+Because standard DNN verification methods do not extend naturally to sequential, probabilistic settings, a distinct class of DRL verification methods has emerged. [https://dl.acm.org/doi/full/10.1145/3596444 Our open-access survey] provides a detailed overview of these techniques.
+
+=== References
+
+: {[https://dl.acm.org/doi/full/10.1145/3596444 Deep Reinforcement Learning Verification: A Survey] (2023)} Matthew Landers and Afsaneh Doryab
+

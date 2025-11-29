@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>Deep Deterministic Policy Gradient (DDPG)</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html" class="current">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Deep Deterministic Policy Gradient (DDPG)</h1>
+</div>
+<p><i>Revised January 9, 2025</i>
+</p>
+<p><i>The <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>Deep Q-learning</a>, <a href="actor-critic.html" target=&ldquo;blank&rdquo;>Actor-critic</a>, and <a href="policy-gradients.html" target=&ldquo;blank&rdquo;>Policy Gradients</a> notes are optional but recommended background reading.</i>
+</p>
+<p><a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>Deep Q-learning</a> relies on a greedy action selection strategy, requiring the computation of a Q-value for every possible action in the current state. When the action space is large or continuous, however, enumerating all possible actions becomes computationally infeasible. Consequently, identifying the optimal action at each timestep involves solving an iterative optimization problem. For instance, using gradient ascent, the action can be defined as follows:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    a_{k+1} = a_k + \alpha \nabla_a Q(s_t, a_k)
+\end{equation*}
+\]
+</p><p>where \(k\) is the optimization iteration.
+</p>
+<p>However, this approach is similarly computationally expensive, making it impractical. Deep Deterministic Policy Gradient (DDPG) avoids the need to solve this optimization problem by combining principles from deep Q-learning and Deterministic Policy Gradient (DPG).
+</p>
+<h3>Deterministic Policy Gradient</h3>
+<p>When states and actions are continuous, the <a href="policy-gradients.html" target=&ldquo;blank&rdquo;>policy gradient theorem</a> allows us to express the gradient of the <a href="policy-gradients.html" target=&ldquo;blank&rdquo;>policy objective</a> as:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \nabla_\theta J(\theta) &amp;\propto \int_\mathcal{S} \mu(s) \int_\mathcal{A} Q_\pi(s, a) \nabla_\theta \pi(a \mid s; \theta) \; da \, ds \label{eq:pg} \\
+    &amp;= \mathbb{E}_{s \sim \mu, a \sim \pi(\cdot \mid s; \theta)} \left[ Q_\pi(s_t, a_t) \nabla_\theta \ln \pi(a_t \mid s_t; \theta) \right] \nonumber \;,
+\end{align}
+\]
+</p><p>where \(\mu(s)\) is the normalized <a href="glossary.html" target=&ldquo;blank&rdquo;>discounted state distribution</a> under the policy \(\pi\).
+</p>
+<p>In Equation \(\eqref{eq:pg}\), the policy gradient requires integration over both the state space \(\mathcal{S}\) and the action space \(\mathcal{A}\). In practice, estimating this gradient via sampling-based methods involves drawing samples of \((s, a)\) pairs that sufficiently cover \(\mathcal{S} \times \mathcal{A}\). As the dimensionality of \(\mathcal{S}\) and/or \(\mathcal{A}\) increases, the number of samples required to obtain a low-variance estimate of the gradient grows exponentially, making the procedure sample-intensive. When actions are deterministic, by contrast, integration is required <b>only over the state space</b>, which significantly reduces sample complexity. <b>This insight underpins Deterministic Policy Gradient (DPG)</b>.
+</p>
+<p>To define the deterministic policy gradient, we first express the parameterized deterministic policy as \(a = \rho(s; \theta)\), which approximates the maximizer \(\arg \max_a Q(s, a)\). Using this definition, the objective function can be reformulated as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:deterministic-objective}
+    J(\theta) = \int_\mathcal{S} \mu(s) Q_\rho(s, \rho(s; \theta)) \; ds
+\end{equation}
+\]
+</p><p>From Equation \(\eqref{eq:deterministic-objective}\), the deterministic policy gradient is derived as:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}
+    \nabla_\theta J(\theta) &amp;= \int_\mathcal{S} \mu(s) \nabla_a Q_\rho(s, a) \nabla_\theta \rho(s; \theta) \big|_{a = \rho(s; \theta)} \; ds \label{eq:dpg} \\
+    &amp;= \mathbb{E}_{s \sim \mu} \left[ \nabla_a Q_\rho(s_t, a) \nabla_\theta \rho(s_t; \theta) \big|_{a = \rho(s_t; \theta)} \right] \;. \nonumber
+\end{align}
+\]
+</p><p>Although Equations \(\eqref{eq:pg}\) and \(\eqref{eq:dpg}\) differ in form, the deterministic policy gradient is a special (limiting) case of the stochastic policy gradient obtained by considering a sequence of increasingly peaked stochastic policies that converge to a deterministic policy. This relationship allows Equation \(\eqref{eq:dpg}\) to be applied within the standard <a href="actor-critic.html" target=&ldquo;blank&rdquo;>actor-critic framework</a> (with a critic \(Q(\psi)\) parameterized by \(\psi\)). Because deterministic policies lack an inherent mechanism for exploration, however, samples are typically collected using a fixed stochastic behavior policy \(\beta\). These samples are then leveraged using <a href="glossary.html" target=&ldquo;blank&rdquo;>off-policy learning</a>:
+Although Equations \(\eqref{eq:pg}\) and \(\eqref{eq:dpg}\) differ in form, the deterministic policy gradient is a special (limiting) case of the stochastic policy gradient obtained by considering a sequence of increasingly peaked stochastic policies that converge to a deterministic policy. This relationship allows Equation \(\eqref{eq:dpg}\) to be applied within the standard <a href="actor-critic.html" target=&ldquo;blank&rdquo;>actor-critic framework</a> (with a critic \(Q(\psi)\) parameterized by \(\psi\)). Because deterministic policies lack an inherent mechanism for exploration, however, samples are typically collected using a fixed stochastic behavior policy \(\beta\). These samples are then leveraged using <a href="glossary.html" target=&ldquo;blank&rdquo;>off-policy learning</a>:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \nabla J(\theta) &amp;\approx \int_\mathcal{S} \mu^\beta(s) \nabla_a Q_\rho(s, a; \psi) \nabla_\theta \rho(s; \theta) \big|_{a = \rho(s; \theta)} \; ds \\
+    &amp;\approx \mathbb{E}_{s \sim \mu^\beta} \left[ \nabla_a Q_\rho(s_t, a; \psi) \nabla_\theta \rho(s_t; \theta) \big|_{a = \rho(s_t; \theta)} \right] \;,
+\end{align*}
+\]
+</p><p>where \(\mu^\beta(s)\) is the state density induced by the behavior policy \(\beta\). Note that while the expectation \(\mathbb{E}_{s \sim \mu^\beta}\) is taken over states sampled from the behavior policy \(\beta\), the gradient \(\nabla_a Q_\rho(s, a)|_{a = \rho(s; \theta)}\) is computed with respect to the action defined by the deterministic policy \(\rho(s; \theta)\).
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>&ldquo;Evaluated at&rdquo; notation</b>
+</p>
+<p>The notation \(\nabla_a Q_\rho(s, a)\) denotes the gradient of \(Q_\rho\) with respect to \(a\), treating \(a\) as an independent variable by ignoring any dependence on \(\theta\). Although \(Q_\rho\) also depends on \(s\), the differentiation isolates the effect of \(a\). After computing this partial derivative, as indicated by the notation \(|_{a=\rho(s;\theta)}\), we substitute \(a = \rho(s;\theta)\) into the result.
+</p>
+<p>More specifically, because \(Q_\rho(s, a)\) is a scalar-valued function, its gradient with respect to \(a\), \(\nabla_a Q_\rho(s, a)\), is a column vector of partial derivatives, expressed as:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \nabla_a Q_\rho(s, a) =
+    \begin{bmatrix}
+    \frac{\partial Q_\rho(s, a)}{\partial a_1} \\
+    \frac{\partial Q_\rho(s, a)}{\partial a_2} \\
+    \vdots \\
+    \frac{\partial Q_\rho(s, a)}{\partial a_n}
+    \end{bmatrix} \;.
+\end{equation*}
+\]
+</p><p>Here, each entry \(\frac{\partial Q_\rho(s, a)}{\partial a_i}\) is a function of \(s\) and \(a\), representing how \(Q_\rho(s, a)\) changes as \(a_i\) varies slightly, with all other components of \(a\) held constant. Intuitively, \(Q_\rho(s, a)\) can be visualized as a surface in a high-dimensional space, where \(\frac{\partial Q_\rho(s, a)}{\partial a_i}\) describes the slope of the surface along the \(i\)-th coordinate axis of \(a\).
+</p>
+<p>When we evaluate the gradient at \(a = \rho(s; \theta)\), we replace the variable \(a\) in each partial derivative function \(\frac{\partial Q_\rho(s, a)}{\partial a_i}\) with the value \(\rho(s; \theta)\). In other words, we compute these sensitivity functions at the specific point \(a = \rho(s; \theta)\). This yields a column vector of values:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    \nabla_a Q_\rho(s, a)\big|_{a = \rho(s; \theta)} =
+    \begin{bmatrix}
+    \frac{\partial Q_\rho(s, a)}{\partial a_1}\big|_{a = \rho(s; \theta)} \\
+    \frac{\partial Q_\rho(s, a)}{\partial a_2}\big|_{a = \rho(s; \theta)} \\
+    \vdots \\
+    \frac{\partial Q_\rho(s, a)}{\partial a_n}\big|_{a = \rho(s; \theta)}
+    \end{bmatrix} \;.
+\end{equation*}
+\]
+</p><p>Before the substitution \(a = \rho(s; \theta)\), the gradient \(\nabla_a Q_\rho(s, a)\) is a column vector of <b>functions</b> that depend on \(s\) and \(a\). For a given state \(s\), after the substitution, it becomes a column vector of <b>numerical values</b>, wherein each entry corresponds to the partial derivative evaluated at the specific point \(a = \rho(s; \theta)\).
+</p>
+</div></div>
+<table class="imgtable"><tr><td>
+<img src="static/images/ddpg/dpg.png" alt="deterministic policy gradient pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<h3>Deep Deterministic Policy Gradient</h3>
+<p>Deep Deterministic Policy Gradient (DDPG) is an <a href="glossary.html" target=&ldquo;blank&rdquo;>actor-critic</a> method that extends DPG by incorporating mechanisms from deep Q-learning. Specifically, DDPG uses a <a href="glossary.html" target=&ldquo;blank&rdquo;>replay buffer</a> to break the correlation between samples and a <a href="glossary.html" target=&ldquo;blank&rdquo;>target network</a> to improve learning stability.
+</p>
+<p>To further stabilize learning, DDPG introduces <i>soft target updates</i>. Instead of <a href="deep-q-learning.html" target=&ldquo;blank&rdquo;>directly copying</a> the parameters of the primary networks to their corresponding target networks, the target networks are updated incrementally:
+</p>
+<p style="text-align:center">
+\[
+\begin{align*}
+    \theta^- &amp;\gets \tau \theta + (1-\tau) \theta^- \\
+    \psi^- &amp;\gets \tau \psi + (1-\tau) \psi^- \;,
+\end{align*}
+\]
+</p><p>where \(\tau \ll 1\) controls the rate of update.
+</p>
+<p>Finally, to ensure sufficient exploration, DDPG defines a behavior policy by adding stochastic noise, such as Ornstein-Uhlenbeck (OU) process noise or mean-zero Gaussian noise, to the action produced by the actor policy.
+</p>
+<table class="imgtable"><tr><td>
+<img src="static/images/ddpg/ddpg.png" alt="deep deterministic policy gradient pseudocode" width="600px" />&nbsp;</td>
+<td align="left"></td></tr></table>
+<h3>References</h3>
+<dl>
+<dt><a href="https://proceedings.mlr.press/v32/silver14.pdf" target=&ldquo;blank&rdquo;>Deterministic Policy Gradient Algorithms</a>, International Conference
+on Machine Learning (2014)</dt>
+<dd><p>David Silver, Guy Lever, Nicolas Heess, Thomas Degris, Daan Wierstra, and Martin Riedmiller
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/abs/1509.02971" target=&ldquo;blank&rdquo;>Continuous control with deep reinforcement learning</a> (2015)</dt>
+<dd><p>Timothy P. Lillicrap,
+Jonathan J. Hunt, Alexander Pritzel, Nicolas Heess, Tom Erez, Yuval Tassa, David Silver, and Daan Wierstra
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://spinningup.openai.com/en/latest/algorithms/ddpg.html" target=&ldquo;blank&rdquo;>Deep Deterministic Policy Gradient</a> (2020)</dt>
+<dd><p>Open AI
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://lilianweng.github.io/posts/2018-04-08-policy-gradient/" target=&ldquo;blank&rdquo;>Policy Gradient Algorithms</a> (2018)</dt>
+<dd><p>Lilian Weng
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2025-11-29 14:59:54 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

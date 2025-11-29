@@ -1,0 +1,199 @@
+# jemdoc: menu{MENU}{variational-autoencoder.html}
+= Variational autoencoder
+
+!!! https://www.cs.jhu.edu/~jason/tutorials/variational.html
+!!! https://ijdykeman.github.io/ml/2016/12/21/cvae.html
+!!! https://mbernste.github.io/posts/vae/
+
+A variational autoencoder (VAE) is a generative model in which an encoder network maps a high-dimensional input data
+to a low-dimensional (often Gaussian) distribution. Points are then sampled from the latent space according to this
+distribution. Finally, the sampled points are passed through a decoder network which reconstructs the original input
+data from the sampled data.
+
+In [batch-constrained-q-learning.html BCQ] for example, a state-action pair is passed to the encoder which gives a
+posterior distribution over actions in the latent space that estimates the true distribution of actions given the state.
+We then sample latent space actions from the estimated posterior. The decoder then reconstructs ``real'' actions from
+the sampled latent actions. Finally, we select the reconstructed action for which the Q-value is the highest.
+
+Learning proceeds as follows:
+
+. Given an minibatch of $(s,a)$ pairs, the encoder $E_{\omega_1}(s,a)$ estimates the mean $\mu$ and standard deviation $\sigma$ of a
+Gaussian distribution $\mathcal{N}(\mu,\sigma)$
+. The latent space $z$ is generated using this distribution $z \sim \mathcal{N}(\mu,\sigma)$
+. Given $s$ and $z$, the decoder constructs an action $\tilde a = D_{\omega_2}(s,z)$
+. !!!!! something update updating parameters
+
+
+From these steps we can see how a VAE generates a model for $X$ using latent variables $Z$. The consequence of the
+latent variables is clear if we work backwards. The importance of the actions constructed in step 3 is apparent — they
+directly affect the agent's policy. The quality of these reconstructed actions are depended on the latent space $z$
+generated in step 2, which is dependent on the parameters $\mu$ and $\sigma$ defined in step 1. The parameters $\mu$
+and $\sigma$ are initially random, but we can use our dataset $\mathcal{B}$ (or some minibatch from $\mathcal{B}$) to
+update our prior belief $p(Z)$ using [bayes-theorem-for-probability-distributions.html Bayes’ theorem]:
+
+\(
+\begin{equation*}
+    p(Z \mid X) = \frac{p(X \mid Z) p(Z)}{p(X)} \; ,
+\end{equation*}
+\)
+
+where the marginal $p(X)$ can be computed as:
+
+\(
+\begin{equation*}
+    p(s,a) = p(X) = \int_Z p(X \mid z) p(z) \; \text{d}z \; .
+\end{equation*}
+\)
+
+Computing $p(X)$,, however, is intractable. The purpose of variational inference is approximate of the posterior
+probability density $p(Z \mid X)$ for statistical inference over the latent variables. A VAE approximates the
+posterior distribution with a probability density function $q$ —  called an encoder — for the latent variable $Z$ from
+a tractable family $\mathcal{Q}$. The best density function $q \in \mathcal{Q}$ is the one most similar to the actual
+posterior:
+
+\(
+\begin{align}
+    q^*(Z) &= \text{argmin}_{q(Z) \in \mathcal{Q}} D_{KL} \big( P(Z \mid X) || Q(Z) \big) \nonumber \\
+    &= \text{argmin}_{\theta} \mathbb{E}_{x \sim P} \Bigg[ \log \frac{p(Z \mid x)}{q(Z)} \Bigg] \label{eq:forward-density-optimization}
+\end{align}
+\)
+
+where $D_{KL}$ is KL divergence. Note that we assume the approximate probability density is not conditioned on the
+observed variable $X$.
+
+=== Variational inference in VAE
+
+Much of the VAE section of this note has covered material related to general variational inference (VI). We can now see
+how these techniques are used in VAEs and how ELBO is used to train VAEs. Before describing the technical particulars,
+however, it is useful to establish a general intuition for the mechanisms underlying a VAE.
+
+~~~
+{}{img_left}{static/images/vae/vae.png}{variational autoencoder}{500px}
+~~~
+
+~~~
+{}{table}{caption}
+!!!!!! Green is encoder. Red is latent space. Blue is decoder
+~~~
+
+Let $x \in \mathbb{R}^{n_0}$ be the input to a neural network called an encoder. The encoder reduces the input's
+dimension to a specified size (via a hyperparameter) $n_e$ and returns this vector $\mathbb{R}^{n_e}$ as an output. The
+values in this vector represent the parameters that define a probability distribution in the latent space. That is, we
+do not know the true representation of the input $x$ in the latent space $z$ so we model the possible latent
+representations as a probability distribution. During training, by improving the parameters the VAE learns to associate
+the input vector $x$ to a region in the latent space where its lower dimensional representation $z$ is most likely to
+be. We typically assume this distribution to be [https://en.wikipedia.org/wiki/Multivariate_normal_distribution
+multivariate Gaussian]. In this case the parameters in $z$ are the the mean $\mu$ and variance $\sigma$ of the
+distribution. Using this distribution, we sample a point $z \in \mathbb{R}^{n_e}$ from the latent space. Notice that
+this makes a VAE probabilistic. The latent vector $z$ is then passed as input to a decoder network which attempts to
+reconstruct the input $\hat{x} \in \mathbb{R}^{n_0}$. Much like the encoder, the decoder does not attempt to
+reconstruct $x$ directly. Instead, it outputs parameters for a (typically multivariate Gaussian) conditional
+distribution of the observation. Unlike the encoder, however, the decoder typically only outputs the mean parameters.
+The variance is assumed to be fixed (or can be learned independently). This practical because learning is easier if we
+only have to optimize the mean parameters.
+
+From this description we can see how the encoder $q_\phi(z \mid x)$ is a parameterized approximation for the actual
+posterior $p(z \mid x)$. Recall that this is our goal $\eqref{eq:forward-density-optimization}$. It is thus natural to
+wonder why we need the decoder at all. There are two reasons. First, generating new samples is useful in a variety of settings — in
+[batch-constrained-q-learning.html BCQ] for example, it is used to create actions (other applications include anomaly
+detection, image generation, etc.). Second, and more importantly, the decoder is necessary for assessing the quality of
+our estimation. Specifically, as described above, we want to minimize the KL divergence between the estimated posterior
+and the actual posterior. However, we cannot directly compute either forward or reverse KL divergence. Thus, we use
+ELBO $\eqref{eq:elbo-3}$. Two terms are required to compute ELBO 1.) $q(z)$ which is equivalent to our decoder (recall
+that we assume the approximate probability density is not conditioned on the observed variable $x$ thus $q(z) =
+q(x \mid z)$) and 2.) the likelihood function $p(x \mid z)$. Notice that our decoder $p_\theta(z \mid x)$ gives us this
+likelihood. That is, the [glossary.html likelihood function] describes how well the chosen statistical model fits the
+data. In a VAE, our chosen statistical model is based on $z$ and our data is $x$.
+
+=== Optimizing the VAE
+
+Both the encoder and decoder are parameterized functions — the encoder by $\phi$ and the decoder by $\theta$. To
+optimize the VAE, we jointly optimize these parameters with mini-batches of data.
+
+
+
+# Model the latent distribution prior $p(x)$ as a unit Gaussian.
+
+
+
+==== Evidence Lower Bound (ELBO)
+
+In the reverse formulation of KL divergence, the expectation is now with respect to $\mathcal{Q}$, which is tractable to
+compute (assuming $\mathcal{Q}$ is a suitable family). Unfortunately, however, solving
+$\eqref{eq:reverse-density-optimization}$ requires computing $p(x)$ which is intractable (recall that our appeal to
+approximate inference is motivated by the difficulty of computing the evidence). Thus, instead of solving
+$\eqref{eq:reverse-density-optimization}$, we optimize an alternative objective — called the evidence lower bound
+(ELBO) — that is equivalent to KL divergence up to an added constant:
+
+\(
+\begin{align*}
+    D_{KL} &= \mathbb{E}_{z \sim Q} \big[ \log q(z) \big] - \mathbb{E}_{z \sim Q} \big[ \log p(z, x) \big] + \log p(x) && \text{cf } \eqref{eq:reverse-density-optimization} \\
+    D_{KL} - \log p(x) &= \mathbb{E}_{z \sim Q} \big[ \log q(z) \big] - \mathbb{E}_{z \sim Q} \big[ \log p(z, x) \big] \\
+    -D_{KL} + \log p(x) &= \mathbb{E}_{z \sim Q} \big[ \log p(z, x) \big] - \mathbb{E}_{z \sim Q} \big[ \log q(z) \big] \\
+    \text{ELBO}(q) &= \mathbb{E}_{z \sim Q} \big[ \log p(z, x) \big] - \mathbb{E}_{z \sim Q} \big[ \log q(z) \big] \; ,
+\end{align*}
+\)
+
+where $D_{KL}$ is short for $D_{KL} \big( Q(Z) || P(Z \mid X) \big)$. We can thus see how ELBO is the negative KL
+divergence plus $\log p(x)$ (which is a constant with respect to $q(z)$). Maximizing the ELBO is equivalent to
+minimizing KL divergence.
+
+We can strengthen our intuition for ELBO with basic algebraic manipulation:
+
+\(
+\begin{align}
+    \text{ELBO}(q) &= \mathbb{E}_{z \sim Q} \big[ \log p(z, x) \big] - \mathbb{E}_{z \sim Q} \big[ \log q(z) \big] \label{eq:elbo} \\
+    &= \mathbb{E}_{z \sim Q} \big[ \log p(z \mid x) + \log p(x) \big] - \mathbb{E}_{z \sim Q} \big[ \log q(z) \big] \nonumber \\
+    &= \mathbb{E}_{z \sim Q} \big[ \log p(x \mid z) +  \log p(z) - \log p(x) + \log p(x) \big] - \mathbb{E}_{z \sim Q} \big[ \log q(z) \big] \nonumber \\
+    &= \mathbb{E}_{z \sim Q} \big[ \log p(x \mid z) + \log p(z) \big] - \mathbb{E}_{z \sim Q} \big[ \log q(z) \big] \nonumber \\
+    &= \mathbb{E}_{z \sim Q} \big[ \log p(x \mid z) \big] + \mathbb{E}_{z \sim Q} \big[ \log p(z) \big]
+    - \mathbb{E}_{z \sim Q} \big[ \log q(z) \big] \nonumber \\
+    &= \mathbb{E}_{z \sim Q} \big[ \log p(x \mid z) \big] - D_{KL}(Q(Z) || P(Z)) \; . \label{eq:elbo-2}
+\end{align}
+\)
+
+We can thus see that ELBO is the sum of the expected log likelihood of the data and the KL divergence between the prior
+$P(Z)$ and the approximated posterior $Q(Z)$. More explicitly, the first term is the expected [glossary.html likelihood]
+— it describes how well the chosen statistical model fits the data and thus encourages densities with mass on
+configuration of the latent variables that explain the observed data. The second term is the negative divergence
+between the variational density and the prior; it encourages densities close to the prior and in this way can be seen as
+regularizing the latent space.
+
+ELBO lower-bounds the (log) evidence (hence the name) $\log p(x) \geq \text{ELBO}(q)$ for any $q(z)$:
+
+\(
+\begin{align}
+    \log p(x) &= \log \int_Z p(x,z) \; \text{d}z \nonumber \\
+    &= \log \int_Z p(x,z) \frac{q(z)}{q(z)} \; \text{d}z \nonumber \\
+    &= \log \int_Z \frac{p(x,z)}{q(z)} q(z) \; \text{d}z \nonumber \\
+    &= \log \Bigg( \mathbb{E}_{z \sim Q} \Bigg[ \frac{p(x,Z)}{q(z)} \Bigg] \Bigg) \nonumber \\
+    &\geq \mathbb{E}_{z \sim Q} \Bigg[ \log \Bigg( \frac{p(x,Z)}{q(z)} \Bigg) \Bigg] && \text{by Jensen's inequality} \nonumber \\
+    &= \mathbb{E}_{z \sim Q} \big[ \log p(x \mid z) \big] - \mathbb{E}_{z \sim Q} \big[ \log q(z) \big] && \text{This is ELBO. cf } \eqref{eq:elbo} \label{eq:elbo-3}
+\end{align}
+\)
+
+Note that, in its standard form, [https://en.wikipedia.org/wiki/Jensen%27s_inequality Jensen's inequality] states that
+$\varphi(\mathbb{E}[X]) \leq \mathbb{E}[\varphi(X)]$. This assume a convex function, but because $\log$ is concave the
+inequality is reversed.
+
+
+=== References
+
+: {[https://arxiv.org/pdf/2108.13083.pdf An Introduction to Variational Inference] (2021)} Ankush Ganguly and
+Samuel W. F. Earp
+
+: {[https://dibyaghosh.com/blog/probability/kldivergence.html KL Divergence for Machine Learning] (2018)} Dibya Ghosh
+
+: {[https://www.cs.princeton.edu/courses/archive/fall11/cos597C/lectures/variational-inference-i.pdf Variational
+Inference] (2011)} David M. Blei
+
+: {[https://arxiv.org/pdf/1601.00670.pdf Variational Inference: A Review for Statisticians], Journal of the American
+statistical Association (2017)} David M Blei, Alp Kucukelbir, and Jon D McAuliffe
+
+: {Machine Learning A Probabilistic Perspective, MIT press (2012)} Kevin P. Murphy
+
+: {[https://timvieira.github.io/blog/post/2014/10/06/kl-divergence-as-an-objective-function KL-divergence as an
+objective function] (2014)} Tim Vieira
+
+: {[https://arxiv.org/pdf/2006.03962.pdf Tuning a variational autoencoder for data accountability problem in the Mars
+Science Laboratory ground data system] (2020)} Dounia Lakhmiri, Ryan Alimo, and Sebastien Le Digabel
