@@ -5,7 +5,7 @@
 {}{raw}
 <table class="imgtable" id="bio-table"><tr><td>
 <img src="static/images/Matt_Landers.jpg" alt="image of Matt Landers" />&nbsp;</td>
-<td align="left"><p>Computer science PhD student in the Human-Artificial Intelligence Lab at the University of Virginia
+<td align="left"><p>Computer Science PhD Candidate at the University of Virginia
 </p>
 <p><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a> · <a href="https://scholar.google.com/citations?user=yiWlY9IAAAAJ&hl=en" target="blank">Google Scholar</a> · <a href="https://www.linkedin.com/in/mattmlanders/" target="blank">LinkedIn</a>
 </p>
@@ -14,9 +14,9 @@
 </td></tr></table>
 ~~~
 
-I am a computer science PhD student at the University of Virginia studying under Afsaneh Doryab and Tom Hartvigsen. Previously, I earned my master's degree from Johns Hopkins University where I was advised by Suchi Saria. I have founded two startups.
+I am a Computer Science PhD Candidate at the University of Virginia, advised by Tom Hartvigsen and Afsaneh Doryab. My research examines how to make reinforcement learning work in *real-world settings*. I am particularly interested in *offline RL*, where agents must learn from fixed logs of data, and in settings with large, discrete, *combinatorial action spaces*.
 
-My research focuses on trustworthy deep reinforcement learning approaches designed for real-world systems. I am especially interested in methods that can account for environmental constraints, human feedback, and other types of domain knowledge.
+Previously, I earned my M.S. from Johns Hopkins University (advised by Suchi Saria) and spent several years as a senior software engineer and startup founder. I operate at the intersection of rigorous theory and production engineering, building control systems that are scalable, reliable, and deployable.
 
 === Papers
 
