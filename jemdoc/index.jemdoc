@@ -20,11 +20,11 @@ Previously, I earned my M.S. from Johns Hopkins University (advised by Suchi Sar
 
 === Papers
 
-: {Improving and Accelerating Offline RL in Large Discrete Action Spaces with Structured Policy Initialization, /Under Review/ (2025)} *Matthew Landers*, Taylor W. Killian, Thomas Hartvigsen, Afsaneh Doryab
-
-: {[https://arxiv.org/pdf/2505.12109 SAINT: Attention-Based Policies for Discrete Combinatorial Action Spaces], /Under Review/ (2025)} *Matthew Landers*, Taylor W. Killian, Thomas Hartvigsen, Afsaneh Doryab
+: {[https://arxiv.org/pdf/2601.04441 Improving and Accelerating Offline RL in Large Discrete Action Spaces with Structured Policy Initialization], ICLR (2026)} *Matthew Landers*, Taylor W. Killian, Thomas Hartvigsen, Afsaneh Doryab
 
 : {[https://arxiv.org/pdf/2410.21151 BraVE: Offline Reinforcement Learning for Discrete Combinatorial Action Spaces], NeurIPS (2025)} *Matthew Landers*, Taylor W. Killian, Hugo Barnes, Thomas Hartvigsen, Afsaneh Doryab
+
+: {[https://arxiv.org/pdf/2505.12109 SAINT: Attention-Based Policies for Discrete Combinatorial Action Spaces], /Under Review/ (2025)} *Matthew Landers*, Taylor W. Killian, Thomas Hartvigsen, Afsaneh Doryab
 
 : {[https://ieeexplore.ieee.org/document/11228810 Parameter Transfer for Single-Task Reinforcement Learning], International Joint Conference on Neural Networks (2025)} *Matthew Landers* and Afsaneh Doryab
 

@@ -1,0 +1,43 @@
+# jemdoc: menu{MENU}{mpc.html}
+= Model Predictive Control
+
+/Published January !!!, 2026/
+
+/The [cem.html Cross-Entropy Method note] is optional but recommended background reading./
+
+here is the canonical RL representation figure
+
+take a control model
+optimize over the control input by planning over a short time horizon
+determine immediate next action based on that optimization
+once that action is applied, you re-optimize at the next step
+and the process continues
+
+$K(x_k) = u_{k+1}(x_k)$ where $u_{k+1}(x_k)$ is the optimal short time control starting at the initial condition $x_k$. the $k+1$ in $u_{k+1}$ means that we are only implementing the first time step.
+
+- To select an action, MPC searches for an optimal action sequence under the learned model and executes the first action of that sequence, discarding the remaining actions. Typically this search is repeated after every step in the real environment, to account for any prediction errors by the model and to get feedback from the environment.
+
+why powerful:
+- easy to impose constraints — on both the states and the action so never violate SLAs, etc.
+- both hard and soft constraints (define these)
+- because re-do optimal contorl at each time step, less risk if system does nto behave locally as the model expects
+- gradient-based methods (such as in RL) can converge to suboptimal local optima and are prone to exploding or vanishing gradients
+
+difference from RL:
+- there is some setpoint or goal you want to reach
+- very expensive (full optimization at each timestep) — relies on fast hardware
+
+!!! Define system identification
+!!! Update glossary
+
+
+:{*Model Predictive Control (MPC)*} !!! (see the [mpc.html Model Predictive Control note]).
+
+
+:{*System identification*} !!! (see the [mpc.html Model Predictive Control note]).
+
+many state-of-the-art MBRL approaches perform planning either using the Cross-Entropy
+Method (CEM) Rubinstein (1997); Chua et al. (2018); Kobilarov (2012), or via Model-Predictive
+Path Integral
+
+=== References

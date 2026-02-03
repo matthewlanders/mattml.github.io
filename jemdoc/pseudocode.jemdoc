@@ -25,6 +25,12 @@
 {}{img_left}{static/images/pid-lagrangian/constraint-controlled-rl.png}{Constraint-Controlled Reinforcement Learning pseudocode}{600px}
 ~~~
 
+=== Cross Entropy Method
+
+~~~
+{}{img_left}{static/images/cem/cem.png}{cem pseudocode}{600px}
+~~~
+
 === Deep Q-learning
 
 ~~~

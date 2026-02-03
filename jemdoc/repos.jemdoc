@@ -1,7 +1,7 @@
 # jemdoc: menu{MENU}{repos.html}
 = Code
 
-: {Improving and Accelerating Offline RL in Large Discrete Action Spaces with Structured Policy Initialization} (Paper | [https://github.com/matthewlanders/SPIN Code])
+: {Improving and Accelerating Offline RL in Large Discrete Action Spaces with Structured Policy Initialization} ([https://arxiv.org/pdf/2601.04441 Paper] | [https://github.com/matthewlanders/SPIN Code])
 
 : {SAINT: Attention-Based Policies for Discrete Combinatorial Action Spaces} ([https://arxiv.org/pdf/2505.12109 Paper] | [https://github.com/matthewlanders/SAINT Code])
 
