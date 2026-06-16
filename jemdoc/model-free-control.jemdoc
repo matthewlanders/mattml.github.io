@@ -5,6 +5,8 @@
 
 /The [model-free-prediction.html Model-Free Prediction note] is optional but recommended background reading./
 
+/A code [https://github.com/matthewlanders/implementations implementation] of the method described in this note is available as optional supplementary material./
+
 [model-free-prediction.html Model-free prediction] approaches such as Monte Carlo (MC) methods and Temporal Difference (TD) learning overcome a fundamental limitation of [dynamic-programming-for-mdps.html dynamic programming] algorithms like policy iteration and value iteration by estimating value functions without requiring complete knowledge of environmental dynamics. While prediction methods effectively estimate the value function $V_\pi$ for an arbitrary policy $\pi$, they do not directly learn the optimal value function $V_*$. /Control methods/ build upon prediction techniques to discover optimal value functions and policies.
 
 === SARSA

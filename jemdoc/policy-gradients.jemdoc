@@ -3,6 +3,8 @@
 
 /Revised December 31, 2024/
 
+/A code [https://github.com/matthewlanders/implementations implementation] of the method described in this note is available as optional supplementary material./
+
 RL methods can be broadly divided into two classes: action-value methods and policy gradient methods. Action-value methods — which underlie classical algorithms such as [model-free-control.html Q-learning] and its derivatives like [deep-q-learning.html deep Q-learning] — select actions by estimating the expected return for each action in a given state. Policy gradient methods, by contrast, *do not reference a value function for action selection*. Instead, they directly optimize a parameterized policy $\pi(s, a; \theta)$.
 
 More specifically, policy gradient methods learn the parameters $\theta$ that maximize a policy objective function $J(\theta)$. For [glossary.html episodic MDPs] with a deterministic initial state $s_0$, the value function provides a natural objective: $J(\theta) = V^{\pi_\theta}(s_0)$. For [glossary.html continuing MDPs], the average reward per time step serves as an alternative objective; we will explore this distinction later in this note. While this choice of objective might appear to conflict with the fundamental property of policy gradient methods — selecting actions without referencing a value function — it is consistent with this principle as the value function is used solely to *guide optimization*, not for *action selection*.

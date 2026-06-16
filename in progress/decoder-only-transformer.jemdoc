@@ -1,0 +1,331 @@
+# jemdoc: menu{MENU}{decoder-only-transformer.html}
+= Decoder-Only and Encoder-Only Transformers
+
+/Revised May !!!, 2026/
+
+/The [transformer.html Transformer note] is optional but recommended background reading./
+
+/Code [https://github.com/matthewlanders/implementations implementations] of the methods described in this note is available as optional supplementary material./
+
+The [transformer.html original Transformer] introduced the encoder-decoder design, pairing a bidirectional encoder with an autoregressive decoder for sequence-to-sequence tasks such as translation. Subsequent work showed that the decoder, used independently, suffices for a broad class of generative settings, including the language modeling task that underlies modern large language models. This /decoder-only/ architecture, popularized by GPT and refined in the LLaMA family, has become the dominant choice for generative modeling.
+
+The decoder-only architecture is not, however, identical to the decoder of the original Transformer. As models have scaled to billions of parameters and trillions of training tokens, every major component of the original design has been replaced. Each modernization addresses a specific failure mode that emerged at scale. Training very deep stacks with normalization applied after each residual addition (the original post-norm scheme) is unstable. Additive sinusoidal positional encodings generalize poorly to sequence lengths beyond those seen during training. Autoregressive inference recomputes the same key and value tensors at every step, incurring substantial redundant computation. The original ReLU-based feed-forward block exhibits lower parameter efficiency than gated alternatives. The modern decoder-only design can be understood as a sequence of targeted fixes to these issues, each of which is now standard practice.
+
+The remainder of this note describes the modernized architecture component by component. We begin with the attention mechanism, where causal masking encodes the autoregressive objective into the model's structure. We then examine the normalization and positional encoding choices that stabilize training and improve length generalization, and the gated feed-forward block that improves parameter efficiency. We next describe the inference-time techniques, the key-value cache and grouped-query attention, that render autoregressive generation tractable at scale. The remaining sections cover the smaller architectural refinements, the training practices required at scale, and the relationship between the decoder-only and encoder-only architectures.
+
+=== Causal Self-Attention
+
+With no encoder present, every attention block in the decoder-only architecture is a /self-attention/ block, with queries, keys, and values all computed from the same residual stream. The architecture is trained on a single objective. Given a sequence of tokens $x_1, \dots, x_L$, predict each token $x_{i+1}$ from the preceding tokens $x_1, \dots, x_i$. When computing the representation of token $i$, the model must therefore not have access to tokens $j > i$, since those tokens are precisely the targets of prediction; any leakage of future information would render the training signal trivial.
+
+In recurrent architectures, this constraint is satisfied by construction, as tokens are processed one at a time in order. In a Transformer, by contrast, all tokens are processed in parallel, with each attending to every other. The constraint must therefore be enforced explicitly, through /masking/. The resulting attention pattern is /causal/, meaning each query attends only to keys at the same or earlier positions.
+
+Causal masking and the parallel computation it permits are central to the architecture's training efficiency. During training, the model receives a full sequence of length $L$ and produces predictions for all $L$ positions in a single forward pass. Position $i$ predicts position $i+1$ for every $i$ simultaneously, with the causal mask ensuring that each prediction depends only on the appropriate prefix. A single training example thus yields $L$ supervised prediction tasks, substantially improving sample efficiency relative to recurrent training.
+
+=== RMSNorm
+
+The original Transformer uses /[glossary.html Layer Normalization]/ to stabilize training. Given an input $\mathbf{x} \in \mathbb{R}^d$, LayerNorm computes:
+
+\(
+\begin{equation}\label{eq:layernorm}
+    \text{LayerNorm}(\mathbf{x}) = \frac{\mathbf{x} - \mu}{\sqrt{\sigma^2 + \epsilon}} \odot \boldsymbol{\gamma} + \boldsymbol{\beta} \;,
+\end{equation}
+\)
+where $\mu$ and $\sigma^2$ are the mean and variance of $\mathbf{x}$ across the feature dimension, $\boldsymbol{\gamma}$ and $\boldsymbol{\beta}$ are learned scale and shift parameters, and $\epsilon$ is a small constant for numerical stability.
+
+Two operations contribute to the output in Equation $\eqref{eq:layernorm}$. /Re-centering/ subtracts the mean, and /re-scaling/ divides by the standard deviation. Empirically, the re-centering step contributes little to the success of LayerNorm — retaining only the re-scaling step [https://arxiv.org/pdf/1910.07467 yields equivalent training dynamics in practice] while reducing computational cost. Setting $\mu = 0$ in Equation $\eqref{eq:layernorm}$ collapses the standard deviation to the root mean square of the entries of $\mathbf{x}$, giving /Root Mean Square Normalization/:
+
+\(
+\begin{equation}\label{eq:rmsnorm}
+    \text{RMSNorm}(\mathbf{x}) = \frac{\mathbf{x}}{\sqrt{\frac{1}{d} \sum_{i=1}^d x_i^2 + \epsilon}} \odot \boldsymbol{\gamma} \;,
+\end{equation}
+\)
+The mean computation and subtraction are eliminated, and the additive bias $\boldsymbol{\beta}$ is also dropped. The resulting layer requires fewer operations and parameters while matching LayerNorm's performance in practice.
+
+In mixed-precision implementations, the sum-of-squares reduction is often performed in float32 regardless of the model's working precision (typically fp16 or bf16), with the result cast back upon completion. The sum runs over the $d$ squared activations of $\mathbf{x}$ (with $d$ on the order of thousands in modern models), and computing it in fp16 risks both overflow and accumulated rounding error large enough to corrupt the reciprocal square root. bf16's wider exponent range eliminates the overflow risk, but fp32 accumulation still reduces rounding error.
+
+=== Pre-norm
+
+Beyond the choice of normalization /function/, the placement of the normalization /within the residual block/ has a significant effect on training stability. The original Transformer uses /post-norm/, in which the residual addition is performed first and the result is then normalized:
+
+\(
+\begin{equation*}
+    \mathbf{x}' = \text{Norm}(\mathbf{x} + \text{Sublayer}(\mathbf{x})) \;.
+\end{equation*}
+\)
+
+This placement is unstable when training very deep stacks. The normalization sits on the residual pathway itself, so each residual connection is followed by a rescaling. Over many layers, this attenuates the gradient signal flowing back through the residual stream and necessitates careful learning rate warmup to prevent early divergence.
+
+Modern decoder-only models instead use /pre-norm/, in which the normalization is applied to the input of each sublayer before the sublayer's computation, and the residual connection bypasses the normalization,
+
+\(
+\begin{equation}\label{eq:prenorm}
+    \mathbf{x}' = \mathbf{x} + \text{Sublayer}(\text{Norm}(\mathbf{x})) \;.
+\end{equation}
+\)
+
+The residual stream thus flows uninterrupted from the input embeddings to the output, with each sublayer's contribution added to an unmodified copy of the prior representation. Consequently, gradients propagate cleanly through the residuals, and learning rate warmup, while still beneficial, is no longer necessary for stability. A final normalization is applied after the last block, ensuring the representation is well-scaled before the output projection.
+
+=== Rotary Position Embeddings
+
+The original Transformer encodes position by /adding/ [transformer.html a fixed sinusoidal signal to the input embedding before the first attention block]. Although the additive scheme produces unique encodings and admits partial recovery of relative offsets, it has two significant limitations. First, positional information is injected only at the input, after which the model must propagate it through every layer alongside the semantic content of the embedding. Second, it generalizes poorly to sequence lengths beyond those seen during training, as sinusoidal patterns at distant positions fall outside the regime the model has learned to interpret.
+
+/[https://arxiv.org/pdf/2104.09864 Rotary Position Embeddings]/ (RoPE), adopt a fundamentally different approach. Rather than adding a positional signal, RoPE /rotates/ the query and key vectors by an angle that depends on their position. The rotation is applied inside each attention block, immediately before the dot product, and is never written into the residual stream:
+
+!!! EQUATION
+
+Crucially, the dot product of two RoPE-rotated vectors depends only on their /relative/ position, not their absolute positions. The attention computation thus encodes relative position despite being parameterized by absolute position. !!! MORE EXPLANATION — WHY IS IT TRUE THAT "the dot product of two RoPE-rotated vectors depends only on their relative position, not their absolute positions"
+
+Concretely, RoPE pairs adjacent dimensions of the query and key vectors and treats each pair as a 2D vector to be rotated. For a vector $\mathbf{x} \in \mathbb{R}^{d_k}$ (with $d_k$ even) at position $m$, the rotation is
+
+\(
+\begin{equation}\label{eq:rope-rotation}
+    \begin{bmatrix} x'_{2k} \\ x'_{2k+1} \end{bmatrix} = \begin{bmatrix} \cos(m \omega_k) & -\sin(m \omega_k) \\ \sin(m \omega_k) & \cos(m \omega_k) \end{bmatrix} \begin{bmatrix} x_{2k} \\ x_{2k+1} \end{bmatrix} \;,
+\end{equation}
+\)
+for each pair index $k \in \{0, 1, \dots, d_k/2 - 1\}$, where the frequencies are $\omega_k = b^{-2k/d_k}$ for some base $b$ (commonly $b = 10{,}000$, with larger values used for long-context models). Each pair is rotated at a distinct rate. Low $k$ yields a slow rotation that distinguishes distant positions, while high $k$ yields a fast rotation that distinguishes adjacent ones. RoPE is applied to the query and the key, but not to the value, since only the dot-product partners require position-awareness. !!! MORE EXPLANATION — WHY IS IT TRUE THAT "only the dot-product partners require position-awareness"
+
+!!! HORRIBLE WRITING The key claim is that the dot product of a RoPE-rotated query at position $m$ with a RoPE-rotated key at position $n$ depends only on the un-rotated vectors and the difference $m - n$. This property gives RoPE its relative-position encoding despite an absolute-position parameterization. Although each vector is rotated by an absolute-position-dependent angle, the dot product cancels the absolute components and retains only the relative offset. !!! MORE EXPLANATION — WHY IS IT TRUE THAT "the dot product cancels the absolute components and retains only the relative offset" IS THAT WHAT THE PROOF BELOW SHOWS?
+
+~~~
+*Proving the relative-position property of RoPE*
+
+Let $R_m$ denote the RoPE rotation at position $m$, constructed as a block-diagonal matrix of the 2D rotations in Equation $\eqref{eq:rope-rotation}$ for each dimension pair. Each block is itself a planar rotation, so $R_m$ is orthogonal, $R_m^\top R_m = I$. Within each 2D block, rotations compose additively in their angles,
+
+\(
+\begin{equation*}
+    R(\alpha) R(\beta) = R(\alpha + \beta) \;,
+\end{equation*}
+\)
+
+and a rotation's transpose is its inverse, equivalent to a rotation by the negated angle,
+
+\(
+\begin{equation*}
+    R(\alpha)^\top = R(-\alpha) \;.
+\end{equation*}
+\)
+
+These blockwise identities extend to the full block-diagonal rotation, giving $R_m R_n = R_{m+n}$ and $R_m^\top = R_{-m}$.
+
+Now consider a query $\mathbf{q}$ at position $m$ and a key $\mathbf{k}$ at position $n$. The RoPE-rotated dot product is
+
+\(
+\begin{align*}
+    (R_m \mathbf{q})^\top (R_n \mathbf{k}) &= \mathbf{q}^\top R_m^\top R_n \mathbf{k} \\
+    &= \mathbf{q}^\top R_{-m} R_n \mathbf{k} \\
+    &= \mathbf{q}^\top R_{n-m} \mathbf{k} \;.
+\end{align*}
+\)
+
+The result depends on $\mathbf{q}$, $\mathbf{k}$, and the relative offset $n - m$ alone. RoPE-rotated attention scores are thus functions of relative position alone, despite the construction's reference to absolute positions. This property underlies RoPE's strong length-generalization behavior. The model need only learn how attention scores depend on /offsets/, and offsets at unseen absolute positions are identical to offsets at seen ones.
+~~~
+
+In practice, the cosines and sines for all positions up to the maximum context length are precomputed and cached. At inference time, the rotation reduces to an elementwise multiplication and a permutation of dimensions, contributing negligible cost.
+
+=== SwiGLU
+
+The original Transformer's feed-forward block applies two linear transformations separated by a ReLU activation,
+
+\(
+\begin{equation}\label{eq:relu-ffn}
+    \text{FFN}(\mathbf{x}) = \mathbf{W}_2 \, \text{ReLU}(\mathbf{W}_1 \mathbf{x} + \mathbf{b}_1) + \mathbf{b}_2 \;,
+\end{equation}
+\)
+
+with the inner dimension $d_\text{ff}$ conventionally set to $4d$, where $d$ is the model dimension. This block accounts for roughly two thirds of the parameters in a Transformer layer, so its design substantially affects the model's expressiveness per parameter.
+
+Modern decoder-only models replace the ReLU-based FFN with a /gated linear unit/ variant. The construction, introduced as /SwiGLU/ in [https://arxiv.org/pdf/2002.05202 Shazeer (2020)], replaces the activation with an elementwise product of two linear projections, one of which is passed through a smooth nonlinearity,
+
+\(
+\begin{equation}\label{eq:swiglu}
+    \text{SwiGLU}(\mathbf{x}) = \mathbf{W}_\text{down} \big( \text{SiLU}(\mathbf{W}_\text{gate} \mathbf{x}) \odot (\mathbf{W}_\text{up} \mathbf{x}) \big) \;,
+\end{equation}
+\)
+
+where $\text{SiLU}(z) = z \cdot \sigma(z)$ is the /Sigmoid Linear Unit/ (also known as Swish), a smooth approximation to ReLU. The output of the gate projection, after SiLU, is multiplied elementwise with the output of the up projection. The gate thus acts as a learned, per-element multiplier that modulates the up projection's contribution. This gating mechanism gives the network a smoother, more expressive activation pattern than ReLU, with consistent improvement across language modeling benchmarks.
+
+SwiGLU employs three weight matrices rather than two. To match the parameter count of a ReLU FFN with inner dimension $4d$, the SwiGLU inner dimension is conventionally set to $\frac{8}{3}d$ (often rounded to a multiple of 64 or 128 for hardware efficiency). At equal parameter count, SwiGLU outperforms the ReLU FFN, and this comparison justifies the change. Biases are typically dropped from all three projections, as they have no consistent effect on quality.
+
+=== Key-Value Cache
+
+The architectural choices described so far address training. Causal masking encodes the training objective, normalization and positional encoding stabilize the loss, and the FFN's design controls capacity. The remaining two modernizations address /inference/, specifically the cost of generating a sequence one token at a time.
+
+Consider generating a sequence of length $T$ autoregressively. Each sampled token is appended to the running context, and the model is invoked again to produce the next. A naive implementation feeds the full prefix of length $t$ through the model at each step, computing attention over a $t \times t$ score matrix. This cost grows quadratically with $t$, and the total cost of generating $T$ tokens grows as $O(T^3)$, prohibitive for non-trivial sequence lengths.
+
+Most of this work is redundant. At step $t$, the keys and values for positions $1, \dots, t-1$ have already been computed and remain unchanged. The only quantities requiring computation at step $t$ are the query, key, and value for the new token. The /key-value cache/ exploits this redundancy. At each step, the model computes K and V only for the new token, appends them to a running cache of previously computed keys and values, and computes attention scores by querying the new Q against the cached K and V tensors. Queries for previous positions are not reused and are therefore not cached.
+
+With a KV cache, the per-token cost is $O(t)$ for the attention dot product plus a constant for the feed-forward block, and the total cost of generating $T$ tokens is $O(T^2)$. This matches the asymptotic cost of a single forward pass over a sequence of length $T$. Autoregressive inference is no more expensive than processing the sequence in a single pass.
+
+The KV cache requires one adjustment when combined with RoPE. The rotation angle for a key depends on its absolute position, so keys are cached post-rotation. The position offset for a newly added key is $t$, not $0$, and the precomputed sine and cosine tables are indexed accordingly. With this offset handled, no further changes are required.
+
+Inference proceeds in two phases. In the /prefill/ phase, the prompt is processed in a single forward pass with causal masking, as during training, and the resulting K and V tensors at each layer are written to the cache. In the /decode/ phase, generation proceeds one token at a time, with each step appending a single (K, V) pair to the cache and producing a single output token. The decode phase is substantially slower per token in wall-clock terms than the prefill phase, not because more computation is required, but because each step launches its own GPU kernels with little work per kernel, yielding launch-overhead-bound performance. The KV cache makes the asymptotic cost manageable. Engineering the decode loop for high throughput is a separate subject.
+
+=== Grouped-Query Attention
+
+The KV cache makes autoregressive inference tractable, but introduces a new pressure. The cache itself can become very large. For a model with $N$ layers, $h$ attention heads, head dimension $d_k$, and a context of length $L$, the cache stores $2 N h d_k L$ values per sequence, the factor of two accounting for both K and V. For long contexts and large models, this can dominate the memory required to serve the model, often exceeding the parameter footprint itself.
+
+/Grouped-Query Attention/ (GQA), introduced in [https://arxiv.org/pdf/2305.13245 Ainslie et al. (2023)], reduces cache size by sharing K and V across groups of query heads. Rather than maintaining $h$ independent (K, V) pairs, GQA maintains $g < h$, each shared across $h/g$ query heads. The query heads remain independent, with each having its own projection and computing its own attention scores against the shared keys. Only K and V are shared, and only they are cached.
+
+The design admits a spectrum. With $g = h$, GQA reduces to standard /Multi-Head Attention/ (MHA), in which each query head has dedicated K and V. With $g = 1$, GQA reduces to /Multi-Query Attention/ (MQA), introduced earlier in [https://arxiv.org/pdf/1911.02150 Shazeer (2019)], in which all query heads share a single K and V. Modern models choose $g$ between these extremes, typically $h/8$ or $h/4$, based on the empirical observation that the quality cost of reducing $g$ remains small until $g$ becomes very small, while the inference savings are substantial throughout.
+
+One implementation detail merits emphasis. K and V are cached in their /unexpanded/ form, with shape determined by $g$, not $h$. This is the central benefit of GQA, since caching the small tensors reduces memory pressure. The expansion of K and V from $g$ heads to $h$ heads, required for the attention dot product since each query head must see a key and value of matching shape, is performed inside the attention kernel, either by replicating the tensors or, in optimized kernels, by broadcasting without materialization. RoPE is applied to the small K before expansion, since a single rotation of the shared key is correct for all query heads in its group.
+
+Together, the KV cache and GQA render long-context autoregressive inference feasible. The KV cache eliminates redundant computation, and GQA shrinks what remains by a factor of $h/g$, often by an order of magnitude.
+
+=== Refinements
+
+Several smaller design choices appear consistently in modern decoder-only models. Each is individually minor, but their combination has measurable effect.
+
+/Weight tying/ shares parameters between the input token embedding and the output projection that maps the hidden state to vocabulary logits. The embedding matrix $\mathbf{E} \in \mathbb{R}^{|\mathcal{V}| \times d}$ is used both to embed input tokens and, transposed, to compute output logits. This roughly halves the parameter count attributable to vocabulary representations and tends to improve generalization, particularly in smaller models, where vocabulary parameters constitute a substantial fraction of the total.
+
+/Fused QKV projection/ combines the three linear projections $\mathbf{W}_Q$, $\mathbf{W}_K$, $\mathbf{W}_V$ (or, with GQA, the corresponding rectangular projections) into a single matrix multiplication, splitting the result along the output dimension. The computation is mathematically identical, but the fused form launches a single GPU kernel rather than three, reducing launch overhead.
+
+/Bias-free linear projections/ omit the additive bias from the attention and FFN projections. Empirically, biases contribute negligibly to model quality at sufficient scale, and removing them simplifies the architecture and slightly reduces parameter count. The norm layers, having already had their biases removed in the move from LayerNorm to RMSNorm, are consistent with this convention.
+
+=== Training Details
+
+The architectural choices described above are necessary but not sufficient for stable training at scale. Several additional practices are standard.
+
+/Gradient clipping/ rescales the gradient when its norm exceeds a threshold, typically $1.0$. Without clipping, occasional large gradients, arising from rare tokens or from the early phase of training when the loss landscape is steep, can produce updates that move the parameters outside the regime in which the loss is well-behaved, occasionally triggering divergence. Clipping is inexpensive and has become universal.
+
+/Learning rate scheduling/ combines a /warmup/ phase, in which the learning rate increases linearly from zero to a peak value over the first several thousand steps, with a /cosine decay/ phase that anneals it back toward zero over the remainder of training. Warmup is essential. At initialization, the model produces nearly uniform output distributions, and the loss landscape is dominated by easily-corrected directions that a high learning rate would overshoot. Cosine decay reflects the empirical finding that a gradually decreasing learning rate yields lower final loss than either a constant or step-wise schedule.
+
+/Scaled initialization/ controls the scale of activations and gradients in deep stacks by adjusting the standard deviation of the initial weights. A common choice initializes most projections with standard deviation $0.02$ and scales the output projection of each residual sublayer by $1/\sqrt{2N}$, where $N$ is the number of layers. This scaling prevents the residual stream from growing with depth. If each sublayer's output had unit variance, the residual stream's variance would grow linearly with $N$, ultimately saturating the normalization. Scaling each residual contribution by $1/\sqrt{2N}$ bounds the residual stream's variance.
+
+/Dropout/, included in the original Transformer for regularization, is set to zero in modern large-model training. At the scale of contemporary pre-training corpora, the model sees each token a small number of times, and overfitting is not the binding constraint on generalization. Dropout's regularization is unnecessary, and its computational cost is non-negligible. Dropout remains useful in fine-tuning regimes, where datasets are smaller and overfitting becomes a binding concern.
+
+=== Putting it Together: The Modern Decoder Block
+
+The modernizations described above compose into a single repeated block. The forward computation through one such block, with each modernization named at the point it appears, proceeds as follows. The input is the residual stream $\mathbf{x} \in \mathbb{R}^{L \times d}$, carrying the running representation of the sequence.
+
+The block first applies RMSNorm to a copy of the residual stream, leaving the residual itself untouched (the /pre-norm/ placement). The normalized representation is passed through the fused QKV projection, producing queries, keys, and values. In a GQA configuration, the query projection is full-width while the key and value projections are narrower. RoPE is applied to the queries and to the (smaller) keys, encoding position by rotation. During inference, the new keys and values are appended to the KV cache before being expanded to the query head count for the dot product. Causal masking is applied to the attention scores, softmax is computed, and the result is projected back to model dimension and added to the residual stream.
+
+A second pre-norm is applied, and the result is passed through the SwiGLU feed-forward block, comprising a gate projection and an up projection, an elementwise SiLU-gated product, and a down projection back to model dimension. Its output is added to the residual stream, completing the block.
+
+The full model stacks $N$ such blocks, applies a final RMSNorm, and projects through the (weight-tied) output projection to produce vocabulary logits. The interactions among the modernizations are tighter than may at first appear. Pre-norm and RMSNorm together stabilize training in deep stacks. RoPE composes cleanly with causal masking, as both operate on the attention scores and neither modifies the residual stream. The KV cache and GQA jointly enable long-context inference, with GQA reducing what the cache must hold. The scaled initialization above is calibrated precisely for the residual structure that pre-norm enables. Each individual change targets a specific weakness of the original design, and their composition allows the architecture to function at scale
+
+=== Encoder-Only Variants
+
+The decoder-only architecture is the dominant choice for generative modeling. The same machinery, with two changes, yields the encoder-only architecture used by models such as BERT and, in non-language settings, [pfn.html TabPFN]. The first change concerns the attention mask. Where the decoder uses a causal mask that prevents each token from attending to future positions, the encoder applies no mask, allowing every token to attend bidirectionally to every other. The second change concerns the training objective. The decoder is trained to predict the next token from a prefix, while the encoder is trained on /masked language modeling/, in which a fraction of the input tokens are replaced with a special $\texttt{[MASK]}$ symbol, and the model is trained to recover them from the surrounding context.
+
+These two changes are tightly coupled. The causal mask renders next-token prediction non-trivial. Without it, the model could trivially solve the prediction by reading the target from the input. Conversely, masked language modeling renders bidirectional attention learnable, since the masked tokens cannot leak through the attention pattern, as they are not present in the input. The architectural and objective choices are paired.
+
+Beyond these two changes, the architectures are identical. RMSNorm, pre-norm, RoPE, SwiGLU, weight tying, fused QKV projection, and bias-free linears all transfer directly to the encoder-only setting, and modern encoder-only models adopt them. The KV cache and GQA, by contrast, do not apply, since the encoder is not used autoregressively. There is no incremental decoding loop to accelerate, and no cache to compress.
+
+The output of an encoder-only model differs in kind. A decoder-only model produces, at each position, a probability distribution over the vocabulary, representing its prediction for the /next/ token. An encoder-only model produces, at each position, a contextualized representation of the /current/ token, namely a vector encoding the token's meaning in light of its full bidirectional context. These representations serve as features for downstream tasks such as classification, retrieval, and clustering, rather than as a generative model in their own right. In applications such as TabPFN, the input is not language but a set of tabular instances, and the encoder-only architecture's bidirectional, permutation-invariant treatment of its input is in such cases a feature rather than a limitation.
+
+Decoder-only and encoder-only models share an architectural backbone. They differ in their attention mask, their training objective, and the interpretation of their outputs, but the modernizations described in this note apply, with minor adjustments, to both.
+
+=== Notation List
+
+\(
+\begin{array}{lll}
+\textbf{Symbol} & \textbf{Dimensions} & \textbf{Meaning} \\
+
+L & - &
+\begin{array}{l}
+\text{Sequence or context length (number of tokens)}
+\end{array} \\[6pt]
+
+d & - &
+\begin{array}{l}
+\text{Model (embedding) dimension}
+\end{array} \\[6pt]
+
+d_k & - &
+\begin{array}{l}
+\text{Per-head key/query dimension; }d_k = d/h\text{ in standard configurations}
+\end{array} \\[6pt]
+
+d_\text{ff} & - &
+\begin{array}{l}
+\text{Inner dimension of the feed-forward block}
+\end{array} \\[6pt]
+
+h & - &
+\begin{array}{l}
+\text{Number of query heads in multi-head attention}
+\end{array} \\[6pt]
+
+g & - &
+\begin{array}{l}
+\text{Number of key-value heads in grouped-query attention; }g \leq h
+\end{array} \\[6pt]
+
+N & - &
+\begin{array}{l}
+\text{Number of stacked decoder blocks}
+\end{array} \\[6pt]
+
+|\mathcal{V}| & - &
+\begin{array}{l}
+\text{Vocabulary size}
+\end{array} \\[6pt]
+
+\mathbf{x} & \mathbb{R}^{L \times d} &
+\begin{array}{l}
+\text{Residual stream entering a decoder block}
+\end{array} \\[6pt]
+
+\mathbf{Q} & \mathbb{R}^{L \times h \cdot d_k} &
+\begin{array}{l}
+\text{Query tensor (full head count)}
+\end{array} \\[6pt]
+
+\mathbf{K}, \mathbf{V} & \mathbb{R}^{L \times g \cdot d_k} &
+\begin{array}{l}
+\text{Key and value tensors (reduced head count under GQA)}
+\end{array} \\[6pt]
+
+\mathbf{M} & \mathbb{R}^{L \times L} &
+\begin{array}{l}
+\text{Causal attention mask}
+\end{array} \\[6pt]
+
+R_m & \mathbb{R}^{d_k \times d_k} &
+\begin{array}{l}
+\text{Block-diagonal RoPE rotation matrix at position }m
+\end{array} \\[6pt]
+
+\omega_k & - &
+\begin{array}{l}
+\text{RoPE frequency for the }k^\text{th}\text{ dimension pair}
+\end{array} \\[6pt]
+
+\boldsymbol{\gamma} & \mathbb{R}^d &
+\begin{array}{l}
+\text{Learned scale parameter in RMSNorm}
+\end{array} \\[6pt]
+
+\mathbf{W}_\text{gate}, \mathbf{W}_\text{up} & \mathbb{R}^{d \times d_\text{ff}} &
+\begin{array}{l}
+\text{Gate and up projections in SwiGLU}
+\end{array} \\[6pt]
+
+\mathbf{W}_\text{down} & \mathbb{R}^{d_\text{ff} \times d} &
+\begin{array}{l}
+\text{Down projection in SwiGLU}
+\end{array} \\[6pt]
+
+\end{array}
+\)
+
+=== References
+
+: {[https://arxiv.org/pdf/1706.03762 Attention Is All You Need] (2017)} Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin
+
+: {[https://arxiv.org/pdf/2302.13971 LLaMA: Open and Efficient Foundation Language Models] (2023)} Hugo Touvron et al.
+
+: {[https://arxiv.org/pdf/1910.07467 Root Mean Square Layer Normalization] (2019)} Biao Zhang and Rico Sennrich
+
+: {[https://arxiv.org/pdf/2002.04745 On Layer Normalization in the Transformer Architecture] (2020)} Ruibin Xiong, Yunchang Yang, Di He, Kai Zheng, Shuxin Zheng, Chen Xing, Huishuai Zhang, Yanyan Lan, Liwei Wang, and Tie-Yan Liu
+
+: {[https://arxiv.org/pdf/2104.09864 RoFormer: Enhanced Transformer with Rotary Position Embedding] (2021)} Jianlin Su, Yu Lu, Shengfeng Pan, Bo Wen, and Yunfeng Liu
+
+: {[https://arxiv.org/pdf/2002.05202 GLU Variants Improve Transformer] (2020)} Noam Shazeer
+
+: {[https://arxiv.org/pdf/1911.02150 Fast Transformer Decoding: One Write-Head is All You Need] (2019)} Noam Shazeer
+
+: {[https://arxiv.org/pdf/2305.13245 GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints] (2023)} Joshua Ainslie, James Lee-Thorp, Michiel de Jong, Yury Zemlyanskiy, Federico Lebrón, and Sumit Sanghai
+
+: {[https://arxiv.org/pdf/1810.04805 BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding] (2018)} Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova

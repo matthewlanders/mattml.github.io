@@ -3,3 +3,25 @@ Kernels
 - http://bactra.org/notebooks/kernel-methods.html
 
 Flow-based policies
+
+GAE
+- https://danieltakeshi.github.io/2017/04/02/notes-on-the-generalized-advantage-estimation-paper/
+- https://arxiv.org/pdf/1804.02717
+
+MOE
+
+Foundation Models + RL
+- https://arxiv.org/pdf/2310.02635
+- https://openreview.net/pdf?id=nBjmMF2IZU
+- https://arxiv.org/pdf/2502.19544
+- https://arxiv.org/pdf/2305.18499
+- https://arxiv.org/pdf/2504.04011
+- https://arxiv.org/pdf/2505.13934
+
+LoRA
+
+TabPFN:
+- https://arxiv.org/pdf/2112.10510
+- https://arxiv.org/pdf/2207.01848
+- https://www.nature.com/articles/s41586-024-08328-6
+- https://arxiv.org/pdf/2502.17361

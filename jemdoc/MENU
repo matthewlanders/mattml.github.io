@@ -1,7 +1,7 @@
 Matthew Landers
     Home                                        [index.html]
     Experience                                  [industry-experience.html]
-    Code                                        [repos.html]
+    Implementations                             [implementations.html]
     CV                                          [\static/Matthew_Landers_CV.pdf]
 
 Notes
@@ -48,3 +48,5 @@ Notes
     KL Divergence                               [kl-divergence.html]
     Implicit Q-Learning                         [implicit-q-learning.html]
     Cross-Entropy Method                        [cem.html]
+    Prior-Data Fitted Network                   [prior-data-fitted-network.html]
+    TabPFN                                      [TabPFN.html]

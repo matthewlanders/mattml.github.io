@@ -5,6 +5,8 @@
 
 /The [policy-gradients.html Policy Gradients note] is optional but recommended background reading./
 
+/A code [https://github.com/matthewlanders/implementations implementation] of the method described in this note is available as optional supplementary material./
+
 Action-value reinforcement learning methods (e.g., [pseudocode.html Deep Q-learning]) select actions by estimating the expected return for each action in a given state. Policy gradient algorithms, by contrast, (e.g., [pseudocode.html REINFORCE]) optimize a parameterized policy directly. Actor-Critic methods are a hybrid approach, combining these paradigms by separately approximating the policy (the "actor") and the value function (the "critic").
 
 ~~~

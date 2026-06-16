@@ -1,0 +1,32 @@
+# jemdoc: menu{MENU}{implementations.html}
+= Implementations
+
+=== Paper Implementations
+: {Improving and Accelerating Offline RL in Large Discrete Action Spaces with Structured Policy Initialization} ([https://arxiv.org/pdf/2601.04441 Paper] | [https://github.com/matthewlanders/SPIN Code])
+
+: {SAINT: Attention-Based Policies for Discrete Combinatorial Action Spaces} ([https://arxiv.org/pdf/2505.12109 Paper] | [https://github.com/matthewlanders/SAINT Code])
+
+: {BraVE: Offline Reinforcement Learning for Discrete Combinatorial Action Spaces} ([https://arxiv.org/pdf/2410.21151 Paper] | [https://github.com/matthewlanders/BraVE Code])
+
+=== Note Implementations
+: {Q-Learning} ([model-free-control.html Note] | [https://github.com/matthewlanders/ml-implementations Code])
+
+: {Deep Q-Learning} ([deep-q-learning.html Note] | [https://github.com/matthewlanders/ml-implementations Code])
+
+: {REINFORCE} ([policy-gradients.html Note] | [https://github.com/matthewlanders/ml-implementations Code])
+
+: {Advantage Actor-Critic (A2C)} ([actor-critic.html Note] | [https://github.com/matthewlanders/ml-implementations Code])
+
+: {Deep Deterministic Policy Gradients (DDPG)} ([ddpg.html Note] | [https://github.com/matthewlanders/ml-implementations Code])
+
+: {Proximal Policy Optimization (PPO)} ([ppo.html Note] | [https://github.com/matthewlanders/ml-implementations Code])
+
+: {Twin Delayed Deep Deterministic Policy Gradients (TD3)} ([td3.html Note] | [https://github.com/matthewlanders/ml-implementations Code])
+
+: {Soft Actor-Critic (SAC)} ([sac.html Note] | [https://github.com/matthewlanders/ml-implementations Code])
+
+: {Transformer} ([transformer.html Note] | [https://github.com/matthewlanders/ml-implementations Code])
+
+: {Decoder-only Transformer} (Note coming soon | [https://github.com/matthewlanders/ml-implementations Code])
+
+: {Encoder-only Transformer} (Note coming soon | [https://github.com/matthewlanders/ml-implementations Code])

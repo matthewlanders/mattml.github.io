@@ -3,6 +3,8 @@
 
 My research focuses on [about-rl.html reinforcement learning] (RL). When I started my PhD, I knew little about RL, so I began writing notes to learn the material. I found this practice helpful and have thus continued to write detailed notes when exploring new topics. The text emphasizes precise definitions, logical progression, and equation-driven reasoning, with derivations given in full detail and annotated for clarity. LLMs were occasionally used to verify mathematical correctness, but the arguments and exposition reflect my own understanding.
 
+I have also written code implementations for some of the methods described in these notes. The code forgoes common optimizations and abstractions such that every step of the method is visible. Links appear at the top of the relevant pages and on the [implementations.html Implementations] page.
+
 At the end of each note, I include a list of sources I have either directly used or that, while not explicitly referenced, are relevant and may benefit others.
 
 Please email me if you have questions/comments or find any errors (qwp4pk \[at\] virginia \[dot\] edu).

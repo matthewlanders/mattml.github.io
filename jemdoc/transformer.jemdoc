@@ -5,6 +5,8 @@
 
 /The [backpropagation.html Backpropagation note] is optional but recommended background reading./
 
+/A code [https://github.com/matthewlanders/implementations implementation] of the method described in this note is available as optional supplementary material./
+
 A Transformer is a deep neural network architecture that uses an attention mechanism to model long-range dependencies in parallel across a sequence. It comprises four fundamental components: input embedding, attention, feed-forward network (MLP), and positional encoding. This note examines each element independently before detailing how they interact. While the description focuses on language applications — where Transformers are most intuitive and widely used — the concepts generalize to other modalities.
 
 === Input Embeddings

@@ -1,0 +1,347 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="jemdoc.css" type="text/css" />
+<title>TabPFN</title>
+<!-- MathJax -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<!-- End MathJax -->
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Matthew Landers</div>
+<div class="menu-item"><a href="index.html">Home</a></div>
+<div class="menu-item"><a href="industry-experience.html">Experience</a></div>
+<div class="menu-item"><a href="implementations.html">Implementations</a></div>
+<div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
+<div class="menu-category">Notes</div>
+<div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
+<div class="menu-item"><a href="glossary.html">Glossary</a></div>
+<div class="menu-item"><a href="pseudocode.html">Pseudocode</a></div>
+<div class="menu-item"><a href="about-rl.html">About&nbsp;RL</a></div>
+<div class="menu-item"><a href="mdp.html">MDPs</a></div>
+<div class="menu-item"><a href="value-functions-and-policies.html">Value&nbsp;Func.&nbsp;&amp;&nbsp;Policies</a></div>
+<div class="menu-item"><a href="dynamic-programming-for-mdps.html">DP&nbsp;for&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="policy-and-value-iteration-proofs.html">DP&nbsp;for&nbsp;MDPs&nbsp;Proofs</a></div>
+<div class="menu-item"><a href="model-free-prediction.html">Model-Free&nbsp;Prediction</a></div>
+<div class="menu-item"><a href="prediction-with-function-approximation.html">Prediction&nbsp;with&nbsp;Approx.</a></div>
+<div class="menu-item"><a href="model-free-control.html">Model-Free&nbsp;Control</a></div>
+<div class="menu-item"><a href="on-policy-control-with-function-approximation.html">On-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="off-policy-control-with-function-approximation.html">Off-Policy&nbsp;Control<br /> with&nbsp;Approximation</a></div>
+<div class="menu-item"><a href="importance-sampling.html">Importance&nbsp;Sampling</a></div>
+<div class="menu-item"><a href="learnability-of-rl-objectives.html">Learnability&nbsp;of<br /> RL&nbsp;Objectives</a></div>
+<div class="menu-item"><a href="the-deadly-triad.html">The&nbsp;Deadly&nbsp;Triad</a></div>
+<div class="menu-item"><a href="deep-q-learning.html">Deep&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="policy-gradients.html">Policy&nbsp;Gradients</a></div>
+<div class="menu-item"><a href="actor-critic.html">Actor-Critic&nbsp;Framework</a></div>
+<div class="menu-item"><a href="ddpg.html">DPG&nbsp;&amp;&nbsp;DDPG</a></div>
+<div class="menu-item"><a href="reparameterization-trick.html">Reparameterization&nbsp;Trick</a></div>
+<div class="menu-item"><a href="sac.html">Soft&nbsp;Actor-Critic</a></div>
+<div class="menu-item"><a href="grpo.html">Group&nbsp;Relative&nbsp;Policy<br /> Optimization</a></div>
+<div class="menu-item"><a href="transformer.html">Transformer</a></div>
+<div class="menu-item"><a href="trpo.html">TRPO</a></div>
+<div class="menu-item"><a href="conjugate-gradient-method.html">Conjugate&nbsp;Gradient&nbsp;Method</a></div>
+<div class="menu-item"><a href="ppo.html">PPO</a></div>
+<div class="menu-item"><a href="double-q-learning.html">Double&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="td3.html">TD3</a></div>
+<div class="menu-item"><a href="nn-verification.html">NN&nbsp;Verification</a></div>
+<div class="menu-item"><a href="drl-verification.html">DRL&nbsp;Verification</a></div>
+<div class="menu-item"><a href="alphazero.html">AlphaZero&nbsp;(chess)</a></div>
+<div class="menu-item"><a href="bayes-theorem-for-probability-distributions.html">Bayes&rsquo;&nbsp;for&nbsp;Distributions</a></div>
+<div class="menu-item"><a href="backpropagation.html">Backpropagation</a></div>
+<div class="menu-item"><a href="off-policy-evaluation.html">Off-Policy&nbsp;Evaluation</a></div>
+<div class="menu-item"><a href="constrained-mdps.html">Constrained&nbsp;MDPs</a></div>
+<div class="menu-item"><a href="cpo.html">Constrained&nbsp;Policy&nbsp;<br />Optimization</a></div>
+<div class="menu-item"><a href="pid-lagrangian.html">PID&nbsp;Lagrangian</a></div>
+<div class="menu-item"><a href="successor-features.html">Successor&nbsp;Features</a></div>
+<div class="menu-item"><a href="policy-distillation.html">Policy&nbsp;Distillation</a></div>
+<div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
+<div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
+<div class="menu-item"><a href="cem.html">Cross-Entropy&nbsp;Method</a></div>
+<div class="menu-item"><a href="prior-data-fitted-network.html">Prior-Data&nbsp;Fitted&nbsp;Network</a></div>
+<div class="menu-item"><a href="TabPFN.html" class="current">TabPFN</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>TabPFN</h1>
+</div>
+<p><i>Revised June 16, 2026</i>
+</p>
+<p><i>The <a href="prior-data-fitted-network.html" target=&ldquo;blank&rdquo;>Prior-Data Fitted Network</a> and <a href="transformer.html" target=&ldquo;blank&rdquo;>Transformer</a> notes are optional but recommended background reading.</i>
+</p>
+<p>TabPFN specializes the <a href="prior-data-fitted-network.html" target=&ldquo;blank&rdquo;>Prior-Data Fitted Network</a> (PFN) framework to tabular prediction. A PFN training example is formed by sampling a dataset from a prior predictive distribution, selecting one labeled pair \((\mathbf{x},y)\) as the query, and using the remaining examples as the context dataset \(d\). The model \(Q_\theta\) is trained by minimizing the prior-data negative log-likelihood:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:prior-data-nll}
+    \ell_\theta = \mathbb{E}_{(d,\mathbf{x},y) \sim p(d,\mathbf{x},y)} \left[ -\log Q_\theta(y \mid \mathbf{x}, d) \right] \;.
+\end{equation}
+\]
+</p><p>The population minimizer of Equation \(\eqref{eq:prior-data-nll}\) <a href="prior-data-fitted-network.html" target=&ldquo;blank&rdquo;>equals the posterior predictive distribution under the prior that generated the training data</a>. A trained PFN therefore approximates Bayesian prediction with respect to that prior. Specifying TabPFN amounts to choosing the prior predictive distribution from which its tabular training tasks are sampled.
+</p>
+<p>Rather than defining this distribution over tables directly, TabPFN induces it from a prior over tabular data-generating mechanisms. Let \(\Phi\) denote a class of such mechanisms, and let \(p(\phi)\) denote a prior over \(\Phi\). The induced prior predictive distribution over datasets is:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:tabular-prior-predictive}
+    p(d) = \int_\Phi \color{red}{p(d \mid \phi)}\,\color{blue}{p(\phi)}\,d\phi \;.
+\end{equation}
+\]
+</p><p>Sampling from Equation \(\eqref{eq:tabular-prior-predictive}\) requires no explicit integration. Drawing \(\phi \sim \color{blue}{p(\phi)}\) and then \(d \sim \color{red}{p(d \mid \phi)}\) yields a marginal draw \(d \sim p(d)\). The tabular prior is therefore specified by the mechanism class \(\Phi\) and the prior \(\color{blue}{p(\phi)}\) over that class.
+</p>
+<h3>A Structural Causal Prior</h3>
+<p>We first consider the mechanism class \(\Phi\). Columns of real tables rarely vary independently; their dependencies are typically directed and asymmetric (e.g., a patient's age influences blood pressure but not conversely). Structural causal models (SCMs) are thus a natural mechanism class for tabular data. They generate each column through explicit structural assignments from other columns and noise variables, so dependence is part of the data-generating mechanism rather than an external modeling assumption.
+</p>
+<p>An SCM \(\phi = (G, \{f_i\}, \{p(\epsilon_i)\}, \mathbf{B})\) comprises a directed acyclic graph \(G\) over nodes \(\{z_1, \dots, z_k\}\), a deterministic mechanism \(f_i\) for each node, a noise distribution \(p(\epsilon_i)\) for each node, and (for classification) label thresholds \(\mathbf{B} = (B_1 &lt; \cdots &lt; B_{N_c - 1})\). Each node is computed from its parents in \(G\) and its own noise term:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:scm}
+    z_i = f_i\!\left(z_{\mathrm{PA}_G(i)},\, \epsilon_i\right) \;,
+\end{equation}
+\]
+</p><p>where \(\mathrm{PA}_G(i)\) denotes the parents of node \(i\). For example, the chain \(z_1 \to z_2 \to z_3\) with assignments \(z_1 = \epsilon_1\), \(z_2 = \tanh(w_1 z_1) + \epsilon_2\), and \(z_3 = w_2 z_2 + \epsilon_3\) defines a three-node SCM in which \(z_3\) depends on \(z_1\) only through \(z_2\).
+</p>
+<p>The noise terms are the only sources of randomness and are jointly independent, \(p(\boldsymbol{\epsilon}) = \prod_i p(\epsilon_i)\); given a draw of \((\epsilon_1, \dots, \epsilon_k)\), Equation \(\eqref{eq:scm}\) determines every node. Sampling the noise and evaluating the assignments in topological order therefore produces one joint draw of \((z_1, \dots, z_k)\). Designating a subset \(Z_X\) as features and one node \(z_y\) as the latent label value \(\hat y\) maps the draw to \((\mathbf{x},\hat y)\). For regression, \(y=\hat y\); for classification, \(y\) is obtained by applying Equation \(\eqref{eq:multiclass}\). The per-mechanism distribution \(p(\mathbf{x}, y \mid \phi)\) is the push-forward of the noise distribution through Equation \(\eqref{eq:scm}\), that is, the distribution over rows \((\mathbf{x},y)\) obtained by drawing noise \(\boldsymbol{\epsilon} \sim p(\boldsymbol{\epsilon})\), computing each node \(z_i\) from Equation \(\eqref{eq:scm}\), and retaining only the coordinates \((Z_X,z_y)\).
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>Discretizing the Label for Classification</b>
+</p>
+<p>The structural assignments of Equation \(\eqref{eq:scm}\) produce a real-valued label \(\hat{y}\). Classification into \(N_c\) classes discretizes this scalar at the thresholds \(B_1 &lt; \cdots &lt; B_{N_c - 1}\) carried in \(\phi\), drawn once (before the \(n\) rows) from the marginal range of \(\hat{y}\) under the mechanism:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:multiclass}
+    y = \sum_{j=1}^{N_c - 1} \mathbb{1}\!\left[B_j &lt; \hat{y}\right] \;.
+\end{equation}
+\]
+</p><p>The categorical distribution \(p(y \mid \mathbf{x}, \phi)\) is then the push-forward of \(p(\hat{y} \mid \mathbf{x}, \phi)\) through Equation \(\eqref{eq:multiclass}\).
+</p>
+</div></div>
+<p>Because the thresholds are fixed in \(\phi\), drawing the noise \(n\) times yields \(n\) rows that are i.i.d. conditional on \(\phi\), so, under this simplified prior, a dataset \(d = \{(\mathbf{x}_i, y_i)\}_{i=1}^n\) has per-mechanism likelihood:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}\label{eq:scm-likelihood}
+    \color{red}{p(d \mid \phi)} = \prod_{i=1}^n p(\mathbf{x}_i, y_i \mid \phi) &amp;&amp; \text{cf. red term in Equation } \eqref{eq:tabular-prior-predictive} \;.
+\end{align}
+\]
+</p><p>Because the features and the label are read from the same graph, their dependencies are induced by shared structure. The label node \(z_y\) may sit upstream or downstream of the feature nodes, so both causal and anticausal prediction problems fall within the class.
+</p>
+<p>Equations \(\eqref{eq:scm}\) and \(\eqref{eq:multiclass}\) specify how a single mechanism generates labeled rows, and Equation \(\eqref{eq:scm-likelihood}\) how it generates datasets; together they define the mechanism class \(\Phi\). The prior \(p(\phi)\) over this class remains to be chosen.
+</p>
+<h3>The Simplicity Prior and Its Effect on the Posterior</h3>
+<p>The prior \(p(\phi)\) shapes prediction through the posterior predictive distribution (the quantity the trained PFN approximates). Bayes&rsquo; rule gives the posterior \(p(\phi \mid \mathbf{x}, d) \propto p(\mathbf{x} \mid \phi)\,p(d \mid \phi)\,p(\phi)\), so the posterior predictive distribution is a mixture over mechanisms:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:ppd}
+    p(y \mid \mathbf{x}, d) \;=\; \frac{\int_\Phi p(y \mid \mathbf{x}, \phi)\, p(\mathbf{x} \mid \phi)\, p(d \mid \phi)\, p(\phi)\, d\phi}{\int_\Phi p(\mathbf{x} \mid \phi)\, p(d \mid \phi)\, p(\phi)\, d\phi} \;,
+\end{equation}
+\]
+</p><p>in which each mechanism contributes its prediction \(p(y \mid \mathbf{x}, \phi)\) with unnormalized weight \(\tilde w_{\mathbf{x}}(\phi) = p(\mathbf{x} \mid \phi)\, p(d \mid \phi)\, p(\phi)\), normalized to \(w_{\mathbf{x}}(\phi) = \tilde w_{\mathbf{x}}(\phi) / \int_\Phi \tilde w_{\mathbf{x}}(\phi&rsquo;)\, d\phi'\).
+</p>
+<p>The context dataset affects the posterior weight only through \(p(d \mid \phi)\), while the query feature vector affects the posterior only through \(p(\mathbf{x} \mid \phi)\), so mechanisms inducing the same observational distribution receive no relative preference from the observed rows. For a finite observational table, this equivalence class can be large, with many SCMs observationally equivalent. Two correlated columns, for example, are fit comparably well when the first drives the second, when the second drives the first, or when a hidden node drives both, separable only insofar as the mechanism class is identifiable. The prior \(p(\phi)\) therefore determines how the posterior predictive averages over these mechanisms, making \(p(\phi)\) a substantive modeling decision.
+</p>
+<p>In the idealized SCM prior considered here, this choice is resolved in accordance with Occam's razor by assigning simpler mechanisms higher prior probability. Let \(\ell(\phi)\) measure the complexity of a mechanism, for instance the number of bits required to encode a program that generates \(\phi\), or a structural proxy such as its node and parameter count. As an analytical idealization of the simplicity bias, one can write:
+</p>
+<p style="text-align:center">
+\[
+\begin{align}\label{eq:simplicity-prior}
+    \color{blue}{p(\phi)} \;\propto\; e^{-\lambda\, \ell(\phi)} \;, \qquad \lambda &gt; 0 &amp;&amp; \text{cf. blue term in Equation } \eqref{eq:tabular-prior-predictive} \;.
+\end{align}
+\]
+</p><div class="infoblock">
+<div class="blockcontent">
+<p><b>Sampling an SCM from a Computational Graph</b>
+</p>
+<p>Equation \(\eqref{eq:simplicity-prior}\) gives the probability of a mechanism but not a methodology for producing a mechanism. Such an SCM prior can be implemented by a sampling procedure, yielding a graph \(G\), the mechanisms \(f_i\), the noise distributions, and a choice of feature nodes \(Z_X\) and label node \(z_y\).
+</p>
+<p>The sampler draws an acyclic computational graph and assigns each node a structural mechanism that maps its parent values and a noise term to the node value. Feature nodes \(Z_X\) and a label node \(z_y\) are designated among the nodes. Each node thereby realizes a structural assignment of the form in Equation \(\eqref{eq:scm}\). One execution of this procedure yields one draw \(\phi \sim p(\phi)\).
+</p>
+</div></div>
+<p>Substituting Equation \(\eqref{eq:simplicity-prior}\) into the weight \(\tilde w_{\mathbf{x}}(\phi)\) gives:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:weight}
+    \tilde w_{\mathbf{x}}(\phi) \;\propto\; p(\mathbf{x} \mid \phi)\, p(d \mid \phi)\, e^{-\lambda\, \ell(\phi)} \;,
+\end{equation}
+\]
+</p><p>with the logarithm of Equation \(\eqref{eq:weight}\) separating the weight into a fit term and a complexity penalty:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}\label{eq:log-weight}
+    \log \tilde w_{\mathbf{x}}(\phi) = \log p(\mathbf{x} \mid \phi) + \log p(d \mid \phi) - \lambda\, \ell(\phi) + \text{const} \;.
+\end{equation*}
+\]
+</p><p>In this way, a mechanism contributes to the posterior predictive in proportion to its fit \(p(\mathbf{x} \mid \phi)\,p(d \mid \phi)\), discounted by its complexity factor \(e^{-\lambda\, \ell(\phi)}\), so the mixture of Equation \(\eqref{eq:ppd}\) is dominated by mechanisms that both explain the data and are simple.
+</p>
+<p>The strength of the fit term \(\log p(d \mid \phi)\) depends on the dataset size \(n\). By the factorization of Equation \(\eqref{eq:scm-likelihood}\), the fit accumulates one summand per row:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}\label{eq:loglik-scaling}
+    \log p(d \mid \phi) = \sum_{i=1}^n \log p(\mathbf{x}_i, y_i \mid \phi) \;.
+\end{equation*}
+\]
+</p><p>The penalty \(\lambda\,\ell(\phi)\), by contrast, is independent of \(n\). For large \(n\), the likelihood dominates and the posterior concentrates on the likelihood-optimal equivalence class; the prior persists only where that class is non-identifiable, as under unresolved causal direction or hidden confounding. For small \(n\) the two contributions are comparable, so the complexity penalty materially reshapes the weights \(w_{\mathbf{x}}(\phi)\). The simplicity prior thus exerts its strongest influence in the small-sample regime — precisely the setting in which TabPFN is applied, and in which the prior rather than the data alone determines the predictive distribution.
+</p>
+<h3>Training Summary</h3>
+<p>In the idealized PFN setup considered here, training comprises two stages: generation of synthetic tables from the assumed prior and fitting of \(Q_\theta\) to predict held-out labels on those tables. A table is generated in two steps. First, a mechanism \(\phi \sim p(\phi)\) is sampled. In the idealized SCM prior, \(\phi\) specifies an acyclic graph, node mechanisms, noise distributions, and the choice of feature and label nodes.
+</p>
+<p>Second, the sampled graph is evaluated on \(n\) independent noise draws. Each draw assigns one noise term to every node in the sampled graph. Evaluating Equation \(\eqref{eq:scm}\) at each node in topological order converts the draw into one realization of all node values. The values at the feature nodes \(Z_X\) fill the feature cells of one row; the value at the label node \(z_y\) supplies that row's label (discretized through Equation \(\eqref{eq:multiclass}\) for classification and left continuous for regression). The \(n\) noise draws thus yield one synthetic table \(D \sim p(D \mid \phi)\). Composing the mechanism draw \(\phi \sim p(\phi)\) with the table draw \(D \sim p(D \mid \phi)\) produces a table distributed according to the marginal \(p(D)\) of Equation \(\eqref{eq:tabular-prior-predictive}\), so generation samples the prior predictive distribution without evaluating its integral.
+</p>
+<p>Each table \(D\) is split into a context dataset \(d\) and one held-out query pair \((\mathbf{x}, y)\). \(Q_\theta\) receives the context and the query features \(\mathbf{x}\) and predicts the query label \(y\). Trained across many such tables by minimizing the prior-data negative log-likelihood of Equation \(\eqref{eq:prior-data-nll}\), \(Q_\theta\) approaches the population minimizer of that loss, the posterior predictive in Equation \(\eqref{eq:ppd}\). Training thereby distills Bayesian model averaging under the assumed synthetic prior into the parameters of \(Q_\theta\).
+</p>
+<h3>Architecture</h3>
+<p>The objective in Equation \(\eqref{eq:prior-data-nll}\) imposes a structural constraint on the model. Since the context dataset \(d\) is an unordered set, the prediction \(Q_\theta(y \mid \mathbf{x}, d)\) must be invariant to permutations of the examples in \(d\); relabeling the data indices cannot change the posterior predictive distribution \(p(y \mid \mathbf{x}, d)\). The approximator should preserve this symmetry by construction.
+</p>
+<p>PFNs enforce this invariance using a Transformer encoder without positional encodings. Each observed pair \((\mathbf{x}_i, y_i)\) is represented by a <i>context token</i>, formed by summing learned linear projections of \(\mathbf{x}_i\) and \(y_i\). Each query input \(\mathbf{x}\) is represented by a <i>query token</i>, formed from a learned projection of \(\mathbf{x}\) alone. As these representations are updated layer by layer, tokens exchange information <a href="transformer.html" target=&ldquo;blank&rdquo;>through attention</a>.
+</p>
+<p>Full self-attention, however, conflicts with the functional form of \(Q_\theta(y \mid \mathbf{x}, d)\), in which the prediction at a query position depends only on the query input \(\mathbf{x}\) and the context dataset \(d\). With every token attending to every other, the prediction at one query position would depend on which other queries were included in the same forward pass. PFNs therefore restrict attention by token type. Context tokens attend only to one another, so the representation of the dataset is computed from the observed examples alone and carries no information from any query. Query tokens attend only to context tokens, so each query reads the dataset but no other query. No attention path connects one query to another, so the prediction at a query position is unchanged by adding, removing, or reordering the other queries in the batch.
+</p>
+<p>Removing positional encodings and restricting attention by token type together enforce invariance over the rows of \(d\). The tabular hypothesis class imposes a second symmetry over feature columns. The order in which feature columns are listed carries no inherent meaning, so consistently permuting the columns of the context table and query should not change the prediction. Writing \(\sigma \cdot \mathbf{x}\) for the vector obtained by reordering the feature coordinates of \(\mathbf{x}\) by a permutation \(\sigma\), and \(\sigma \cdot d\) for the dataset obtained by applying the same reordering to every row of \(d\), \(Q_\theta\) should satisfy, in expectation over its random feature identifiers \(\mathbf{r}\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:feat-equivariance}
+    \mathbb{E}_{\mathbf{r}}\!\left[ Q_\theta(y \mid \sigma \cdot \mathbf{x},\, \sigma \cdot d;\, \mathbf{r}) \right] = \mathbb{E}_{\mathbf{r}}\!\left[ Q_\theta(y \mid \mathbf{x}, d;\, \mathbf{r}) \right] \qquad \text{for every permutation } \sigma \;,
+\end{equation}
+\]
+</p><p>by construction.
+</p>
+<p>The context and query tokens violate Equation \(\eqref{eq:feat-equivariance}\), since projecting the whole vector \(\mathbf{x}_i\) assigns each feature a fixed coordinate and thereby builds column identity into position. Thus, in modern TabPFN variants, table entries rather than whole feature vectors are tokenized, decoupling column identity from coordinate position. Feature values \(x_i^j\) are mapped to feature-cell tokens, while the target column encodes \(y_i\) for context rows and a learned mask token for query rows. A shared vector \(\mathbf{u}\) maps each scalar feature value to an \(h\)-dimensional token, with column identity supplied only by an added perturbation \(\mathbf{r}_j\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}\label{eq:rand-token}
+    \mathbf{token}_i^j = x_i^j \cdot \mathbf{u} + \mathbf{r}_j \;, \qquad \mathbf{r}_j = \mathbf{W} \mathbf{p}_j \;,
+\end{equation*}
+\]
+</p><p>where \(\mathbf{p}_j \in \mathbb{R}^{k&rsquo;}\) is drawn at random and \(\mathbf{W}\) is a learned projection. The same identifier \(\mathbf{r}_j\) is used for column \(j\) across all rows of the table.
+</p>
+<p>The perturbations \(\mathbf{r}_j\) encode no semantic feature identity; they serve only to make feature tokens distinguishable. Because the \(\mathbf{p}_j\) are exchangeable i.i.d. draws, a permutation \(\sigma\) of the column indices permutes the \(\mathbf{r}_j\) in distribution, and a permutation-equivariant attention over the feature tokens then satisfies Equation \(\eqref{eq:feat-equivariance}\) in expectation.
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>Why Random Identifiers Suffice</b>
+</p>
+<p>Random perturbations suffice as identifiers because independent high-dimensional Gaussian vectors are nearly orthogonal after normalization. For \(\mathbf{p}_j \sim \mathcal{N}(\mathbf{0}, \mathbf{I}_{k&rsquo;})\):
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}\label{eq:concentration}
+    \mathbb{E}\!\left[\mathbf{p}_j^\top \mathbf{p}_{j&rsquo;}\right] = 0 \;\; (j \neq j&rsquo;) \;, \qquad
+    \mathbb{E}\!\left[\|\mathbf{p}_j\|^2\right] = k&rsquo; \;.
+\end{equation*}
+\]
+</p><p>As \(k'\) grows, \(\mathbf{p}_j^\top \mathbf{p}_{j&rsquo;} / k'\) concentrates near \(0\) for \(j \neq j'\), while \(\|\mathbf{p}_j\|^2/k'\) concentrates near \(1\). The source vectors \(\mathbf{p}_j\) therefore form a set of near-orthogonal random identifiers, a continuous analog of one-hot encodings, which \(\mathbf{W}\) embeds into the token space.
+</p>
+</div></div>
+<p>These cell tokens are processed by alternating attention along the two table axes. Feature-axis attention operates within rows, while sample-axis attention operates within columns. The no-query-to-query restriction is imposed on sample-axis attention, so query rows attend to context rows but not to other query rows.
+</p>
+<p>The role of each column and its relation to the label are inferred from the context data; in Equation \(\eqref{eq:ppd}\), the predictive distribution depends on \(d\) rather than on column-specific parameters stored in \(\theta\).
+</p>
+<p>The final representation of each query's target cell is passed to a task-specific prediction head — a softmax head for classification or a <i>Riemann distribution</i> head for regression. During training, the numbers of context examples \(n\) and query points \(m\) are varied, usually with \(n + m\) fixed, so the trained model handles context datasets of varying size at inference time.
+</p>
+<div class="infoblock">
+<div class="blockcontent">
+<p><b>Using the Riemann Distribution for Regression</b>
+</p>
+<p>For regression, the prediction head restricts the family of posterior predictive distributions that \(Q_\theta\) can represent. A Gaussian head, for example, predicts only a mean and variance, so every predictive distribution is unimodal and symmetric. Under nontrivial priors, however, the true posterior predictive may be skewed, multimodal, or otherwise non-Gaussian.
+</p>
+<p>PFNs discretize the output space rather than commit to a fixed parametric family. The regression head predicts a categorical distribution over buckets, the probabilities for which induce a density over \(y\). This head produces bounded probabilities and represents skewed or multimodal shapes through the bucket probabilities alone.
+</p>
+<p>Let \(\mathcal{B}\) denote the set of buckets and \(Q_\theta(b \mid \mathbf{x}, d)\) the probability assigned to bucket \(b \in \mathcal{B}\). On finite-width buckets, the <i>Riemann distribution</i> assigns to each point \(y\) the density:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation}\label{eq:riemann}
+    Q_{\theta,\mathcal{B}}(y \mid \mathbf{x}, d) = \frac{Q_\theta(b(y) \mid \mathbf{x}, d)}{w(b(y))} \;,
+\end{equation}
+\]
+</p><p>where \(b(y)\) is the unique bucket containing \(y\) and \(w(b)\) the width of bucket \(b\). Dividing by the width converts probability mass into density. On finite-width buckets, Equation \(\eqref{eq:riemann}\) gives the density. For outer tail buckets, the assigned bucket probability scales a normalized half-normal tail density, so the full density still integrates to one. With fixed bucket boundaries, minimizing the density negative log-likelihood is equivalent to, up to the additive term \(\log w(b(y))\), cross-entropy on the bucket label.
+</p>
+<p>The bucket boundaries are set at empirical quantiles of \(y\) under the prior, computed from a large prior sample, so that each bucket carries approximately equal prior probability:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}
+    p(y \in b) \approx \frac{1}{|\mathcal{B}|} \quad \text{for all } b \in \mathcal{B} \;.
+\end{equation*}
+\]
+</p><p>This quantile-based partition allocates more buckets to regions where the prior places more mass and fewer where it places little. For priors with unbounded support, the two outer buckets are replaced by scaled half-normal tails, extending the density to the full real line while the partition stays finite.
+</p>
+<p>As the partition is refined, the Riemann family approximates a broad class of continuous densities. The Riemann head thus trades the rigid shapes of a fixed parametric family for a flexible piecewise-constant approximation with resolution controlled by the partition.
+</p>
+</div></div>
+<h3>Inference</h3>
+<p>At inference, the trained PFN applies the posterior-predictive map learned from the synthetic task prior. Given a context table \(d = \{(\mathbf{x}_i,y_i)\}_{i=1}^n\) and a query feature vector \(\mathbf{x}\), the fixed network returns:
+</p>
+<p style="text-align:center">
+\[
+\begin{equation*}\label{eq:amortized-ppd}
+    Q_{\theta^*}(y \mid \mathbf{x},d) \approx \color{green}{p(y \mid \mathbf{x},d)} \;.
+\end{equation*}
+\]
+</p><p>The green term denotes the Bayesian average in Equation \(\eqref{eq:ppd}\), an integral over the mechanism class \(\Phi\) that the forward pass approximates directly rather than by explicit inference over the mechanisms. For classification, a point prediction may be formed by selecting the most probable class: \( \hat{y} = \arg\max_y Q_{\theta^*}(y \mid \mathbf{x},d)\)
+</p>
+<p>No table-specific parameters are fit, no graph is recovered, no posterior sampler is run, and no gradient step is taken for the new table. Changing \(d\) changes the activations induced by the table, not the learned parameters. The output should therefore be read as an amortized posterior predictive, not a prediction from a selected DAG or a classifier retrained on \(d\).
+</p>
+<h3>References</h3>
+<dl>
+<dt><a href="https://arxiv.org/pdf/2112.10510" target=&ldquo;blank&rdquo;>Transformers Can Do Bayesian Inference</a>, ICLR (2022)</dt>
+<dd><p>Samuel Müller, Noah Hollmann, Sebastian Pineda Arango, Josif Grabocka, and Frank Hutter
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/abs/2207.01848" target=&ldquo;blank&rdquo;>TabPFN: A Transformer That Solves Small Tabular Classification Problems in a Second</a>, ICLR (2023)</dt>
+<dd><p>Noah Hollmann, Samuel Müller, Katharina Eggensperger, and Frank Hutter
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://www.nature.com/articles/s41586-024-08328-6" target=&ldquo;blank&rdquo;>Accurate Predictions on Small Data with a Tabular Foundation Model</a>, Nature (2025)</dt>
+<dd><p>Noah Hollmann, Samuel Müller, Lennart Purucker, Arjun Krishnakumar, Max Körfer, Shi Bin Hoo, Robin Tibor Schirrmeister, and Frank Hutter
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/abs/2502.17361" target=&ldquo;blank&rdquo;>A Closer Look at TabPFN v2: Understanding Its Strengths and Extending Its Capabilities</a>, NeurIPS (2025)</dt>
+<dd><p>Han-Jia Ye, Si-Yang Liu, and Wei-Lun Chao
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/abs/2511.08667" target=&ldquo;blank&rdquo;>TabPFN-2.5: Advancing the State of the Art in Tabular Foundation Models</a>, (2025)</dt>
+<dd><p>Léo Grinsztajn, Klemens Flöge, Oscar Key, et al.
+</p></dd>
+</dl>
+<dl>
+<dt><a href="https://arxiv.org/abs/1706.03762" target=&ldquo;blank&rdquo;>Attention Is All You Need</a>, NeurIPS (2017)</dt>
+<dd><p>Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan Gomez, Łukasz Kaiser, and Illia Polosukhin
+</p></dd>
+</dl>
+<div id="footer">
+<div id="footer-text">
+Page generated 2026-06-16 11:43:55 EDT, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+<!-- GoatCounter Analytics -->
+<script data-goatcounter="https://mattlanders.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js">
+</script>
+</head>
+<body>

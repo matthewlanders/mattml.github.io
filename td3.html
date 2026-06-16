@@ -21,7 +21,7 @@ MathJax.Hub.Config({
 <div class="menu-category">Matthew Landers</div>
 <div class="menu-item"><a href="index.html">Home</a></div>
 <div class="menu-item"><a href="industry-experience.html">Experience</a></div>
-<div class="menu-item"><a href="repos.html">Code</a></div>
+<div class="menu-item"><a href="implementations.html">Implementations</a></div>
 <div class="menu-item"><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a></div>
 <div class="menu-category">Notes</div>
 <div class="menu-item"><a href="about.html"><i>About&nbsp;these&nbsp;notes</i></a></div>
@@ -67,6 +67,8 @@ MathJax.Hub.Config({
 <div class="menu-item"><a href="kl-divergence.html">KL&nbsp;Divergence</a></div>
 <div class="menu-item"><a href="implicit-q-learning.html">Implicit&nbsp;Q-Learning</a></div>
 <div class="menu-item"><a href="cem.html">Cross-Entropy&nbsp;Method</a></div>
+<div class="menu-item"><a href="prior-data-fitted-network.html">Prior-Data&nbsp;Fitted&nbsp;Network</a></div>
+<div class="menu-item"><a href="TabPFN.html">TabPFN</a></div>
 </td>
 <td id="layout-content">
 <div id="toptitle">
@@ -75,6 +77,8 @@ MathJax.Hub.Config({
 <p><i>Revised June 19, 2025</i>
 </p>
 <p><i>The <a href="double-q-learning.html" target=&ldquo;blank&rdquo;>Double Q-learning</a> and <a href="ddpg.html" target=&ldquo;blank&rdquo;>DDPG</a> notes are optional but recommended background reading.</i>
+</p>
+<p><i>A code <a href="https://github.com/matthewlanders/implementations" target=&ldquo;blank&rdquo;>implementation</a> of the method described in this note is available as optional supplementary material.</i>
 </p>
 <p>In Q-learning, <a href="double-q-learning.html" target=&ldquo;blank&rdquo;>overestimation arises</a> from the use of the \(\max\) operator during bootstrapping — among multiple noisy estimates, the maximum is selected, introducing positive bias into the target. Although <a href="ddpg.html" target=&ldquo;blank&rdquo;>deterministic policy gradient (DPG)</a> methods avoid discrete maximization, they remain susceptible to overestimation due to the interaction between the actor and an approximate critic.
 </p>
@@ -96,7 +100,7 @@ MathJax.Hub.Config({
     \phi_\text{approx} = \phi_k + \frac{\alpha_k}{Z_1} \left. \nabla_\phi \mathbb{E}_{s \sim \mathcal{D}} \left[ Q(s, \pi(s;\phi); \theta) \right] \right|_{\phi = \phi_k} \;,
 \end{equation*}
 \]
-</p><p>where \(\alpha_k &gt; 0\) is the step size and \(Z_1 = \left. \nabla_\phi \mathbb{E}[\dots] \right|_{\phi_k}\) is the norm of the gradient, which serves as a normalization constant. The normalization term ensures that the update corresponds to a step of fixed length \(\alpha_k\) in the gradient direction. This scaling isolates the directional component of the update, simplifying comparison between updates derived from different objective functions. 
+</p><p>where \(\alpha_k &gt; 0\) is the step size and \(Z_1 = \left. \nabla_\phi \mathbb{E}[\dots] \right|_{\phi_k}\) is the norm of the gradient, which serves as a normalization constant. The normalization term ensures that the update corresponds to a step of fixed length \(\alpha_k\) in the gradient direction. This scaling isolates the directional component of the update, simplifying comparison between updates derived from different objective functions.
 </p>
 <p>Define \(\phi_\text{true}\) as the hypothetical update computed using the true action-value function \(Q(s,a)\):
 </p>
@@ -165,7 +169,7 @@ MathJax.Hub.Config({
     g_\theta = \left. \nabla_\phi J_\theta(\phi) \right|_{\phi_k}, \qquad g_\text{true} = \left. \nabla_\phi J_\text{true}(\phi) \right|_{\phi_k} \;.
 \end{equation*}
 \]
-</p><p>Let 
+</p><p>Let
 </p>
 <p style="text-align:center">
 \[
@@ -204,7 +208,7 @@ MathJax.Hub.Config({
 \[
 \begin{align*}
     g_\theta^\top g_\text{true} &amp;\le \|g_\theta\| \|g_\text{true}\| &amp;&amp; \text{by the Cauchy-Schwarz inequality} \\
-    &amp;\le Z_1 Z_2 &amp;&amp; \text{by Equation \eqref{eq:norm-definitions}} \\ 
+    &amp;\le Z_1 Z_2 &amp;&amp; \text{by Equation \eqref{eq:norm-definitions}} \\
     &amp;\Rightarrow \quad \frac{g_\theta^\top g_\text{true}}{Z_2} \le Z_1 &amp;&amp; \text{dividing both sides by } Z_2 \;.
 \end{align*}
 \]
@@ -282,7 +286,7 @@ MathJax.Hub.Config({
 \]
 </p><p>Equation \(\eqref{eq:error_accumulation}\) expresses the learned critic as the true return minus the discounted sum of TD errors. As \(\gamma \to 1\), even modest residuals can compound across updates, inflating variance and biasing the actor toward unreliable value estimates.
 </p>
-<p>TD3 mitigates high-variance targets by enforcing two structural constraints on the update schedule. First, target networks for both actor and critic are updated slowly via Polyak averaging: 
+<p>TD3 mitigates high-variance targets by enforcing two structural constraints on the update schedule. First, target networks for both actor and critic are updated slowly via Polyak averaging:
 </p>
 <p style="text-align:center">
 \[
@@ -340,7 +344,7 @@ MathJax.Hub.Config({
 </dl>
 <div id="footer">
 <div id="footer-text">
-Page generated 2026-02-03 09:41:09 EST, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+Page generated 2026-06-16 11:43:55 EDT, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
 </div>
 </div>
 </td>

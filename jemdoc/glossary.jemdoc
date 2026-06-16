@@ -168,6 +168,8 @@ $(\mathcal{T}_\pi V)(s) = \sum_a \pi(a\mid s)\,\mathbb{E}[r+\gamma V(s')\mid s,a
 
 == L
 
+: {LayerNorm} A normalization operation that rescales the activations within a single example, typically by subtracting their mean and dividing by their standard deviation across the feature dimension, then applying learned scale and shift parameters. In transformers, LayerNorm helps stabilize training by keeping hidden representations well-conditioned across layers (see the [transformer.html Transformer note]).
+
 : {*Lagrangian*} A function that augments an objective with constraint terms using Lagrange multipliers, typically of the form $\mathcal{L}(\theta,\lambda) = f(\theta) + \sum_i \lambda_i g_i(\theta)$, where $g_i(\theta)\le 0$ are constraints. Optimal solutions of constrained problems satisfy stationarity and complementary slackness conditions derived from the Lagrangian (see the [constrained-mdps.html Constrained MDPs note]).
 
 : {*Likelihood function*} A function of parameters $\theta$ defined by $L(\theta\mid x)=p_\theta(x)$, treating the observed data $x$ as fixed. It quantifies how well different parameter values explain the data and forms the basis for maximum-likelihood and Bayesian inference (see the [bayes-theorem-for-probability-distributions.html Bayes' Theorem for probability distributions note]).

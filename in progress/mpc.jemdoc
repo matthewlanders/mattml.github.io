@@ -1,7 +1,7 @@
 # jemdoc: menu{MENU}{mpc.html}
 = Model Predictive Control
 
-/Published January !!!, 2026/
+/Published February !!!, 2026/
 
 /The [cem.html Cross-Entropy Method note] is optional but recommended background reading./
 
@@ -27,8 +27,49 @@ difference from RL:
 - there is some setpoint or goal you want to reach
 - very expensive (full optimization at each timestep) — relies on fast hardware
 
+
+
+In MPC, there are two “loops,” and CEM only lives in the **inner** one:
+
+1) Inner loop: CEM optimization at the current state (s_t)
+
+Yes — in practice, **CEM stops after a fixed budget**, because MPC has a real-time deadline. Typical stopping rules are:
+
+* **Fixed number of CEM iterations** (T) (most common)
+* **Fixed number of samples** per iteration (N) (so total rollouts (=N\times T))
+* **Time budget** (stop when you hit, say, 10–50 ms)
+* Optional early stopping:
+
+  * best-so-far objective improvement below a tolerance
+  * covariance “collapse” (e.g., (\mathrm{tr}(\Sigma)) below a threshold)
+  * elite set degeneracy / ill-conditioning triggers fallback
+
+At the end of that inner solve, MPC applies either:
+
+* the **first action** of the best sequence (receding horizon), or
+* the **mean** of the final sampling distribution (common in MPPI-like variants),
+  then executes just that first action.
+
+2) Outer loop: MPC receding-horizon execution over time
+
+MPC itself repeats at every control step:
+
+s_t ;\rightarrow; \text{(run CEM for a bit)} ;\rightarrow; a_t ;\rightarrow; s_{t+1} ;\rightarrow; \cdots
+
+So MPC doesn’t “finish” until the episode/task ends, but **each CEM call is intentionally truncated**.
+
+### Practical detail you’ll see almost everywhere
+
+To make truncation work well, MPC+CEM usually **warm-starts** the next timestep by:
+
+* shifting the previous best action sequence forward by one step, and/or
+* initializing ((\mu,\Sigma)) from the previous iteration’s distribution (shifted in time),
+  sometimes with extra variance injected.
+
+So: **CEM in MPC almost always stops after a set number of iterations/samples or a time limit**, and MPC keeps running by re-solving from the new state each step.
+
+
 !!! Define system identification
-!!! Update glossary
 
 
 :{*Model Predictive Control (MPC)*} !!! (see the [mpc.html Model Predictive Control note]).
@@ -41,3 +82,8 @@ Method (CEM) Rubinstein (1997); Chua et al. (2018); Kobilarov (2012), or via Mod
 Path Integral
 
 === References
+
+https://www.ist.uni-stuttgart.de/research/group-of-frank-allgoewer/model-predictive-control/
+https://ialab.yale.edu/bloggy-blog/mpc-series/part1
+Exploring Model-based Planning with Policy Networks
+Model-Predictive Control via Cross-Entropy and Gradient-Based Optimization
