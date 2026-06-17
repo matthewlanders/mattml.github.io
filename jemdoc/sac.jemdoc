@@ -5,7 +5,7 @@
 
 /The [policy-gradients.html Policy Gradients] and [reparameterization-trick.html Reparameterization Trick] notes are optional but recommended background reading./
 
-/A code [https://github.com/matthewlanders/implementations implementation] of the method described in this note is available as optional supplementary material./
+/A code [implementations.html implementation] of the method described in this note is available as optional supplementary material./
 
 While [ddpg.html deep deterministic policy gradient (DDPG)] mitigates the sample inefficiency inherent in [glossary.html on-policy] RL, the interaction between its deterministic actor and Q-function often makes the algorithm challenging to stabilize and sensitive to hyperparameter tuning. Soft Actor-Critic (SAC) addresses these issues by combining off-policy training and a stochastic actor, yielding a more stable and scalable alternative to DDPG.
 

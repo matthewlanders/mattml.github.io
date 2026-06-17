@@ -5,7 +5,7 @@
 
 /The [double-q-learning.html Double Q-learning] and [ddpg.html DDPG] notes are optional but recommended background reading./
 
-/A code [https://github.com/matthewlanders/implementations implementation] of the method described in this note is available as optional supplementary material./
+/A code [implementations.html implementation] of the method described in this note is available as optional supplementary material./
 
 In Q-learning, [double-q-learning.html overestimation arises] from the use of the $\max$ operator during bootstrapping — among multiple noisy estimates, the maximum is selected, introducing positive bias into the target. Although [ddpg.html deterministic policy gradient (DPG)] methods avoid discrete maximization, they remain susceptible to overestimation due to the interaction between the actor and an approximate critic.
 

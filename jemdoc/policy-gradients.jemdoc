@@ -3,7 +3,7 @@
 
 /Revised December 31, 2024/
 
-/A code [https://github.com/matthewlanders/implementations implementation] of the method described in this note is available as optional supplementary material./
+/A code [implementations.html implementation] of the method described in this note is available as optional supplementary material./
 
 RL methods can be broadly divided into two classes: action-value methods and policy gradient methods. Action-value methods — which underlie classical algorithms such as [model-free-control.html Q-learning] and its derivatives like [deep-q-learning.html deep Q-learning] — select actions by estimating the expected return for each action in a given state. Policy gradient methods, by contrast, *do not reference a value function for action selection*. Instead, they directly optimize a parameterized policy $\pi(s, a; \theta)$.
 

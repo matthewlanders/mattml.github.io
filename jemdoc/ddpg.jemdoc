@@ -5,7 +5,7 @@
 
 /The [deep-q-learning.html Deep Q-learning], [actor-critic.html Actor-critic], and [policy-gradients.html Policy Gradients] notes are optional but recommended background reading./
 
-/A code [https://github.com/matthewlanders/implementations implementation] of the method described in this note is available as optional supplementary material./
+/A code [implementations.html implementation] of the method described in this note is available as optional supplementary material./
 
 [deep-q-learning.html Deep Q-learning] relies on a greedy action selection strategy, requiring the computation of a Q-value for every possible action in the current state. When the action space is large or continuous, however, enumerating all possible actions becomes computationally infeasible. Consequently, identifying the optimal action at each timestep involves solving an iterative optimization problem. For instance, using gradient ascent, the action can be defined as follows:
 

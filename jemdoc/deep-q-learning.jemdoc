@@ -5,7 +5,7 @@
 
 /The [model-free-control.html Model Free Control note] is optional but recommended background reading./
 
-/A code [https://github.com/matthewlanders/implementations implementation] of the method described in this note is available as optional supplementary material./
+/A code [implementations.html implementation] of the method described in this note is available as optional supplementary material./
 
 [model-free-control.html Classical RL approaches], commonly called /[glossary.html tabular methods]/, maintain a lookup table of values for each state or state-action pair to facilitate necessary updates. For instance, the Q-learning update rule:
 
