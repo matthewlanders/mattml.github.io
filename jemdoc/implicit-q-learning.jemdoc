@@ -155,6 +155,25 @@ where $\beta>0$ is a temperature parameter controlling how aggressively the poli
 {}{img_left}{static/images/iql/iql.png}{IQL pseudocode}{600px}
 ~~~
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Implicit Q-Learning." mattlanders.net, September 28, 2025. mattlanders.net/implicit-q-learning.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025implicit,
+  title = {Implicit Q-Learning},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {September},
+  url = "mattlanders.net/implicit-q-learning"
+}
+~~~
+
 === References
 
 : {[https://openreview.net/forum?id=68n2s9ZJWF8 Offline Reinforcement Learning with Implicit Q-Learning] (2021)}

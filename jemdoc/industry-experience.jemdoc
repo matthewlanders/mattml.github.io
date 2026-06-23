@@ -1,6 +1,14 @@
 # jemdoc: menu{MENU}{experience.html}
 = Industry Experience
 
+==== Bay Compute | Head of AI (Founding Team) | 2025 -- 2026
+- Designed and deployed a safety-constrained offline reinforcement learning controller that reduced power
+consumption by 20% with zero operational constraint violations
+- Built rack-level testing schedule optimizer that increased throughput by 32–50\%, improved average power
+utilization by 40–45\% , and recovered 175 kW of peak capacity
+- Architected physics-augmented simulation environment of production data centers to model nonlinear
+thermal, airflow, and power dynamics from operational telemetry
+
 ==== Stride Consulting | Senior Software Engineer | 2017 -- 2019
 
 /Client: Schonfeld Strategic Advisors | Hedge Fund/

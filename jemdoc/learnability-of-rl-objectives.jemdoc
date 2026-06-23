@@ -365,6 +365,25 @@ The other bootstrapping objectives, $\overline{\text{PBE}}$ and $\overline{\text
 Image from [http://incompleteideas.net/book/the-book-2nd.html Reinforcement Learning: An Introduction] (2018) by Richard S. Sutton and Andrew G. Barto. Two distinct Markov decision processes (MDPs) can generate identical data distributions but have different Bellman errors and minimizing parameter vectors. Consequently, Bellman error values cannot be learned, even with infinite data. Both the projected Bellman error and the TD error, along with their respective minima, can be directly learned from data. However, the parameter vectors minimizing these two objectives will generally differ.
 ~~~
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "The Learnability of RL Objectives." mattlanders.net, December 12, 2024. mattlanders.net/learnability-of-rl-objectives.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2024learnability,
+  title = {The Learnability of RL Objectives},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2024},
+  month = {December},
+  url = "mattlanders.net/learnability-of-rl-objectives"
+}
+~~~
+
 === References
 
 : {[http://incompleteideas.net/book/the-book-2nd.html Reinforcement Learning: An Introduction]

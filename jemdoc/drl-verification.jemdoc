@@ -15,6 +15,25 @@ Finally, DRL agents often operate under stochastic dynamics, arising from random
 
 Because standard DNN verification methods do not extend naturally to sequential, probabilistic settings, a distinct class of DRL verification methods has emerged. [https://dl.acm.org/doi/full/10.1145/3596444 Our open-access survey] provides a detailed overview of these techniques.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "DRL Verification." mattlanders.net, June 23, 2025. mattlanders.net/drl-verification.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025drl,
+  title = {DRL Verification},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {June},
+  url = "mattlanders.net/drl-verification"
+}
+~~~
+
 === References
 
 : {[https://dl.acm.org/doi/full/10.1145/3596444 Deep Reinforcement Learning Verification: A Survey] (2023)} Matthew Landers and Afsaneh Doryab

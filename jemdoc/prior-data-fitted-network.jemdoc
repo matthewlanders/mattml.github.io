@@ -160,6 +160,25 @@ The context $d$ provides information about the task through the input to the net
 
 The single-forward-pass approximation is only as good as the map learned during PFN training. The learned map depends on the expressiveness of $Q_\theta$, the success of optimization, and the prior predictive distribution from which training datasets were sampled. Thus, a PFN is not a prior-free inference machine — it amortizes Bayesian prediction for the data-generating assumptions encoded by its sampler. The amortization is also bounded computationally. A forward pass through the Transformer scales quadratically in the number of input tokens, and predictions are reliable only for context sizes within the range sampled during training. Specializing PFNs to a domain therefore means choosing both a sampler and an operating range for $n$; [TabPFN.html TabPFN] makes both choices for small tabular datasets.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Prior-Data Fitted Network." mattlanders.net, June 11, 2026. mattlanders.net/prior-data-fitted-network.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2026priordata,
+  title = {Prior-Data Fitted Network},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2026},
+  month = {June},
+  url = "mattlanders.net/prior-data-fitted-network"
+}
+~~~
+
 === References
 
 : {[https://arxiv.org/pdf/2112.10510 Transformers Can Do Bayesian Inference], ICLR (2022)} Samuel Müller, Noah Hollmann, Sebastian Pineda Arango, Josif Grabocka, and Frank Hutter

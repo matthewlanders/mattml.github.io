@@ -121,6 +121,25 @@ Finally, to ensure sufficient exploration, DDPG defines a behavior policy by add
 {}{img_left}{static/images/ddpg/ddpg.png}{deep deterministic policy gradient pseudocode}{600px}
 ~~
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Deep Deterministic Policy Gradient (DDPG)." mattlanders.net, January 9, 2025. mattlanders.net/ddpg.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025deep,
+  title = {Deep Deterministic Policy Gradient (DDPG)},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {January},
+  url = "mattlanders.net/ddpg"
+}
+~~~
+
 === References
 
 : {[https://proceedings.mlr.press/v32/silver14.pdf Deterministic Policy Gradient Algorithms], International Conference

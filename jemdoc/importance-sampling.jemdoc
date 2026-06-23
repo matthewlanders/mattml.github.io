@@ -141,6 +141,25 @@ For instance, with the one-step return, the update becomes:
 
 Because importance sampling is applied over shorter horizons, the compounding effects of importance sampling ratios are limited, resulting in smaller variance in TD learning compared to MC methods. This reduced sensitivity to discrepancies between the target policy and the behavior policy makes TD methods generally more stable for off-policy learning.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Importance Sampling." mattlanders.net, December 2, 2024. mattlanders.net/importance-sampling.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2024importance,
+  title = {Importance Sampling},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2024},
+  month = {December},
+  url = "mattlanders.net/importance-sampling"
+}
+~~~
+
 === References
 
 : {[http://incompleteideas.net/book/the-book-2nd.html Reinforcement Learning: An Introduction]

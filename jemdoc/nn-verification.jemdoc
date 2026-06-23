@@ -79,6 +79,25 @@ Verification proceeds once input intervals have been propagated through the enti
 
 While the interval domain has been applied to verify DNNs in complex settings such as image classification and natural language processing, it is non-relational — it fails to capture dependencies between input dimensions. This limitation often results in significant over-approximation of reachable sets. Relational domains such as neural [https://verifieddeeplearning.com/ zonotopes and neural polyhedra] can preserve input dependencies, yielding tighter bounds and improved verification precision.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Neural Network Verification." mattlanders.net, June 21, 2025. mattlanders.net/nn-verification.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025neural,
+  title = {Neural Network Verification},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {June},
+  url = "mattlanders.net/nn-verification"
+}
+~~~
+
 === References
 
 : {[http://theory.stanford.edu/~barrett/pubs/LAL+21.pdf Algorithms for verifying deep neural networks] (2021)} Changliu Liu, Tomer Arnon, Chris Lazarus, Christopher Strong, Clark Barrett, and Mykel J. Kochenderfer

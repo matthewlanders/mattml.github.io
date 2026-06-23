@@ -162,6 +162,25 @@ using 22 canonical basis functions:
 
 In general, any function approximator can be used to estimate the value function $\hat{V}(\theta)$. For instance, we can use a quadratic function $\hat{V}(s; \theta) = \theta_0 + \theta_1\phi_1(s) + \theta_2\phi_1(s)^2$ or a higher-order polynomial $\hat{V}(s; \theta) = \theta_0 + \theta_1\phi_1(s) + \theta_2\phi_1(s)^2 + \theta_3\phi_1(s)^3 + \dots$. However, as discussed in various notes including [deep-q-learning.html Deep Q-learning] and [policy-gradients.html Policy Gradients], most modern RL methods use a neural network function approximator.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Prediction with Function Approximation." mattlanders.net, October 29, 2024. mattlanders.net/prediction-with-function-approximation.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2024prediction,
+  title = {Prediction with Function Approximation},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2024},
+  month = {October},
+  url = "mattlanders.net/prediction-with-function-approximation"
+}
+~~~
+
 === References
 
 : {[http://incompleteideas.net/book/the-book-2nd.html Reinforcement Learning: An Introduction]

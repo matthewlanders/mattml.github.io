@@ -119,6 +119,25 @@ From here, we solve for $J(\pi)$ algebraically:
 
 Thus, for any $\gamma \in [0,1)$, the relative ranking of policies under the average discounted formulation is identical to that under the average-reward formulation, since the objectives differ only by a scaling factor.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "On-Policy Control with Function Approximation." mattlanders.net, November 4, 2024. mattlanders.net/on-policy-control-with-function-approximation.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2024onpolicy,
+  title = {On-Policy Control with Function Approximation},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2024},
+  month = {November},
+  url = "mattlanders.net/on-policy-control-with-function-approximation"
+}
+~~~
+
 === References
 
 : {[http://incompleteideas.net/book/the-book-2nd.html Reinforcement Learning: An Introduction] (2018)} Richard S. Sutton and Andrew G. Barto

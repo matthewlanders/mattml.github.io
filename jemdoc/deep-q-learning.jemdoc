@@ -145,6 +145,25 @@ To address the moving target problem, we introduce a second DQN $Q(\theta^-)$ pa
 {}{img_left}{static/images/deep-q-learning/deep-q-learning-with-experience-replay-and-target-network.png}{Deep Q learning with experience replay and target network pseudocode}{600px}
 ~~~
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Deep Q-learning." mattlanders.net, December 18, 2024. mattlanders.net/deep-q-learning.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2024deep,
+  title = {Deep Q-learning},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2024},
+  month = {December},
+  url = "mattlanders.net/deep-q-learning"
+}
+~~~
+
 === References
 
 : {[https://arxiv.org/pdf/1806.09460.pdf A tour of reinforcement learning: The view from continuous control] (2018)}

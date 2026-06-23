@@ -97,6 +97,25 @@ Both Policy and Value Iteration are guaranteed to converge to the optimal policy
 \)
 which satisfies the [value-functions-and-policies.html Bellman optimality equation]. A more formal proof is given in the [policy-and-value-iteration-proofs.html DP proofs note].
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Dynamic Programming for Solving MDPs." mattlanders.net, October 15, 2024. mattlanders.net/dynamic-programming-for-mdps.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2024dynamic,
+  title = {Dynamic Programming for Solving MDPs},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2024},
+  month = {October},
+  url = "mattlanders.net/dynamic-programming-for-mdps"
+}
+~~~
+
 === References
 
 : {[https://www.davidsilver.uk/teaching/ Planning by Dynamic Programming],

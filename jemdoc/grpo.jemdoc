@@ -104,6 +104,25 @@ which is an [glossary.html unbiased estimator] that is guaranteed to be non-nega
 
 Even in mathematical reasoning tasks, where rewards primarily reflect correctness, the reward model can become stale as the policy evolves. Math problems often require scoring along a continuum, accounting for partial solutions and intermediate steps rather than binary correctness. As the policy model discovers new reasoning strategies or solution formats, the reward model's ability to assess both chain-of-thought processes and final expressions may degrade unless it is exposed to these emerging patterns. To prevent this mismatch, new answers are sampled from the latest policy model and stored in a [glossary.html replay buffer], which also retains a smaller fraction (10% in the [https://arxiv.org/pdf/2402.03300 original paper]) of past training data. The reward model is then updated using this buffer. The policy model is trained for $M$ iterations with the updated reward model before the cycle repeats.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Group Relative Policy Optimization (GRPO)." mattlanders.net, February 22, 2025. mattlanders.net/grpo.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025group,
+  title = {Group Relative Policy Optimization (GRPO)},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {February},
+  url = "mattlanders.net/grpo"
+}
+~~~
+
 === References
 
 : {[https://arxiv.org/pdf/2402.03300 DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models] (2024)} Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Zhang, Mingchuan Zhang, Y.K. Li, Y. Wu,  and Daya Guo

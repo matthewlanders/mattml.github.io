@@ -502,6 +502,25 @@ This is precisely the [glossary.html Bellman optimality equation]. The optimal v
 
 This process — improving a policy by making it greedy with respect to the value function of the current policy — is called [dynamic-programming-for-mdps.html policy improvement]. Since Policy Iteration includes a policy improvement step, the policy improvement theorem guarantees that the new policy is strictly better than (or equally as good as) the previous policy. Convergence follows from the finiteness of the policy set, which forces the improvement process to terminate.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Policy and Value Iteration Proofs." mattlanders.net, October 17, 2024. mattlanders.net/policy-and-value-iteration-proofs.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2024policyvalueiteration,
+  title = {Policy and Value Iteration Proofs},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2024},
+  month = {October},
+  url = "mattlanders.net/policy-and-value-iteration-proofs"
+}
+~~~
+
 === References
 : {[https://sites.math.northwestern.edu/~scanez/courses/320/notes/metric-spaces.pdf Notes on Metric Spaces],
 Real Analysis (2020)} Santiago Cañez

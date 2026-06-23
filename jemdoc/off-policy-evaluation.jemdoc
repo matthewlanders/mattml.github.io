@@ -352,6 +352,25 @@ The first term estimates $J(\pi_e)$ from the learned Q-function. The second term
 
 The DRL estimator is consistent if either $\hat{Q}$ or $\hat{\mu}^*$ is correctly specified. This double robustness significantly improves reliability in practice. Furthermore, among a broad class of regular estimators, DRL attains the lowest possible asymptotic mean squared error, even when $\hat{Q}$ and $\hat{\mu}^*$ are learned via flexible, nonparametric models satisfying mild convergence conditions.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Off-Policy Evaluation." mattlanders.net, July 23, 2025. mattlanders.net/off-policy-evaluation.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025offpolicy,
+  title = {Off-Policy Evaluation},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {July},
+  url = "mattlanders.net/off-policy-evaluation"
+}
+~~~
+
 === References
 
 : {[https://arxiv.org/pdf/2212.06355.pdf A Review of Off-Policy Evaluation in Reinforcement Learning] (2022)} Masatoshi Uehara, Chengchun Shi, and Nathan Kallus

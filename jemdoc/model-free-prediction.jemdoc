@@ -207,6 +207,25 @@ Eligibility traces, while computationally more demanding than one-step methods, 
 {}{img_left}{static/images/model-free-prediction/td-lambda.png}{td lambda pseudocode}{600px}
 ~~~
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Model-Free Prediction." mattlanders.net, October 19, 2024. mattlanders.net/model-free-prediction.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2024modelfreeprediction,
+  title = {Model-Free Prediction},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2024},
+  month = {October},
+  url = "mattlanders.net/model-free-prediction"
+}
+~~~
+
 === References
 
 : {[https://www.davidsilver.uk/teaching/ Model-Free Prediction],

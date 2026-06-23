@@ -137,6 +137,25 @@ For regression, if $p_\pi(y\mid x)$ is Gaussian with mean $f_\pi(x)$ and fixed v
 \)
 for fixed variance $\sigma^2$. Thus, minimizing mean squared error coincides with forward KL under the Gaussian model. Both cross-entropy (classification) and squared error (regression) are therefore special cases of forward KL minimization.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Kullback–Leibler (KL) Divergence." mattlanders.net, September 2, 2025. mattlanders.net/kl-divergence.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025kullbackleibler,
+  title = {Kullback–Leibler (KL) Divergence},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {September},
+  url = "mattlanders.net/kl-divergence"
+}
+~~~
+
 === References
 
 : {[https://dibyaghosh.com/blog/probability/kldivergence KL Divergence for Machine Learning] (2018)} Dibya Ghosh

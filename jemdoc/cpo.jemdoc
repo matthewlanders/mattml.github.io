@@ -571,6 +571,25 @@ Here $\beta$ is chosen so that the quadratic KL approximation$\tfrac{1}{2}(\thet
 
 Unlike the primal update in Equation $\eqref{eq:optimal-primal}$, which balances objective improvement with feasibility, the recovery step is corrective only; its role is to restore feasibility, with no guarantee of improving the objective.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Constrained Policy Optimization (CPO)." mattlanders.net, August 21, 2025. mattlanders.net/cpo.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025cpo,
+  title = {Constrained Policy Optimization (CPO)},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {August},
+  url = "mattlanders.net/cpo"
+}
+~~~
+
 === References
 
 : {[https://arxiv.org/pdf/1705.10528 Constrained Policy Optimization], International conference on machine

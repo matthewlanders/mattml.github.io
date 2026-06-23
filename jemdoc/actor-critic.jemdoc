@@ -80,6 +80,25 @@ Note that the critic does not need to estimate the action-value function $Q(s, a
 {}{img_left}{static/images/actor-critic/one-step-actor-critic.png}{one step actor critic pseudocode}{600px}
 ~~
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Actor-Critic Framework." mattlanders.net, January 2, 2025. mattlanders.net/actor-critic.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025actorcritic,
+  title = {Actor-Critic Framework},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {January},
+  url = "mattlanders.net/actor-critic"
+}
+~~~
+
 === References
 
 : {[http://incompleteideas.net/book/the-book-2nd.html Reinforcement Learning: An Introduction]

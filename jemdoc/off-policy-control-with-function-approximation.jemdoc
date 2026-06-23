@@ -290,6 +290,25 @@ Resolving this bias using either of these approaches ensures that any function a
 
 Despite the learnability challenges of these objectives and the divergence risks inherent in naive semi-gradient methods, modern deep RL has achieved practical success. Contemporary approaches typically perform semi-gradient descent on the Mean Squared TD Error (TDE) objective, with each update driven by the TD error from a single experience. Stability in off-policy learning is attained not through true-gradient optimization but through techniques such as [glossary.html experience replay] and [glossary.html target networks].
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Off-Policy Control with Function Approximation." mattlanders.net, November 30, 2024. mattlanders.net/off-policy-control-with-function-approximation.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2024offpolicy,
+  title = {Off-Policy Control with Function Approximation},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2024},
+  month = {November},
+  url = "mattlanders.net/off-policy-control-with-function-approximation"
+}
+~~~
+
 === References
 
 : {[http://incompleteideas.net/book/the-book-2nd.html Reinforcement Learning: An Introduction]

@@ -294,6 +294,25 @@ The optimal action-value function $Q_*$ is derived by solving the /action-value 
 
 Unlike the Bellman expectation equations, the Bellman optimality equations introduce the $\max$ operator, which defines the greedy action and renders the equations non-linear. As a result, they cannot be solved directly as in Equation $\eqref{eq:bellman_matrix}$. Nonetheless, the Bellman optimality equations are foundational in reinforcement learning. As outlined in the [dynamic-programming-for-mdps.html dynamic programming for MDPs note], there are various iterative methods for solving these equations.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Value Functions and Policies." mattlanders.net, June 11, 2024. mattlanders.net/value-functions-and-policies.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2024value,
+  title = {Value Functions and Policies},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2024},
+  month = {June},
+  url = "mattlanders.net/value-functions-and-policies"
+}
+~~~
+
 === References
 
 : {[https://www.davidsilver.uk/teaching/ Markov Decision Processes], Lectures on Reinforcement Learning (2015)} David Silver

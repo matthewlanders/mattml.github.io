@@ -399,6 +399,25 @@ As in a standard DQN, the target network is updated by periodic copying from the
 {}{img_left}{static/images/double-dqn/double-q-learning.png}{double q-learning pseudocode}{600px}
 ~~~
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Double Q-learning." mattlanders.net, June 16, 2025. mattlanders.net/double-q-learning.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025double,
+  title = {Double Q-learning},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {June},
+  url = "mattlanders.net/double-q-learning"
+}
+~~~
+
 === References
 
 :{[https://papers.nips.cc/paper_files/paper/2010/file/091d584fced301b442654dd8c23b3fc9-Paper.pdf Double Q-learning],

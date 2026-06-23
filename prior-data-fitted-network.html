@@ -237,6 +237,24 @@ MathJax.Hub.Config({
 </p>
 <p>The single-forward-pass approximation is only as good as the map learned during PFN training. The learned map depends on the expressiveness of \(Q_\theta\), the success of optimization, and the prior predictive distribution from which training datasets were sampled. Thus, a PFN is not a prior-free inference machine — it amortizes Bayesian prediction for the data-generating assumptions encoded by its sampler. The amortization is also bounded computationally. A forward pass through the Transformer scales quadratically in the number of input tokens, and predictions are reliable only for context sizes within the range sampled during training. Specializing PFNs to a domain therefore means choosing both a sampler and an operating range for \(n\); <a href="TabPFN.html" target=&ldquo;blank&rdquo;>TabPFN</a> makes both choices for small tabular datasets.
 </p>
+<h3>Citation</h3>
+<div class="codeblock">
+<div class="blocktitle">To cite this note, use:</div>
+<div class="blockcontent"><pre>
+Landers, Matthew. "Prior-Data Fitted Network." mattlanders.net, June 11, 2026. mattlanders.net/prior-data-fitted-network.
+</pre></div></div>
+<div class="codeblock">
+<div class="blocktitle">Or use Bibtex:</div>
+<div class="blockcontent"><pre>
+@article{landers2026priordata,
+  title = {Prior-Data Fitted Network},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2026},
+  month = {June},
+  url = "mattlanders.net/prior-data-fitted-network"
+}
+</pre></div></div>
 <h3>References</h3>
 <dl>
 <dt><a href="https://arxiv.org/pdf/2112.10510" target=&ldquo;blank&rdquo;>Transformers Can Do Bayesian Inference</a>, ICLR (2022)</dt>
@@ -255,7 +273,7 @@ MathJax.Hub.Config({
 </dl>
 <div id="footer">
 <div id="footer-text">
-Page generated 2026-06-17 10:51:45 EDT, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+Page generated 2026-06-18 14:00:16 EDT, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
 </div>
 </div>
 </td>

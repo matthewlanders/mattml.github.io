@@ -561,6 +561,25 @@ To make optimization tractable, TRPO avoids explicitly computing $H^{-1}$. Inste
 {}{img_left}{static/images/trpo/pseudocode.png}{TRPO pseudocode}{600px}
 ~~~
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Trust Region Policy Optimization (TRPO)." mattlanders.net, April 9, 2025. mattlanders.net/trpo.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025trust,
+  title = {Trust Region Policy Optimization (TRPO)},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {April},
+  url = "mattlanders.net/trpo"
+}
+~~~
+
 === References
 
 : {[https://arxiv.org/pdf/1502.05477.pdf Trust Region Policy Optimization], International conference on machine

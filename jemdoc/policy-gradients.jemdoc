@@ -243,6 +243,25 @@ exists and is independent of $s_0$. In an ergodic MDP, the influence of the init
 
 The proof of the Policy Gradient Theorem for the continuing case is fundamentally the same as in the episodic case. For the full proof see chapter 13.6 in [http://incompleteideas.net/book/the-book-2nd.html Reinforcement Learning: An Introduction] (2018) by Richard S. Sutton and Andrew G. Barto.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Policy Gradients." mattlanders.net, December 31, 2024. mattlanders.net/policy-gradients.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2024policygradients,
+  title = {Policy Gradients},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2024},
+  month = {December},
+  url = "mattlanders.net/policy-gradients"
+}
+~~~
+
 === References
 
 : {[http://incompleteideas.net/book/the-book-2nd.html Reinforcement Learning: An Introduction]

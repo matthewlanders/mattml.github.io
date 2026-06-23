@@ -110,6 +110,25 @@ The first 56 planes encode "queen moves" for any piece — translations along on
 
 This representation includes many syntactically valid but illegal moves, such as moving a piece from an empty square or capturing one's own piece. AlphaZero does not train the network to avoid such moves. Instead, it masks out illegal actions at inference time by setting their probabilities to zero and re-normalizing over the remaining legal moves.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "AlphaZero." mattlanders.net, June 25, 2025. mattlanders.net/alphazero.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025alphazero,
+  title = {AlphaZero},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {June},
+  url = "mattlanders.net/alphazero"
+}
+~~~
+
 === References
 
 : {[https://oscarbalcells.com/assets/nnue_paper_english.pdf Efficiently updatable neural-network-based evaluation functions for computer shogi] (2018)} Yu Nasu

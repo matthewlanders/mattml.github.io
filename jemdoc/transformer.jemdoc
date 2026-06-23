@@ -623,6 +623,25 @@ n & - &
 \end{array}
 \)
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Transformer." mattlanders.net, March 6, 2025. mattlanders.net/transformer.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025transformer,
+  title = {Transformer},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {March},
+  url = "mattlanders.net/transformer"
+}
+~~~
+
 === References
 
 : {[https://arxiv.org/pdf/1706.03762 Attention Is All You Need] (2017)} Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin

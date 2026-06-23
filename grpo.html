@@ -175,6 +175,24 @@ MathJax.Hub.Config({
 <h3>Iterative RL with GRPO</h3>
 <p>Even in mathematical reasoning tasks, where rewards primarily reflect correctness, the reward model can become stale as the policy evolves. Math problems often require scoring along a continuum, accounting for partial solutions and intermediate steps rather than binary correctness. As the policy model discovers new reasoning strategies or solution formats, the reward model's ability to assess both chain-of-thought processes and final expressions may degrade unless it is exposed to these emerging patterns. To prevent this mismatch, new answers are sampled from the latest policy model and stored in a <a href="glossary.html" target=&ldquo;blank&rdquo;>replay buffer</a>, which also retains a smaller fraction (10% in the <a href="https://arxiv.org/pdf/2402.03300" target=&ldquo;blank&rdquo;>original paper</a>) of past training data. The reward model is then updated using this buffer. The policy model is trained for \(M\) iterations with the updated reward model before the cycle repeats.
 </p>
+<h3>Citation</h3>
+<div class="codeblock">
+<div class="blocktitle">To cite this note, use:</div>
+<div class="blockcontent"><pre>
+Landers, Matthew. "Group Relative Policy Optimization (GRPO)." mattlanders.net, February 22, 2025. mattlanders.net/grpo.
+</pre></div></div>
+<div class="codeblock">
+<div class="blocktitle">Or use Bibtex:</div>
+<div class="blockcontent"><pre>
+@article{landers2025group,
+  title = {Group Relative Policy Optimization (GRPO)},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {February},
+  url = "mattlanders.net/grpo"
+}
+</pre></div></div>
 <h3>References</h3>
 <dl>
 <dt><a href="https://arxiv.org/pdf/2402.03300" target=&ldquo;blank&rdquo;>DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models</a> (2024)</dt>
@@ -188,7 +206,7 @@ MathJax.Hub.Config({
 </dl>
 <div id="footer">
 <div id="footer-text">
-Page generated 2026-06-17 10:51:45 EDT, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
+Page generated 2026-06-18 14:00:15 EDT, by <a href="https://github.com/wsshin/jemdoc_mathjax" target="blank">jemdoc+MathJax</a>.
 </div>
 </div>
 </td>

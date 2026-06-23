@@ -170,6 +170,25 @@ The reparameterization trick replaces the randomness induced by the model parame
 
 In effect, the reparameterization trick eliminates the need for the derivation that produced the red term in Equation $\eqref{eq:reparameterization-2}$. Consequently, it avoids the reliance on the log-derivative trick and its inherently high-variance gradient estimates.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "The Reparameterization Trick." mattlanders.net, January 29, 2025. mattlanders.net/reparameterization-trick.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025reparameterization,
+  title = {The Reparameterization Trick},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {January},
+  url = "mattlanders.net/reparameterization-trick"
+}
+~~~
+
 === References
 
 : {[https://gregorygundersen.com/blog/2018/04/29/reparameterization/ The Reparameterization Trick] (2018)} Gregory Gundersen

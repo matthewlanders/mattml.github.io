@@ -304,6 +304,25 @@ once $Q(s,a)=\psi^\pi(s,a)^\top \mathbf{w}$ is known. In continuous $\mathcal{A}
 \)
 a non-convex optimization at each decision point, which prevents direct recovery of a policy from the successor feature representation.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Successor Features." mattlanders.net, August 28, 2025. mattlanders.net/successor-features.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025successor,
+  title = {Successor Features},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {August},
+  url = "mattlanders.net/successor-features"
+}
+~~~
+
 === References
 
 : {[https://arxiv.org/pdf/1708.00102.pdf Advantages and Limitations of using Successor Features for Transfer in Reinforcement Learning], International Conference on Machine Learning (2017)} Lucas Lehnert, Stefanie Tellex, and Michael L Littman

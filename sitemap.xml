@@ -7,6 +7,7 @@
   <url><loc>https://mattlanders.net/alphazero.html</loc></url>
   <url><loc>https://mattlanders.net/backpropagation.html</loc></url>
   <url><loc>https://mattlanders.net/bayes-theorem-for-probability-distributions.html</loc></url>
+  <url><loc>https://mattlanders.net/cem.html</loc></url>
   <url><loc>https://mattlanders.net/conjugate-gradient-method.html</loc></url>
   <url><loc>https://mattlanders.net/constrained-mdps.html</loc></url>
   <url><loc>https://mattlanders.net/cpo.html</loc></url>
@@ -15,8 +16,10 @@
   <url><loc>https://mattlanders.net/double-q-learning.html</loc></url>
   <url><loc>https://mattlanders.net/drl-verification.html</loc></url>
   <url><loc>https://mattlanders.net/dynamic-programming-for-mdps.html</loc></url>
+  <url><loc>https://mattlanders.net/experience.html</loc></url>
   <url><loc>https://mattlanders.net/glossary.html</loc></url>
   <url><loc>https://mattlanders.net/grpo.html</loc></url>
+  <url><loc>https://mattlanders.net/implementations.html</loc></url>
   <url><loc>https://mattlanders.net/implicit-q-learning.html</loc></url>
   <url><loc>https://mattlanders.net/importance-sampling.html</loc></url>
   <url><loc>https://mattlanders.net/kl-divergence.html</loc></url>
@@ -35,10 +38,12 @@
   <url><loc>https://mattlanders.net/policy-gradients.html</loc></url>
   <url><loc>https://mattlanders.net/ppo.html</loc></url>
   <url><loc>https://mattlanders.net/prediction-with-function-approximation.html</loc></url>
+  <url><loc>https://mattlanders.net/prior-data-fitted-network.html</loc></url>
   <url><loc>https://mattlanders.net/pseudocode.html</loc></url>
   <url><loc>https://mattlanders.net/reparameterization-trick.html</loc></url>
   <url><loc>https://mattlanders.net/sac.html</loc></url>
   <url><loc>https://mattlanders.net/successor-features.html</loc></url>
+  <url><loc>https://mattlanders.net/TabPFN.html</loc></url>
   <url><loc>https://mattlanders.net/td3.html</loc></url>
   <url><loc>https://mattlanders.net/the-deadly-triad.html</loc></url>
   <url><loc>https://mattlanders.net/transformer.html</loc></url>

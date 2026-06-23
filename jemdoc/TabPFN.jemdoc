@@ -212,6 +212,25 @@ The green term denotes the Bayesian average in Equation $\eqref{eq:ppd}$, an int
 
 No table-specific parameters are fit, no graph is recovered, no posterior sampler is run, and no gradient step is taken for the new table. Changing $d$ changes the activations induced by the table, not the learned parameters. The output should therefore be read as an amortized posterior predictive, not a prediction from a selected DAG or a classifier retrained on $d$.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "TabPFN." mattlanders.net, June 16, 2026. mattlanders.net/TabPFN.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2026tabpfn,
+  title = {TabPFN},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2026},
+  month = {June},
+  url = "mattlanders.net/TabPFN"
+}
+~~~
+
 === References
 
 : {[https://arxiv.org/pdf/2112.10510 Transformers Can Do Bayesian Inference], ICLR (2022)} Samuel Müller, Noah Hollmann, Sebastian Pineda Arango, Josif Grabocka, and Frank Hutter

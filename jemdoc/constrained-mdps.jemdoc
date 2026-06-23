@@ -573,6 +573,25 @@ which can be optimized using any policy optimization method. In gradient-based p
 
 Because the dual objective lower bounds the primal objective, a zero duality gap guarantees that solving the dual yields the same optimal value as solving the primal directly. In the tabular setting, constrained reinforcement learning satisfies this property exactly. With parameterized policies, the duality gap is bounded linearly by the approximation error and can be reduced arbitrarily by increasing the representational capacity of $\pi_\theta$.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Constrained Markov Decision Processes." mattlanders.net, August 13, 2025. mattlanders.net/constrained-mdps.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025constrainedmdps,
+  title = {Constrained Markov Decision Processes},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {August},
+  url = "mattlanders.net/constrained-mdps"
+}
+~~~
+
 === References
 
 : {[http://readingsml.blogspot.com/2020/03/constrained-mdps-and-reward-hypothesis.html Constrained MDPs and the reward hypothesis] (2020)} Csaba Szepesvari

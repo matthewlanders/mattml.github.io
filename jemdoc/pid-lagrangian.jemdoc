@@ -107,6 +107,25 @@ where $0 \leq u_k = \lambda_k/(1+\lambda_k) \leq 1$. With this normalization, $\
 
 When $\lambda=1$, the reward and cost gradients are scaled to have equal norm, so the update is balanced and $\lambda$ directly controls their relative weighting.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "PID Lagrangian." mattlanders.net, August 22, 2025. mattlanders.net/pid-lagrangian.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025pid,
+  title = {PID Lagrangian},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {August},
+  url = "mattlanders.net/pid-lagrangian"
+}
+~~~
+
 === References
 
 : {[https://arxiv.org/pdf/2007.03964.pdf Responsive Safety in Reinforcement Learning by PID Lagrangian Methods], International Conference on Machine Learning (2020)} Adam Stooke, Joshua Achiam, and Pieter Abbeel

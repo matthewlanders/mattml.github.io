@@ -146,6 +146,25 @@ Results computed with step size $\alpha = 0.01$, $\gamma = 0.99$, and initial pa
 
 There are also counterexamples, similar to Baird’s, demonstrating divergence in Q-learning. However, the conditions under which divergence occurs are not well understood. This is particularly concerning because Q-learning otherwise provides the strongest convergence guarantees among control methods and serves as the foundation for many modern RL algorithms, such as [deep-q-learning.html deep Q-learning]. Significant effort has been devoted to addressing this issue or establishing weaker but practical convergence guarantees. For instance, although standard deep Q-learning lacks formal convergence guarantees, some results have been obtained for a related algorithm, [https://link.springer.com/chapter/10.1007/11564096_32 Neural-Fitted Q Iteration], when combined with deep ReLU networks. Moreover, convergence in Q-learning may still be achievable if the behavior policy is sufficiently close to the target policy, as in the case of an $\epsilon$-greedy policy.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "The Deadly Triad." mattlanders.net, December 16, 2024. mattlanders.net/the-deadly-triad.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2024deadly,
+  title = {The Deadly Triad},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2024},
+  month = {December},
+  url = "mattlanders.net/the-deadly-triad"
+}
+~~~
+
 === References
 
 : {[http://incompleteideas.net/book/the-book-2nd.html Reinforcement Learning: An Introduction]

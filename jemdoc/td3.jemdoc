@@ -260,6 +260,25 @@ This target preserves the conservative bias of Clipped Double Q-learning while r
 {}{img_left}{static/images/td3/td3.png}{TD3 pseudocode}{600px}
 ~~
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Twin Delayed Deep Deterministic Policy Gradients (TD3)." mattlanders.net, June 19, 2025. mattlanders.net/td3.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025twin,
+  title = {Twin Delayed Deep Deterministic Policy Gradients (TD3)},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {June},
+  url = "mattlanders.net/td3"
+}
+~~~
+
 === References
 
 : {[https://arxiv.org/pdf/1802.09477 Addressing Function Approximation Error in Actor-Critic Methods] (2018)} Scott Fujimoto, Herke van Hoof, and David Meger

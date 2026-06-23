@@ -324,6 +324,25 @@ To mitigate [glossary.html overestimation bias], SAC uses two independently trai
 {}{img_left}{static/images/sac/sac.png}{soft actor-critic pseudocode}{600px}
 ~~~
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Soft Actor-Critic (SAC)." mattlanders.net, February 6, 2025. mattlanders.net/sac.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025soft,
+  title = {Soft Actor-Critic (SAC)},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {February},
+  url = "mattlanders.net/sac"
+}
+~~~
+
 === References
 
 : {[https://arxiv.org/pdf/1801.01290.pdf Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with

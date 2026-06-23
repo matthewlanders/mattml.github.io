@@ -217,6 +217,25 @@ Backpropagation transforms what would otherwise be an exponential calculation in
 {}{img_left}{static/images/backpropagation/backpropagation.png}{backpropagation pseudocode}{600px}
 ~~~
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Backpropagation." mattlanders.net, July 15, 2025. mattlanders.net/backpropagation.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025backpropagation,
+  title = {Backpropagation},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {July},
+  url = "mattlanders.net/backpropagation"
+}
+~~~
+
 === References
 
 : {[http://neuralnetworksanddeeplearning.com/index.html Neural Networks and Deep Learning] (2015)} Michael Nielsen

@@ -350,6 +350,25 @@ CEM, by contrast, is applied as an online constrained optimization procedure at 
 {}{img_left}{static/images/cem/cem.png}{cem pseudocode}{600px}
 ~~~
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Cross-Entropy Method." mattlanders.net, February 3, 2026. mattlanders.net/cem.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2026crossentropy,
+  title = {Cross-Entropy Method},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2026},
+  month = {February},
+  url = "mattlanders.net/cem"
+}
+~~~
+
 === References
 
 : {[https://people.smp.uq.edu.au/DirkKroese/ps/CEopt.pdf The Cross-Entropy Method for Optimization] (2013)} Zdravko Botev, Dirk Kroese, Reuven Rubinstein, and Pierre L'ecuyer

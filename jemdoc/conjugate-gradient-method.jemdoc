@@ -520,6 +520,25 @@ In summary, CG proceeds by first moving in the direction of steepest descent ($\
 {}{img_left}{static/images/cg-method/pseudocode.png}{conjugate gradient pseudocode}{600px}
 ~~~
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Conjugate Gradient Method." mattlanders.net, May 26, 2025. mattlanders.net/conjugate-gradient-method.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025conjugate,
+  title = {Conjugate Gradient Method},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {May},
+  url = "mattlanders.net/conjugate-gradient-method"
+}
+~~~
+
 === References
 
 : {[https://www.cs.cmu.edu/~quake-papers/painless-conjugate-gradient.pdf An Introduction to the Conjugate Gradient Method Without the Agonizing Pain] (1994)} Jonathan Richard Shewchuk

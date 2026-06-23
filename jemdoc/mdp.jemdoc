@@ -62,6 +62,25 @@ where $T$ is the finite horizon, or the episode's endpoint.
 
 Regardless of whether the task is episodic or continuing, the agent cannot be myopic. That is, it must consider both the short- and long-term consequences of its actions. By construction, both $\eqref{eq:mdp-rewards}$ and $\eqref{eq:finite-mdp-rewards}$ capture this tradeoff.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Markov Decision Processes." mattlanders.net, June 11, 2024. mattlanders.net/mdp.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2024markov,
+  title = {Markov Decision Processes},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2024},
+  month = {June},
+  url = "mattlanders.net/mdp"
+}
+~~~
+
 === References
 
 : {[https://www.davidsilver.uk/teaching/ Markov Decision Processes],

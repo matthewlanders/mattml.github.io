@@ -5,7 +5,7 @@
 {}{raw}
 <table class="imgtable" id="bio-table"><tr><td>
 <img src="static/images/Matt_Landers.jpg" alt="image of Matt Landers" />&nbsp;</td>
-<td align="left"><p>Computer Science PhD Candidate at the University of Virginia
+<td align="left"><p>AI Researcher, Member of Technical Staff at Plastic Labs
 </p>
 <p><a href="static/Matthew_Landers_CV.pdf" target="blank">CV</a> · <a href="https://scholar.google.com/citations?user=yiWlY9IAAAAJ&hl=en" target="blank">Google Scholar</a> · <a href="https://www.linkedin.com/in/mattmlanders/" target="blank">LinkedIn</a>
 </p>
@@ -14,9 +14,13 @@
 </td></tr></table>
 ~~~
 
-I am a Computer Science PhD Candidate at the University of Virginia, advised by Tom Hartvigsen and Afsaneh Doryab. My research examines how to make reinforcement learning work in *real-world settings*. I am particularly interested in *offline RL*, where agents must learn from fixed logs of data, and in settings with large, discrete, *combinatorial action spaces*.
+I am a Member of Technical Staff at Plastic Labs, where I work on memory and reasoning systems for AI agents.
 
-Previously, I earned my M.S. from Johns Hopkins University (advised by Suchi Saria) and spent several years as a senior software engineer and startup founder. I operate at the intersection of rigorous theory and production engineering, building control systems that are scalable, reliable, and deployable.
+I earned my Ph.D. in Computer Science from the University of Virginia, advised by Tom Hartvigsen and Afsaneh Doryab, and my M.S. in Computer Science from Johns Hopkins University, advised by Suchi Saria.
+
+In my research, I focus on structured and scalable reinforcement learning for high-dimensional decision-making, with applications to foundation models, agents, and real-world control systems.
+
+[industry-experience.html Previously], I applied reinforcement learning to production control systems and spent several years as a software engineer and startup founder.
 
 === Papers
 

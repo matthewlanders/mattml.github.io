@@ -203,6 +203,25 @@ and every point inside the interval has posterior density at least as great as a
 
 In many common cases, such as when the posterior is unimodal and the interval lies strictly within the support, the endpoints satisfy $\pi(L \mid \mathbf{X}) = \pi(U \mid \mathbf{X})$. However, this condition does not hold in general. For example, when the posterior is U-shaped (e.g., $\alpha_{\text{post}} < 1$ and $\beta_{\text{post}} < 1$), or when it concentrates at the boundary (e.g., $\text{Beta}(0.5, 2)$), the HPD interval may include $0$ or $1$ as an endpoint, where the density may be infinite or behave asymmetrically. In such cases, the defining property of the HPD interval is not that the density is equal at the endpoints, but that the interval is the shortest one containing the desired posterior mass.
 
+=== Citation
+
+~~~
+{To cite this note, use:}{}
+Landers, Matthew. "Bayes' Theorem for Probability Distributions." mattlanders.net, July 10, 2025. mattlanders.net/bayes-theorem-for-probability-distributions.
+~~~
+
+~~~
+{Or use Bibtex:}{}
+@article{landers2025bayes,
+  title = {Bayes' Theorem for Probability Distributions},
+  author = {Landers, Matthew},
+  journal = {mattlanders.net},
+  year = {2025},
+  month = {July},
+  url = "mattlanders.net/bayes-theorem-for-probability-distributions"
+}
+~~~
+
 === References
 : {[https://link.springer.com/chapter/10.1007/978-0-387-71265-9_3 Basics of Bayesian Statistics],
 Introduction to Applied Bayesian Statistics and Estimation for Social Scientists (2007)} Scott M. Lynch
